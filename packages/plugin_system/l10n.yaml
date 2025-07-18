@@ -1,0 +1,47 @@
+# Flutter国际化配置文件
+# 更多信息: https://docs.flutter.dev/development/accessibility-and-localization/internationalization
+
+# ARB文件目录
+arb-dir: l10n
+
+# 模板ARB文件
+template-arb-file: app_en.arb
+
+# 输出目录
+output-dir: lib/generated/l10n
+
+# 输出本地化文件
+output-localization-file: app_localizations.dart
+
+# 输出类名
+output-class: AppLocalizations
+
+# 首选支持的语言环境
+preferred-supported-locales:
+  - en
+  - zh
+
+# 头部注释
+header: |
+  /// Generated file. Do not edit.
+  ///
+  /// To regenerate, run: `flutter gen-l10n`
+  ///
+  /// Project: plugin_system
+  /// Generated: 2025-07-18
+
+# 是否使用延迟加载
+use-deferred-loading: false
+
+# 生成合成包
+synthetic-package: false
+
+# 项目目录
+project-dir: .
+
+# 是否生成空的构造函数
+nullable-getter: true
+
+# 格式化输出
+format: true
+

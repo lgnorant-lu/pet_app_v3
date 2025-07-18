@@ -1,0 +1,43 @@
+/*
+---------------------------------------------------------------
+File name:          main.dart
+Author:             Pet App Team
+Date created:       2025-07-18
+Last modified:      2025-07-18
+Dart Version:       3.2+
+Description:        plugin_system应用程序主入口文件
+---------------------------------------------------------------
+Change History:
+    2025-07-18: Initial creation - plugin_system应用程序主入口文件;
+---------------------------------------------------------------
+*/
+
+
+/// 应用程序主入口函数
+///
+/// 启动{description}
+void main(List<String> arguments) {
+  print('欢迎使用 {templateName}!');
+  print('描述: {description}');
+  print('版本: {version}');
+  print('作者: {author}');
+
+  // TODO: 在此处添加您的应用程序逻辑
+  // 示例:
+  // final app = {className}();
+  // app.run(arguments);
+}
+
+/// {className}应用程序类
+///
+/// 主要的应用程序逻辑
+class {className} {
+  /// 运行应用程序
+  ///
+  /// [arguments] 命令行参数
+  void run(List<String> arguments) {
+    print('应用程序正在运行...');
+    
+    // TODO: 实现您的应用程序逻辑
+  }
+}

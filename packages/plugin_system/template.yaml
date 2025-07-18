@@ -1,0 +1,28 @@
+name: plugin_system
+version: 1.0.0
+description: 插件系统核心模块
+author: Pet App Team
+type: system
+platform: crossPlatform
+framework: agnostic
+complexity: enterprise
+maturity: development
+tags: []
+created_at: 2025-07-18T18:38:30.428592
+
+# 模板依赖
+dependencies:
+  []
+
+# 模板配置
+configuration:
+  include_tests: true
+  include_documentation: true
+  include_examples: true
+  enable_git_init: true
+
+# 生成信息
+generation:
+  tool: Ming Status CLI
+  tool_version: 1.0.0
+  generated_at: 2025-07-18T18:38:30.428592
