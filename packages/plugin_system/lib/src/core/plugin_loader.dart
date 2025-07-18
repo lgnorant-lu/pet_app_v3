@@ -11,6 +11,7 @@ Change History:
     2025/07/18: Initial creation - 插件加载器 (Plugin loader);
 ---------------------------------------------------------------
 */
+
 import 'dart:async';
 import 'dart:isolate';
 
@@ -343,7 +344,13 @@ class PluginLoader {
 
   /// 检查权限是否有效
   bool _isPermissionValid(Permission permission) {
-    // 简化的权限检查，实际项目中应该更完善
+    // TODO(Critical): [Phase 2.9.1] 实现完整的权限验证系统
+    // 当前只是简化检查，需要实现：
+    // 1. 权限白名单验证
+    // 2. 用户权限授权检查
+    // 3. 系统权限策略验证
+    // 4. 权限组合冲突检测
+    // 相关文件: lib/src/security/permission_manager.dart
     return Permission.values.contains(permission);
   }
 

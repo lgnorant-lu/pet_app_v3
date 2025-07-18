@@ -2,7 +2,7 @@
 
 ## 概述
 
-Plugin System 是 Pet App V3 的核心插件化框架，提供了完整的插件生命周期管理、通信机制和事件系统。
+Plugin System 是 Pet App V3 的核心插件化框架，提供了完整的插件生命周期管理、通信机制、事件系统、热重载支持、依赖管理和权限控制。
 
 ## 核心 API
 
@@ -162,40 +162,242 @@ class PluginMessenger {
 ```dart
 class EventBus {
   static EventBus get instance;  // 单例实例
-  
+
   // 事件发布
   void publish(String type, String source, {Map<String, dynamic>? data});
-  
+
   // 事件订阅
   EventSubscription subscribe(EventListener listener, {
     String? eventType,
     String? source,
     EventFilter? filter,
   });
-  
+
   EventSubscription on(String eventType, EventListener listener);      // 订阅特定类型
   EventSubscription from(String source, EventListener listener);       // 订阅特定源
-  
+
   // 事件流
   Stream<PluginEvent> get stream;                           // 所有事件流
   Stream<PluginEvent> streamOf(String eventType);          // 特定类型事件流
   Stream<PluginEvent> streamFrom(String source);           // 特定源事件流
-  
+
   // 等待事件
   Future<PluginEvent> waitFor(String eventType, {
     Duration? timeout,
     EventFilter? filter,
   });
-  
+
   // 管理
   void clearSubscriptions();    // 清空所有订阅
   void clearStats();           // 清空统计
   void cleanupPlugin(String pluginId);  // 清理插件相关订阅
-  
+
   // 统计信息
   Map<String, int> getEventStats();           // 事件统计
   Map<String, dynamic> getSubscriptionStats(); // 订阅统计
   Map<String, dynamic> getStatus();           // 状态信息
+}
+```
+
+### HotReloadManager 热重载管理器
+
+提供插件热重载功能，支持开发时的快速迭代。
+
+```dart
+class HotReloadManager {
+  static HotReloadManager get instance;  // 单例实例
+
+  // 热重载控制
+  Future<void> enableHotReload();        // 启用热重载
+  Future<void> disableHotReload();       // 禁用热重载
+  bool get isEnabled;                    // 是否启用
+
+  // 插件重载
+  Future<void> reloadPlugin(String pluginId, {Plugin? newPlugin});
+  Future<void> reloadAllPlugins();       // 重载所有插件
+
+  // 监听管理
+  Future<void> watchPlugin(String pluginId, String path);  // 监听插件路径
+  Future<void> unwatchPlugin(String pluginId);            // 停止监听
+
+  // 状态管理
+  HotReloadState get currentState;       // 当前状态
+  Stream<HotReloadState> get stateChanges; // 状态变化流
+
+  // 快照管理
+  void createSnapshot(String pluginId);  // 创建状态快照
+  Future<void> restoreSnapshot(String pluginId); // 恢复快照
+
+  // 状态信息
+  Map<String, dynamic> getStatus();      // 获取状态信息
+}
+```
+
+### DependencyManager 依赖管理器
+
+管理插件间的依赖关系，确保依赖的正确解析和加载顺序。
+
+```dart
+class DependencyManager {
+  static DependencyManager get instance;  // 单例实例
+
+  // 依赖解析
+  Future<List<String>> resolveDependencies(String pluginId);
+  Future<List<String>> getLoadOrder(List<String> pluginIds);
+
+  // 依赖检查
+  Future<bool> checkDependencies(String pluginId);
+  Future<List<String>> getMissingDependencies(String pluginId);
+  Future<bool> hasCircularDependency(String pluginId);
+
+  // 依赖图管理
+  void addDependency(String pluginId, String dependencyId);
+  void removeDependency(String pluginId, String dependencyId);
+  Map<String, List<String>> getDependencyGraph();
+
+  // 版本管理
+  bool isVersionCompatible(String pluginId, String dependencyId);
+  String? getRequiredVersion(String pluginId, String dependencyId);
+
+  // 状态信息
+  Map<String, dynamic> getStatus();      // 获取状态信息
+}
+```
+
+### PermissionManager 权限管理器
+
+管理插件权限的申请、验证和控制。
+
+```dart
+class PermissionManager {
+  static PermissionManager get instance;  // 单例实例
+
+  // 权限验证
+  Future<bool> checkPermission(String pluginId, Permission permission);
+  Future<List<Permission>> getMissingPermissions(String pluginId);
+  Future<bool> hasAllPermissions(String pluginId);
+
+  // 权限申请
+  Future<bool> requestPermission(String pluginId, Permission permission);
+  Future<Map<Permission, bool>> requestPermissions(String pluginId, List<Permission> permissions);
+
+  // 权限管理
+  void grantPermission(String pluginId, Permission permission);
+  void revokePermission(String pluginId, Permission permission);
+  void revokeAllPermissions(String pluginId);
+
+  // 权限查询
+  List<Permission> getGrantedPermissions(String pluginId);
+  List<Permission> getDeniedPermissions(String pluginId);
+  Map<String, List<Permission>> getAllPermissions();
+
+  // 权限策略
+  void setPermissionPolicy(Permission permission, PermissionPolicy policy);
+  PermissionPolicy getPermissionPolicy(Permission permission);
+
+  // 状态信息
+  Map<String, dynamic> getStatus();      // 获取状态信息
+}
+```
+
+### HotReloadManager 热重载管理器
+
+提供插件热重载功能，支持开发时的快速迭代。
+
+```dart
+class HotReloadManager {
+  static HotReloadManager get instance;  // 单例实例
+
+  // 热重载控制
+  Future<void> enableHotReload();        // 启用热重载
+  Future<void> disableHotReload();       // 禁用热重载
+  bool get isEnabled;                    // 是否启用
+
+  // 插件重载
+  Future<void> reloadPlugin(String pluginId, {Plugin? newPlugin});
+  Future<void> reloadAllPlugins();       // 重载所有插件
+
+  // 监听管理
+  Future<void> watchPlugin(String pluginId, String path);  // 监听插件路径
+  Future<void> unwatchPlugin(String pluginId);            // 停止监听
+
+  // 状态管理
+  HotReloadState get currentState;       // 当前状态
+  Stream<HotReloadState> get stateChanges; // 状态变化流
+
+  // 快照管理
+  void createSnapshot(String pluginId);  // 创建状态快照
+  Future<void> restoreSnapshot(String pluginId); // 恢复快照
+
+  // 状态信息
+  Map<String, dynamic> getStatus();      // 获取状态信息
+}
+```
+
+### DependencyManager 依赖管理器
+
+管理插件间的依赖关系，确保依赖的正确解析和加载顺序。
+
+```dart
+class DependencyManager {
+  static DependencyManager get instance;  // 单例实例
+
+  // 依赖解析
+  Future<List<String>> resolveDependencies(String pluginId);
+  Future<List<String>> getLoadOrder(List<String> pluginIds);
+
+  // 依赖检查
+  Future<bool> checkDependencies(String pluginId);
+  Future<List<String>> getMissingDependencies(String pluginId);
+  Future<bool> hasCircularDependency(String pluginId);
+
+  // 依赖图管理
+  void addDependency(String pluginId, String dependencyId);
+  void removeDependency(String pluginId, String dependencyId);
+  Map<String, List<String>> getDependencyGraph();
+
+  // 版本管理
+  bool isVersionCompatible(String pluginId, String dependencyId);
+  String? getRequiredVersion(String pluginId, String dependencyId);
+
+  // 状态信息
+  Map<String, dynamic> getStatus();      // 获取状态信息
+}
+```
+
+### PermissionManager 权限管理器
+
+管理插件权限的申请、验证和控制。
+
+```dart
+class PermissionManager {
+  static PermissionManager get instance;  // 单例实例
+
+  // 权限验证
+  Future<bool> checkPermission(String pluginId, Permission permission);
+  Future<List<Permission>> getMissingPermissions(String pluginId);
+  Future<bool> hasAllPermissions(String pluginId);
+
+  // 权限申请
+  Future<bool> requestPermission(String pluginId, Permission permission);
+  Future<Map<Permission, bool>> requestPermissions(String pluginId, List<Permission> permissions);
+
+  // 权限管理
+  void grantPermission(String pluginId, Permission permission);
+  void revokePermission(String pluginId, Permission permission);
+  void revokeAllPermissions(String pluginId);
+
+  // 权限查询
+  List<Permission> getGrantedPermissions(String pluginId);
+  List<Permission> getDeniedPermissions(String pluginId);
+  Map<String, List<Permission>> getAllPermissions();
+
+  // 权限策略
+  void setPermissionPolicy(Permission permission, PermissionPolicy policy);
+  PermissionPolicy getPermissionPolicy(Permission permission);
+
+  // 状态信息
+  Map<String, dynamic> getStatus();      // 获取状态信息
 }
 ```
 
@@ -247,6 +449,22 @@ enum SupportedPlatform {
   macos,     // macOS平台
   linux,     // Linux平台
   web,       // Web平台
+}
+
+// 热重载状态
+enum HotReloadState {
+  idle,        // 空闲状态
+  watching,    // 监听中
+  reloading,   // 重载中
+  error,       // 错误状态
+}
+
+// 权限策略
+enum PermissionPolicy {
+  allow,       // 允许
+  deny,        // 拒绝
+  prompt,      // 提示用户
+  conditional, // 条件允许
 }
 ```
 
@@ -321,22 +539,78 @@ class PluginEvent {
   final Map<String, dynamic>? data;       // 事件数据
   final DateTime? timestamp;              // 时间戳
 }
+
+// 插件状态快照
+class PluginStateSnapshot {
+  const PluginStateSnapshot({
+    required this.pluginId,
+    required this.state,
+    required this.config,
+    required this.timestamp,
+  });
+
+  final String pluginId;                  // 插件ID
+  final PluginState state;                // 状态
+  final Map<String, dynamic> config;      // 配置
+  final DateTime timestamp;               // 时间戳
+}
+
+// 依赖解析结果
+class DependencyResolution {
+  const DependencyResolution({
+    required this.pluginId,
+    required this.dependencies,
+    required this.loadOrder,
+    required this.conflicts,
+  });
+
+  final String pluginId;                  // 插件ID
+  final List<String> dependencies;        // 依赖列表
+  final List<String> loadOrder;           // 加载顺序
+  final List<String> conflicts;           // 冲突列表
+}
+
+// 权限请求结果
+class PermissionResult {
+  const PermissionResult({
+    required this.permission,
+    required this.granted,
+    this.reason,
+  });
+
+  final Permission permission;            // 权限
+  final bool granted;                     // 是否授予
+  final String? reason;                   // 原因
+}
 ```
 
 ## 异常类型
 
 插件系统定义了完整的异常体系：
 
+### 核心异常
 - `PluginNotFoundException` - 插件未找到
 - `PluginAlreadyExistsException` - 插件已存在
-- `PluginDependencyException` - 插件依赖异常
-- `CircularDependencyException` - 循环依赖异常
-- `PluginVersionIncompatibleException` - 版本不兼容
-- `PluginPermissionException` - 权限异常
 - `PluginStateException` - 状态异常
 - `PluginLoadException` - 加载异常
 - `PluginTimeoutException` - 超时异常
 - `PluginCommunicationException` - 通信异常
+
+### 依赖管理异常
+- `PluginDependencyException` - 插件依赖异常
+- `CircularDependencyException` - 循环依赖异常
+- `PluginVersionIncompatibleException` - 版本不兼容
+- `DependencyResolutionException` - 依赖解析异常
+
+### 权限管理异常
+- `PluginPermissionException` - 权限异常
+- `PermissionDeniedException` - 权限被拒绝
+- `PermissionNotRequestedException` - 权限未申请
+
+### 热重载异常
+- `HotReloadException` - 热重载异常
+- `PluginReloadException` - 插件重载异常
+- `StateSnapshotException` - 状态快照异常
 
 ## 使用示例
 

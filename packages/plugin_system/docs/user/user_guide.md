@@ -2,7 +2,7 @@
 
 ## 简介
 
-Plugin System 是 Pet App V3 的核心插件化框架，让您可以轻松地创建、管理和使用插件来扩展应用功能。
+Plugin System 是 Pet App V3 的核心插件化框架，让您可以轻松地创建、管理和使用插件来扩展应用功能。它提供了热重载、依赖管理、权限控制等企业级功能。
 
 ## 快速开始
 
@@ -270,6 +270,83 @@ print('System is ready: ${event.data}');
 subscription.cancel();
 ```
 
+### 热重载功能
+
+```dart
+final hotReloadManager = HotReloadManager.instance;
+
+// 启用热重载
+await hotReloadManager.enableHotReload();
+
+// 监听插件文件变化
+await hotReloadManager.watchPlugin('my_plugin_id', '/path/to/plugin');
+
+// 手动重载插件
+await hotReloadManager.reloadPlugin('my_plugin_id');
+
+// 监听热重载状态
+hotReloadManager.stateChanges.listen((state) {
+  print('Hot reload state: $state');
+});
+```
+
+### 依赖管理
+
+```dart
+final dependencyManager = DependencyManager.instance;
+
+// 检查插件依赖
+final hasAllDeps = await dependencyManager.checkDependencies('my_plugin_id');
+if (!hasAllDeps) {
+  final missing = await dependencyManager.getMissingDependencies('my_plugin_id');
+  print('Missing dependencies: $missing');
+}
+
+// 获取加载顺序
+final loadOrder = await dependencyManager.getLoadOrder(['plugin1', 'plugin2', 'plugin3']);
+print('Load order: $loadOrder');
+
+// 检查循环依赖
+final hasCircular = await dependencyManager.hasCircularDependency('my_plugin_id');
+if (hasCircular) {
+  print('Circular dependency detected!');
+}
+```
+
+### 权限管理
+
+```dart
+final permissionManager = PermissionManager.instance;
+
+// 检查权限
+final hasPermission = await permissionManager.checkPermission(
+  'my_plugin_id',
+  Permission.fileSystem,
+);
+
+// 申请权限
+final granted = await permissionManager.requestPermission(
+  'my_plugin_id',
+  Permission.network,
+);
+
+if (granted) {
+  print('Network permission granted');
+} else {
+  print('Network permission denied');
+}
+
+// 批量申请权限
+final results = await permissionManager.requestPermissions(
+  'my_plugin_id',
+  [Permission.camera, Permission.microphone],
+);
+
+results.forEach((permission, granted) {
+  print('$permission: ${granted ? "granted" : "denied"}');
+});
+```
+
 ## 高级功能
 
 ### 插件依赖
@@ -366,6 +443,15 @@ A: 检查事件类型和源是否匹配，确认订阅在事件发布之前建�
 
 **Q: 插件状态异常？**
 A: 查看插件的生命周期方法实现，确保正确更新状态。
+
+**Q: 热重载失败？**
+A: 检查文件路径是否正确，确认插件文件没有语法错误，查看热重载管理器状态。
+
+**Q: 依赖解析失败？**
+A: 检查依赖声明是否正确，确认依赖的插件已注册，查看是否存在循环依赖。
+
+**Q: 权限申请被拒绝？**
+A: 检查权限策略设置，确认用户是否拒绝了权限申请，查看权限申请的合理性。
 
 ### 调试技巧
 

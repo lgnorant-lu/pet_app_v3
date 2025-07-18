@@ -24,6 +24,9 @@ plugin_system/
 │   │       ├── plugin_loader.dart
 │   │       ├── plugin_messenger.dart
 │   │       ├── event_bus.dart
+│   │       ├── hot_reload_manager.dart
+│   │       ├── dependency_manager.dart
+│   │       ├── permission_manager.dart
 │   │       ├── plugin_exceptions.dart
 │   │       └── index.dart
 │   └── plugin_system.dart  # 主导出文件
@@ -223,6 +226,116 @@ class EventBus {
 - 过滤器链支持
 - 异常隔离保护
 - 订阅生命周期管理
+
+### 6. HotReloadManager 热重载实现
+
+```dart
+class HotReloadManager {
+  // 热重载状态管理
+  HotReloadState _state = HotReloadState.idle;
+
+  // 文件监听器
+  final Map<String, StreamSubscription<void>> _watchers = {};
+
+  // 插件状态快照
+  final Map<String, PluginStateSnapshot> _stateSnapshots = {};
+
+  // 热重载流程
+  Future<void> reloadPlugin(String pluginId, {Plugin? newPlugin}) async {
+    // 1. 创建状态快照
+    createSnapshot(pluginId);
+
+    try {
+      // 2. 停止当前插件
+      await PluginLoader.instance.unloadPlugin(pluginId);
+
+      // 3. 加载新插件
+      if (newPlugin != null) {
+        await PluginLoader.instance.loadPlugin(newPlugin);
+      }
+
+      // 4. 恢复状态
+      await restoreSnapshot(pluginId);
+
+    } catch (e) {
+      // 5. 错误恢复
+      await _handleReloadError(pluginId, e);
+    }
+  }
+}
+```
+
+### 7. DependencyManager 依赖管理实现
+
+```dart
+class DependencyManager {
+  // 依赖图存储
+  final Map<String, List<String>> _dependencyGraph = {};
+
+  // 依赖解析算法
+  Future<List<String>> resolveDependencies(String pluginId) async {
+    final visited = <String>{};
+    final visiting = <String>{};
+    final result = <String>[];
+
+    // 深度优先搜索 + 拓扑排序
+    Future<void> dfs(String id) async {
+      if (visiting.contains(id)) {
+        throw CircularDependencyException('Circular dependency detected: $id');
+      }
+
+      if (visited.contains(id)) return;
+
+      visiting.add(id);
+
+      final dependencies = _dependencyGraph[id] ?? [];
+      for (final dep in dependencies) {
+        await dfs(dep);
+      }
+
+      visiting.remove(id);
+      visited.add(id);
+      result.add(id);
+    }
+
+    await dfs(pluginId);
+    return result.reversed.toList();
+  }
+}
+```
+
+### 8. PermissionManager 权限管理实现
+
+```dart
+class PermissionManager {
+  // 权限存储
+  final Map<String, Set<Permission>> _grantedPermissions = {};
+  final Map<Permission, PermissionPolicy> _policies = {};
+
+  // 权限验证
+  Future<bool> checkPermission(String pluginId, Permission permission) async {
+    // 1. 检查已授予权限
+    if (_grantedPermissions[pluginId]?.contains(permission) == true) {
+      return true;
+    }
+
+    // 2. 检查权限策略
+    final policy = _policies[permission] ?? PermissionPolicy.prompt;
+
+    switch (policy) {
+      case PermissionPolicy.allow:
+        grantPermission(pluginId, permission);
+        return true;
+      case PermissionPolicy.deny:
+        return false;
+      case PermissionPolicy.prompt:
+        return await _promptUser(pluginId, permission);
+      case PermissionPolicy.conditional:
+        return await _checkConditions(pluginId, permission);
+    }
+  }
+}
+```
 
 ## 扩展开发
 
@@ -582,10 +695,12 @@ class PluginMonitor {
 
 ### 1. 功能扩展
 
-- 插件热重载
-- 分布式插件系统
-- 插件市场集成
-- AI辅助插件开发
+- ✅ 插件热重载 (Phase 2.9.1 已完成)
+- ✅ 依赖管理系统 (Phase 2.9.1 已完成)
+- ✅ 权限管理系统 (Phase 2.9.1 已完成)
+- 🔄 分布式插件系统
+- 🔄 插件市场集成
+- 🔄 AI辅助插件开发
 
 ### 2. 性能优化
 

@@ -27,6 +27,7 @@ class TestPlugin extends Plugin {
     this.pluginVersion = '1.0.0',
     this.pluginDescription = 'A simple test plugin for validation',
     this.pluginAuthor = 'Pet App Team',
+    this.pluginDependencies = const <PluginDependency>[],
   });
 
   final String pluginId;
@@ -34,6 +35,7 @@ class TestPlugin extends Plugin {
   final String pluginVersion;
   final String pluginDescription;
   final String pluginAuthor;
+  final List<PluginDependency> pluginDependencies;
 
   /// 插件状态
   PluginState _currentState = PluginState.unloaded;
@@ -83,7 +85,7 @@ class TestPlugin extends Plugin {
       ];
 
   @override
-  List<PluginDependency> get dependencies => <PluginDependency>[];
+  List<PluginDependency> get dependencies => pluginDependencies;
 
   @override
   List<SupportedPlatform> get supportedPlatforms => <SupportedPlatform>[

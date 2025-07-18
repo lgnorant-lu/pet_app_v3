@@ -140,3 +140,15 @@ class PluginSecurityException extends PluginException {
   const PluginSecurityException(String pluginId, String reason)
       : super('Security violation: $reason', pluginId);
 }
+
+/// 权限组合异常
+class PermissionCombinationException extends PluginException {
+  const PermissionCombinationException(String pluginId, String permissions)
+      : super('Unsafe permission combination: $permissions', pluginId);
+}
+
+/// 权限被拒绝异常
+class PermissionDeniedException extends PluginException {
+  const PermissionDeniedException(String pluginId, String permission)
+      : super('Permission denied: $permission', pluginId);
+}
