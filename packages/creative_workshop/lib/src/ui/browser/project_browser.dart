@@ -470,9 +470,53 @@ class _ProjectBrowserState extends State<ProjectBrowser> {
     );
   }
 
-  void _refreshProjects() {
-    // TODO: 实现项目刷新功能
-    setState(() {});
+  void _refreshProjects() async {
+    try {
+      // 显示刷新指示器
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Row(
+              children: [
+                SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+                SizedBox(width: 12),
+                Text('正在刷新项目列表...'),
+              ],
+            ),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+
+      // 重新加载项目列表
+      await _projectManager.refreshProjects();
+
+      // 更新UI
+      if (mounted) {
+        setState(() {});
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('项目列表已刷新'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('刷新失败: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   String _getProjectTypeName(ProjectType type) {

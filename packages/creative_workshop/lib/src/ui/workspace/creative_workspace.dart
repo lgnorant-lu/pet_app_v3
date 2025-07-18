@@ -390,9 +390,36 @@ class _CreativeWorkspaceState extends State<CreativeWorkspace> {
   }
 
   void switchLayout(WorkspaceLayout newLayout) {
-    // TODO: 实现布局切换功能
+    if (widget.layout == newLayout) {
+      // 如果是相同布局，不需要切换
+      return;
+    }
+
     setState(() {
-      // widget.layout = newLayout; // 需要通过父组件更新
+      // 通过回调通知父组件更新布局
+      widget.onLayoutChanged?.call(newLayout);
     });
+
+    // 显示布局切换提示
+    final layoutName = _getLayoutName(newLayout);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('已切换到$layoutName布局'),
+        duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
+  String _getLayoutName(WorkspaceLayout layout) {
+    switch (layout) {
+      case WorkspaceLayout.standard:
+        return '标准';
+      case WorkspaceLayout.minimal:
+        return '简洁';
+      case WorkspaceLayout.fullscreen:
+        return '全屏';
+      case WorkspaceLayout.split:
+        return '分屏';
+    }
   }
 }

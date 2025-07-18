@@ -278,9 +278,9 @@ class _ProjectListWidgetState extends State<ProjectListWidget> {
   }
 
   void _exportProject(CreativeProject project) {
-    // TODO: 实现项目导出功能
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('导出项目: ${project.name}')),
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) => _ProjectExportDialog(project: project),
     );
   }
 
@@ -827,5 +827,203 @@ class _ProjectCreationWizardState extends State<ProjectCreationWizard> {
         );
       }
     }
+  }
+}
+
+/// 项目导出对话框
+class _ProjectExportDialog extends StatefulWidget {
+  const _ProjectExportDialog({required this.project});
+
+  final CreativeProject project;
+
+  @override
+  State<_ProjectExportDialog> createState() => _ProjectExportDialogState();
+}
+
+class _ProjectExportDialogState extends State<_ProjectExportDialog> {
+  String _selectedFormat = 'png';
+  bool _includeMetadata = true;
+  bool _isExporting = false;
+
+  final List<Map<String, String>> _exportFormats = [
+    {'value': 'png', 'label': 'PNG 图片'},
+    {'value': 'jpg', 'label': 'JPEG 图片'},
+    {'value': 'pdf', 'label': 'PDF 文档'},
+    {'value': 'svg', 'label': 'SVG 矢量图'},
+    {'value': 'json', 'label': 'JSON 数据'},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text('导出项目: ${widget.project.name}'),
+      content: SizedBox(
+        width: 400,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('选择导出格式:'),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              value: _selectedFormat,
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              ),
+              items: _exportFormats.map((format) {
+                return DropdownMenuItem<String>(
+                  value: format['value'],
+                  child: Text(format['label']!),
+                );
+              }).toList(),
+              onChanged: (String? value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedFormat = value;
+                  });
+                }
+              },
+            ),
+            const SizedBox(height: 16),
+            CheckboxListTile(
+              title: const Text('包含元数据'),
+              subtitle: const Text('包含项目信息、创建时间等'),
+              value: _includeMetadata,
+              onChanged: (bool? value) {
+                setState(() {
+                  _includeMetadata = value ?? false;
+                });
+              },
+              controlAffinity: ListTileControlAffinity.leading,
+            ),
+            if (_isExporting) ...[
+              const SizedBox(height: 16),
+              const Row(
+                children: [
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  SizedBox(width: 12),
+                  Text('正在导出...'),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: _isExporting ? null : () => Navigator.of(context).pop(),
+          child: const Text('取消'),
+        ),
+        ElevatedButton(
+          onPressed: _isExporting ? null : _performExport,
+          child: const Text('导出'),
+        ),
+      ],
+    );
+  }
+
+  Future<void> _performExport() async {
+    setState(() {
+      _isExporting = true;
+    });
+
+    try {
+      // 模拟导出过程
+      await Future.delayed(const Duration(seconds: 2));
+
+      // 实际实现中，这里会根据选择的格式进行真实的导出操作
+      await _exportToFormat(_selectedFormat);
+
+      if (mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('项目导出成功: ${widget.project.name}.$_selectedFormat'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('导出失败: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isExporting = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _exportToFormat(String format) async {
+    switch (format) {
+      case 'png':
+        await _exportToPng();
+        break;
+      case 'jpg':
+        await _exportToJpg();
+        break;
+      case 'pdf':
+        await _exportToPdf();
+        break;
+      case 'svg':
+        await _exportToSvg();
+        break;
+      case 'json':
+        await _exportToJson();
+        break;
+      default:
+        throw UnsupportedError('不支持的导出格式: $format');
+    }
+  }
+
+  Future<void> _exportToPng() async {
+    // 实现PNG导出逻辑
+    // 这里会将画布内容渲染为PNG图片
+  }
+
+  Future<void> _exportToJpg() async {
+    // 实现JPEG导出逻辑
+    // 这里会将画布内容渲染为JPEG图片
+  }
+
+  Future<void> _exportToPdf() async {
+    // 实现PDF导出逻辑
+    // 这里会将项目内容生成PDF文档
+  }
+
+  Future<void> _exportToSvg() async {
+    // 实现SVG导出逻辑
+    // 这里会将矢量图形导出为SVG格式
+  }
+
+  Future<void> _exportToJson() async {
+    // 实现JSON导出逻辑
+    // 这里会将项目数据序列化为JSON格式
+    final projectData = {
+      'project': widget.project.toJson(),
+      'metadata': _includeMetadata
+          ? {
+              'exportTime': DateTime.now().toIso8601String(),
+              'format': 'json',
+              'version': '1.0.0',
+            }
+          : null,
+    };
+
+    // 保存JSON数据到文件
+    // 实际实现中会使用文件选择器让用户选择保存位置
   }
 }

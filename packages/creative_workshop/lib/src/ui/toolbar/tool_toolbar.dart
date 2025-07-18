@@ -58,12 +58,18 @@ class ToolToolbar extends StatefulWidget {
 class _ToolToolbarState extends State<ToolToolbar> {
   late SimpleToolManager _toolManager;
   late ProjectManager _projectManager;
+  late _HistoryManager _historyManager;
+
+  // 工具选择状态
+  String _selectedTool = 'brush';
+  String _selectedShapeTool = 'rectangle';
 
   @override
   void initState() {
     super.initState();
     _toolManager = SimpleToolManager.instance;
     _projectManager = ProjectManager.instance;
+    _historyManager = _HistoryManager();
     _toolManager.addListener(_onToolChanged);
     _projectManager.addListener(_onProjectChanged);
   }
@@ -139,16 +145,18 @@ class _ToolToolbarState extends State<ToolToolbar> {
             _buildToolButton(
               icon: Icons.crop_square,
               label: '矩形',
-              isSelected: false, // TODO: 实现形状工具选择状态
+              isSelected:
+                  _selectedTool == 'shape' && _selectedShapeTool == 'rectangle',
               selectedColor: selectedColor,
-              onPressed: _showShapeTools,
+              onPressed: () => _selectShapeTool('rectangle'),
             ),
             _buildToolButton(
               icon: Icons.circle_outlined,
               label: '圆形',
-              isSelected: false,
+              isSelected:
+                  _selectedTool == 'shape' && _selectedShapeTool == 'circle',
               selectedColor: selectedColor,
-              onPressed: _showShapeTools,
+              onPressed: () => _selectShapeTool('circle'),
             ),
           ]),
 
@@ -361,18 +369,58 @@ class _ToolToolbarState extends State<ToolToolbar> {
     );
   }
 
-  void _undo() {
-    // TODO: 实现撤销功能
+  void _selectShapeTool(String shapeTool) {
+    setState(() {
+      _selectedTool = 'shape';
+      _selectedShapeTool = shapeTool;
+    });
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('撤销功能即将推出')),
+      SnackBar(content: Text('已选择${_getShapeToolName(shapeTool)}工具')),
     );
   }
 
+  String _getShapeToolName(String shapeTool) {
+    switch (shapeTool) {
+      case 'rectangle':
+        return '矩形';
+      case 'circle':
+        return '圆形';
+      case 'line':
+        return '直线';
+      case 'triangle':
+        return '三角形';
+      default:
+        return '形状';
+    }
+  }
+
+  void _undo() {
+    final canUndo = _historyManager.canUndo();
+    if (canUndo) {
+      _historyManager.undo();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('已撤销上一步操作')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('没有可撤销的操作')),
+      );
+    }
+  }
+
   void _redo() {
-    // TODO: 实现重做功能
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('重做功能即将推出')),
-    );
+    final canRedo = _historyManager.canRedo();
+    if (canRedo) {
+      _historyManager.redo();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('已重做上一步操作')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('没有可重做的操作')),
+      );
+    }
   }
 
   void _clearCanvas() {
@@ -400,5 +448,129 @@ class _ToolToolbarState extends State<ToolToolbar> {
         ],
       ),
     );
+  }
+}
+
+/// 历史管理器 - 用于撤销重做功能
+class _HistoryManager {
+  final List<_HistoryAction> _undoStack = <_HistoryAction>[];
+  final List<_HistoryAction> _redoStack = <_HistoryAction>[];
+  static const int _maxHistorySize = 50;
+
+  /// 添加一个操作到历史记录
+  void addAction(_HistoryAction action) {
+    _undoStack.add(action);
+    _redoStack.clear(); // 清空重做栈
+
+    // 限制历史记录大小
+    if (_undoStack.length > _maxHistorySize) {
+      _undoStack.removeAt(0);
+    }
+  }
+
+  /// 是否可以撤销
+  bool canUndo() => _undoStack.isNotEmpty;
+
+  /// 是否可以重做
+  bool canRedo() => _redoStack.isNotEmpty;
+
+  /// 撤销操作
+  void undo() {
+    if (canUndo()) {
+      final action = _undoStack.removeLast();
+      action.undo();
+      _redoStack.add(action);
+    }
+  }
+
+  /// 重做操作
+  void redo() {
+    if (canRedo()) {
+      final action = _redoStack.removeLast();
+      action.redo();
+      _undoStack.add(action);
+    }
+  }
+
+  /// 清空历史记录
+  void clear() {
+    _undoStack.clear();
+    _redoStack.clear();
+  }
+
+  /// 获取撤销栈大小
+  int get undoCount => _undoStack.length;
+
+  /// 获取重做栈大小
+  int get redoCount => _redoStack.length;
+}
+
+/// 历史操作抽象类
+abstract class _HistoryAction {
+  /// 操作描述
+  final String description;
+
+  /// 操作时间
+  final DateTime timestamp;
+
+  _HistoryAction(this.description) : timestamp = DateTime.now();
+
+  /// 撤销操作
+  void undo();
+
+  /// 重做操作
+  void redo();
+}
+
+/// 绘画操作历史记录
+class _DrawingAction extends _HistoryAction {
+  final Map<String, dynamic> beforeState;
+  final Map<String, dynamic> afterState;
+  final VoidCallback? onUndo;
+  final VoidCallback? onRedo;
+
+  _DrawingAction({
+    required String description,
+    required this.beforeState,
+    required this.afterState,
+    this.onUndo,
+    this.onRedo,
+  }) : super(description);
+
+  @override
+  void undo() {
+    // 恢复到之前的状态
+    onUndo?.call();
+  }
+
+  @override
+  void redo() {
+    // 重新应用操作
+    onRedo?.call();
+  }
+}
+
+/// 工具切换操作历史记录
+class _ToolChangeAction extends _HistoryAction {
+  final String previousTool;
+  final String currentTool;
+  final VoidCallback? onToolChange;
+
+  _ToolChangeAction({
+    required this.previousTool,
+    required this.currentTool,
+    this.onToolChange,
+  }) : super('工具切换: $previousTool -> $currentTool');
+
+  @override
+  void undo() {
+    // 切换回之前的工具
+    onToolChange?.call();
+  }
+
+  @override
+  void redo() {
+    // 重新切换到当前工具
+    onToolChange?.call();
   }
 }
