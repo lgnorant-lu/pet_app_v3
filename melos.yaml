@@ -1,0 +1,283 @@
+name: pet_app_v3
+repository: https://github.com/pet-app/pet_app_v3
+
+packages:
+  - apps/**
+  - packages/**
+  - plugins/**
+  - shared/**
+
+command:
+  version:
+    # Generate commit links in package changelogs.
+    linkToCommits: true
+    # Only allow versioning to happen on main branch.
+    branch: main
+    # Additionally build a changelog at the root of the workspace.
+    workspaceChangelog: true
+
+  bootstrap:
+    # It seems so that running "pub get" in parallel has some issues (like
+    # https://github.com/dart-lang/pub/issues/3404). Disabling this feature
+    # makes the CI much more stable.
+    runPubGetInParallel: false
+    usePubspecOverrides: true
+
+scripts:
+  # 分析代码
+  analyze:
+    run: |
+      melos exec -c 5 -- \
+        dart analyze . --fatal-infos
+    description: |
+      Run `dart analyze` in all packages.
+       - Note: you can also rely on your IDEs Dart Analysis / Issues window.
+
+  # 检查代码格式
+  format:
+    run: melos exec dart format . --fix
+    description: |
+      Run `dart format` for all packages.
+
+  # 格式检查
+  format-check:
+    run: melos exec dart format . --set-exit-if-changed
+    description: |
+      Run `dart format` checks for all packages.
+
+  # 运行测试
+  test:
+    run: |
+      melos exec -c 6 --fail-fast -- \
+        dart test --platform vm --coverage=coverage
+    description: |
+      Run `dart test` for all packages.
+
+  # 运行测试（选择性）
+  test:select:
+    run: |
+      melos exec -c 6 --fail-fast -- \
+        dart test --platform vm --coverage=coverage
+    description: |
+      Run `dart test` for selected packages.
+
+  # 生成覆盖率报告
+  coverage:
+    run: |
+      melos exec --file-exists=coverage/lcov.info -- \
+        genhtml coverage/lcov.info -o coverage/html
+    description: |
+      Generate coverage report for all packages that have tests.
+
+  # 清理项目
+  clean:
+    run: |
+      melos exec -c 5 -- \
+        flutter clean
+    description: |
+      Run `flutter clean` for all packages.
+
+  # 获取依赖
+  get:
+    run: |
+      melos exec -c 5 -- \
+        flutter pub get
+    description: |
+      Run `flutter pub get` for all packages.
+
+  # 升级依赖
+  upgrade:
+    run: |
+      melos exec -c 5 -- \
+        flutter pub upgrade
+    description: |
+      Run `flutter pub upgrade` for all packages.
+
+  # 构建所有应用
+  build:
+    run: |
+      melos exec -c 1 --depends-on="flutter" --dir-exists=lib -- \
+        flutter build apk --debug
+    description: |
+      Build all Flutter applications.
+
+  # 构建Web版本
+  build:web:
+    run: |
+      melos exec -c 1 --depends-on="flutter" --dir-exists=lib -- \
+        flutter build web
+    description: |
+      Build web version for all Flutter applications.
+
+  # 构建桌面版本
+  build:desktop:
+    run: |
+      melos exec -c 1 --depends-on="flutter" --dir-exists=lib -- \
+        flutter build windows
+    description: |
+      Build desktop version for all Flutter applications.
+
+  # 运行应用
+  run:
+    run: |
+      melos exec -c 1 --scope="pet_app" -- \
+        flutter run
+    description: |
+      Run the main Pet App application.
+
+  # 运行应用（调试模式）
+  run:debug:
+    run: |
+      melos exec -c 1 --scope="pet_app" -- \
+        flutter run --debug
+    description: |
+      Run the main Pet App application in debug mode.
+
+  # 运行应用（发布模式）
+  run:release:
+    run: |
+      melos exec -c 1 --scope="pet_app" -- \
+        flutter run --release
+    description: |
+      Run the main Pet App application in release mode.
+
+  # 生成代码
+  generate:
+    run: |
+      melos exec --depends-on="build_runner" -- \
+        dart run build_runner build --delete-conflicting-outputs
+    description: |
+      Run code generation for packages that depend on `build_runner`.
+
+  # 监听代码生成
+  generate:watch:
+    run: |
+      melos exec --depends-on="build_runner" -- \
+        dart run build_runner watch --delete-conflicting-outputs
+    description: |
+      Watch and run code generation for packages that depend on `build_runner`.
+
+  # 国际化生成
+  l10n:
+    run: |
+      melos exec --depends-on="flutter_localizations" -- \
+        flutter gen-l10n
+    description: |
+      Generate localization files for packages that depend on `flutter_localizations`.
+
+  # 插件相关脚本
+  plugin:create:
+    run: |
+      ming template create \
+        --name=$PLUGIN_NAME \
+        --type=plugin \
+        --complexity=medium \
+        --author="Pet App Team" \
+        --description="$PLUGIN_DESCRIPTION" \
+        --output=./plugins
+    description: |
+      Create a new plugin using Ming CLI.
+      Usage: melos run plugin:create --PLUGIN_NAME=my_plugin --PLUGIN_DESCRIPTION="My awesome plugin"
+
+  plugin:build:
+    run: |
+      melos exec -c 1 --scope="$PLUGIN_NAME" -- \
+        flutter packages pub run build_runner build
+    description: |
+      Build a specific plugin.
+      Usage: melos run plugin:build --PLUGIN_NAME=my_plugin
+
+  plugin:test:
+    run: |
+      melos exec -c 1 --scope="$PLUGIN_NAME" -- \
+        flutter test
+    description: |
+      Test a specific plugin.
+      Usage: melos run plugin:test --PLUGIN_NAME=my_plugin
+
+  # 文档生成
+  docs:
+    run: |
+      melos exec --depends-on="dartdoc" -- \
+        dart doc .
+    description: |
+      Generate documentation for all packages.
+
+  # 检查依赖
+  deps:check:
+    run: |
+      melos exec -- \
+        flutter pub deps
+    description: |
+      Check dependencies for all packages.
+
+  # 检查过时的依赖
+  deps:outdated:
+    run: |
+      melos exec -- \
+        flutter pub outdated
+    description: |
+      Check for outdated dependencies in all packages.
+
+  # 安全检查
+  security:check:
+    run: |
+      melos exec -- \
+        dart pub audit
+    description: |
+      Run security audit for all packages.
+
+  # 性能分析
+  performance:analyze:
+    run: |
+      melos exec -c 1 --scope="pet_app" -- \
+        flutter run --profile --trace-startup
+    description: |
+      Run performance analysis for the main application.
+
+  # 集成测试
+  test:integration:
+    run: |
+      melos exec -c 1 --scope="pet_app" -- \
+        flutter test integration_test/
+    description: |
+      Run integration tests for the main application.
+
+  # 端到端测试
+  test:e2e:
+    run: |
+      melos exec -c 1 --scope="pet_app" -- \
+        flutter drive --target=test_driver/app.dart
+    description: |
+      Run end-to-end tests for the main application.
+
+  # 代码质量检查
+  quality:check:
+    run: |
+      melos run analyze && \
+      melos run format-check && \
+      melos run test
+    description: |
+      Run comprehensive code quality checks (analyze + format + test).
+
+  # 发布准备
+  release:prepare:
+    run: |
+      melos run quality:check && \
+      melos run build && \
+      melos version --yes
+    description: |
+      Prepare for release (quality check + build + version).
+
+  # 清理并重新构建
+  rebuild:
+    run: |
+      melos run clean && \
+      melos bootstrap && \
+      melos run get && \
+      melos run generate
+    description: |
+      Clean and rebuild the entire workspace.
+
+dev_dependencies:
+  melos: ^3.2.0

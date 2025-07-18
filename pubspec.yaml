@@ -1,0 +1,13 @@
+name: pet_app_v3_workspace
+description: Pet App V3 多包工作空间
+version: 1.0.0+1
+publish_to: 'none'
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dev_dependencies:
+  melos: ^3.2.0
+
+# 这是一个工作空间根目录，不包含实际的应用代码
+# 所有的应用和包都在相应的子目录中
