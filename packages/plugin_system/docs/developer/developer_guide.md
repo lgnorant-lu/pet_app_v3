@@ -601,4 +601,24 @@ class PluginMonitor {
 - 自动化测试框架
 - 插件开发IDE插件
 
+## 测试和质量保证
+
+### 运行测试
+```bash
+# 运行所有测试
+dart test
+
+# 运行特定测试
+dart test test/unit/plugin_registry_test.dart
+```
+
+### 代码质量检查
+```bash
+# 静态分析
+dart analyze
+
+# 生成测试覆盖率
+dart test --coverage=coverage
+```
+
 这个开发者指南为 Plugin System 的深入开发和扩展提供了全面的技术指导。

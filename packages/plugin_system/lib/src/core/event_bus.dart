@@ -274,6 +274,19 @@ class EventBus {
     };
   }
 
+  /// 获取综合统计信息
+  Map<String, dynamic> getStats() {
+    final eventStats = getEventStats();
+    final subscriptionStats = getSubscriptionStats();
+
+    return <String, dynamic>{
+      'totalEvents': eventStats.values.fold(0, (sum, count) => sum + count),
+      'eventTypes': eventStats.keys.toList(),
+      'eventStats': eventStats,
+      'subscriptionStats': subscriptionStats,
+    };
+  }
+
   /// 清空所有统计
   void clearStats() {
     _eventStats.clear();

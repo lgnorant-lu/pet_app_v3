@@ -446,3 +446,519 @@ class EchoPlugin extends Plugin {
     };
   }
 }
+
+/// 错误插件 - 用于测试错误处理
+class ErrorPlugin extends Plugin {
+  ErrorPlugin({required this.pluginId});
+
+  final String pluginId;
+  PluginState _currentState = PluginState.unloaded;
+  final StreamController<PluginState> _stateController =
+      StreamController<PluginState>.broadcast();
+
+  @override
+  String get id => pluginId;
+  @override
+  String get name => 'Error Plugin';
+  @override
+  String get version => '1.0.0';
+  @override
+  String get description => 'Plugin that throws errors for testing';
+  @override
+  String get author => 'Pet App Team';
+  @override
+  PluginCategory get category => PluginCategory.tool;
+  @override
+  List<Permission> get requiredPermissions => <Permission>[];
+  @override
+  List<PluginDependency> get dependencies => <PluginDependency>[];
+  @override
+  List<SupportedPlatform> get supportedPlatforms =>
+      <SupportedPlatform>[SupportedPlatform.android];
+  @override
+  PluginState get currentState => _currentState;
+  @override
+  Stream<PluginState> get stateChanges => _stateController.stream;
+
+  @override
+  Future<void> initialize() async {
+    throw Exception('Initialization error for testing');
+  }
+
+  @override
+  Future<void> start() async {
+    _currentState = PluginState.started;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> pause() async {
+    _currentState = PluginState.paused;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> resume() async {
+    _currentState = PluginState.started;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> stop() async {
+    _currentState = PluginState.stopped;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> dispose() async {
+    _currentState = PluginState.unloaded;
+    await _stateController.close();
+  }
+
+  @override
+  Object? getConfigWidget() => null;
+
+  @override
+  Object getMainWidget() => <String, dynamic>{'type': 'error_widget'};
+
+  @override
+  Future<dynamic> handleMessage(
+      String action, Map<String, dynamic> data) async {
+    throw Exception('Message handling error');
+  }
+}
+
+/// 依赖插件 - 用于测试依赖解析
+class DependentPlugin extends Plugin {
+  DependentPlugin({required this.pluginId, required this.dependencyList});
+
+  final String pluginId;
+  final List<String> dependencyList;
+  PluginState _currentState = PluginState.unloaded;
+  final StreamController<PluginState> _stateController =
+      StreamController<PluginState>.broadcast();
+
+  @override
+  String get id => pluginId;
+  @override
+  String get name => 'Dependent Plugin';
+  @override
+  String get version => '1.0.0';
+  @override
+  String get description => 'Plugin with dependencies for testing';
+  @override
+  String get author => 'Pet App Team';
+  @override
+  PluginCategory get category => PluginCategory.tool;
+  @override
+  List<Permission> get requiredPermissions => <Permission>[];
+  @override
+  List<PluginDependency> get dependencies => dependencyList
+      .map((dep) => PluginDependency(pluginId: dep, versionConstraint: '1.0.0'))
+      .toList();
+  @override
+  List<SupportedPlatform> get supportedPlatforms =>
+      <SupportedPlatform>[SupportedPlatform.android];
+  @override
+  PluginState get currentState => _currentState;
+  @override
+  Stream<PluginState> get stateChanges => _stateController.stream;
+
+  @override
+  Future<void> initialize() async {
+    _currentState = PluginState.initialized;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> start() async {
+    _currentState = PluginState.started;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> pause() async {
+    _currentState = PluginState.paused;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> resume() async {
+    _currentState = PluginState.started;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> stop() async {
+    _currentState = PluginState.stopped;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> dispose() async {
+    _currentState = PluginState.unloaded;
+    await _stateController.close();
+  }
+
+  @override
+  Object? getConfigWidget() => null;
+
+  @override
+  Object getMainWidget() => <String, dynamic>{'type': 'dependent_widget'};
+
+  @override
+  Future<dynamic> handleMessage(
+      String action, Map<String, dynamic> data) async {
+    return <String, dynamic>{'response': 'dependent_response'};
+  }
+}
+
+/// 受限插件 - 用于测试权限系统
+class RestrictedPlugin extends Plugin {
+  RestrictedPlugin({required this.pluginId, required this.permissionList});
+
+  final String pluginId;
+  final List<String> permissionList;
+  PluginState _currentState = PluginState.unloaded;
+  final StreamController<PluginState> _stateController =
+      StreamController<PluginState>.broadcast();
+
+  @override
+  String get id => pluginId;
+  @override
+  String get name => 'Restricted Plugin';
+  @override
+  String get version => '1.0.0';
+  @override
+  String get description => 'Plugin with restricted permissions';
+  @override
+  String get author => 'Pet App Team';
+  @override
+  PluginCategory get category => PluginCategory.tool;
+  @override
+  List<Permission> get requiredPermissions => <Permission>[
+        Permission.storage,
+        Permission.network,
+        Permission.camera,
+      ];
+  @override
+  List<PluginDependency> get dependencies => <PluginDependency>[];
+  @override
+  List<SupportedPlatform> get supportedPlatforms =>
+      <SupportedPlatform>[SupportedPlatform.android];
+  @override
+  PluginState get currentState => _currentState;
+  @override
+  Stream<PluginState> get stateChanges => _stateController.stream;
+
+  @override
+  Future<void> initialize() async {
+    _currentState = PluginState.initialized;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> start() async {
+    _currentState = PluginState.started;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> pause() async {
+    _currentState = PluginState.paused;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> resume() async {
+    _currentState = PluginState.started;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> stop() async {
+    _currentState = PluginState.stopped;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> dispose() async {
+    _currentState = PluginState.unloaded;
+    await _stateController.close();
+  }
+
+  @override
+  Object? getConfigWidget() => null;
+
+  @override
+  Object getMainWidget() => <String, dynamic>{'type': 'restricted_widget'};
+
+  @override
+  Future<dynamic> handleMessage(
+      String action, Map<String, dynamic> data) async {
+    return <String, dynamic>{'response': 'restricted_response'};
+  }
+}
+
+/// 隔离插件 - 用于测试插件隔离
+class IsolatedPlugin extends Plugin {
+  IsolatedPlugin({required this.pluginId});
+
+  final String pluginId;
+  PluginState _currentState = PluginState.unloaded;
+  final StreamController<PluginState> _stateController =
+      StreamController<PluginState>.broadcast();
+  bool isIsolated = false;
+
+  @override
+  String get id => pluginId;
+  @override
+  String get name => 'Isolated Plugin';
+  @override
+  String get version => '1.0.0';
+  @override
+  String get description => 'Plugin that runs in isolation';
+  @override
+  String get author => 'Pet App Team';
+  @override
+  PluginCategory get category => PluginCategory.tool;
+  @override
+  List<Permission> get requiredPermissions => <Permission>[];
+  @override
+  List<PluginDependency> get dependencies => <PluginDependency>[];
+  @override
+  List<SupportedPlatform> get supportedPlatforms =>
+      <SupportedPlatform>[SupportedPlatform.android];
+  @override
+  PluginState get currentState => _currentState;
+  @override
+  Stream<PluginState> get stateChanges => _stateController.stream;
+
+  @override
+  Future<void> initialize() async {
+    isIsolated = true; // 模拟隔离环境
+    _currentState = PluginState.initialized;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> start() async {
+    _currentState = PluginState.started;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> pause() async {
+    _currentState = PluginState.paused;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> resume() async {
+    _currentState = PluginState.started;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> stop() async {
+    _currentState = PluginState.stopped;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> dispose() async {
+    _currentState = PluginState.unloaded;
+    await _stateController.close();
+  }
+
+  @override
+  Object? getConfigWidget() => null;
+
+  @override
+  Object getMainWidget() => <String, dynamic>{'type': 'isolated_widget'};
+
+  @override
+  Future<dynamic> handleMessage(
+      String action, Map<String, dynamic> data) async {
+    return <String, dynamic>{'response': 'isolated_response'};
+  }
+}
+
+/// 恶意插件 - 用于测试安全防护
+class MaliciousPlugin extends Plugin {
+  MaliciousPlugin({required this.pluginId});
+
+  final String pluginId;
+  PluginState _currentState = PluginState.unloaded;
+  final StreamController<PluginState> _stateController =
+      StreamController<PluginState>.broadcast();
+
+  @override
+  String get id => pluginId;
+  @override
+  String get name => 'Malicious Plugin';
+  @override
+  String get version => '1.0.0';
+  @override
+  String get description => 'Plugin with malicious behavior';
+  @override
+  String get author => 'Unknown';
+  @override
+  PluginCategory get category => PluginCategory.tool;
+  @override
+  List<Permission> get requiredPermissions => <Permission>[
+        Permission.storage,
+        Permission.network,
+        Permission.camera,
+        Permission.microphone,
+      ];
+  @override
+  List<PluginDependency> get dependencies => <PluginDependency>[];
+  @override
+  List<SupportedPlatform> get supportedPlatforms =>
+      <SupportedPlatform>[SupportedPlatform.android];
+  @override
+  PluginState get currentState => _currentState;
+  @override
+  Stream<PluginState> get stateChanges => _stateController.stream;
+
+  @override
+  Future<void> initialize() async {
+    // 模拟恶意行为
+    throw Exception('Malicious plugin detected');
+  }
+
+  @override
+  Future<void> start() async {
+    _currentState = PluginState.started;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> pause() async {
+    _currentState = PluginState.paused;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> resume() async {
+    _currentState = PluginState.started;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> stop() async {
+    _currentState = PluginState.stopped;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> dispose() async {
+    _currentState = PluginState.unloaded;
+    await _stateController.close();
+  }
+
+  @override
+  Object? getConfigWidget() => null;
+
+  @override
+  Object getMainWidget() => <String, dynamic>{'type': 'malicious_widget'};
+
+  @override
+  Future<dynamic> handleMessage(
+      String action, Map<String, dynamic> data) async {
+    throw Exception('Malicious message handling');
+  }
+}
+
+/// 资源密集型插件 - 用于测试性能监控
+class ResourceIntensivePlugin extends Plugin {
+  ResourceIntensivePlugin({required this.pluginId});
+
+  final String pluginId;
+  PluginState _currentState = PluginState.unloaded;
+  final StreamController<PluginState> _stateController =
+      StreamController<PluginState>.broadcast();
+
+  @override
+  String get id => pluginId;
+  @override
+  String get name => 'Resource Intensive Plugin';
+  @override
+  String get version => '1.0.0';
+  @override
+  String get description => 'Plugin that uses lots of resources';
+  @override
+  String get author => 'Pet App Team';
+  @override
+  PluginCategory get category => PluginCategory.tool;
+  @override
+  List<Permission> get requiredPermissions => <Permission>[];
+  @override
+  List<PluginDependency> get dependencies => <PluginDependency>[];
+  @override
+  List<SupportedPlatform> get supportedPlatforms =>
+      <SupportedPlatform>[SupportedPlatform.android];
+  @override
+  PluginState get currentState => _currentState;
+  @override
+  Stream<PluginState> get stateChanges => _stateController.stream;
+
+  @override
+  Future<void> initialize() async {
+    _currentState = PluginState.initialized;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> start() async {
+    _currentState = PluginState.started;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> pause() async {
+    _currentState = PluginState.paused;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> resume() async {
+    _currentState = PluginState.started;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> stop() async {
+    _currentState = PluginState.stopped;
+    _stateController.add(_currentState);
+  }
+
+  @override
+  Future<void> dispose() async {
+    _currentState = PluginState.unloaded;
+    await _stateController.close();
+  }
+
+  @override
+  Object? getConfigWidget() => null;
+
+  @override
+  Object getMainWidget() => <String, dynamic>{'type': 'resource_widget'};
+
+  @override
+  Future<dynamic> handleMessage(
+      String action, Map<String, dynamic> data) async {
+    return <String, dynamic>{'response': 'resource_response'};
+  }
+
+  /// 模拟资源密集型工作
+  Future<void> doWork() async {
+    // 模拟CPU密集型操作
+    await Future<void>.delayed(const Duration(milliseconds: 100));
+
+    // 模拟内存使用
+    final List<int> data = List<int>.filled(1000, 42);
+    data.length; // 使用数据避免被优化掉
+  }
+}

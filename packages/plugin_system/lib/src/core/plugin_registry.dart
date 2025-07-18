@@ -150,6 +150,11 @@ class PluginRegistry {
     return UnmodifiableListView(_plugins.values);
   }
 
+  /// 获取所有已注册的插件（别名方法）
+  List<Plugin> getAllPlugins() {
+    return getAll();
+  }
+
   /// 获取所有活跃的插件
   List<Plugin> getAllActive() {
     return getByState(PluginState.started);
