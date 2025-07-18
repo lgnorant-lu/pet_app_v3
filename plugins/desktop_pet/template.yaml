@@ -1,0 +1,28 @@
+name: desktop_pet
+version: 1.0.0
+description: 桌宠插件占位符
+author: Pet App Team
+type: plugin
+platform: crossPlatform
+framework: agnostic
+complexity: simple
+maturity: development
+tags: []
+created_at: 2025-07-18T18:40:09.244294
+
+# 模板依赖
+dependencies:
+  []
+
+# 模板配置
+configuration:
+  include_tests: true
+  include_documentation: true
+  include_examples: true
+  enable_git_init: true
+
+# 生成信息
+generation:
+  tool: Ming Status CLI
+  tool_version: 1.0.0
+  generated_at: 2025-07-18T18:40:09.244294

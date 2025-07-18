@@ -1,0 +1,35 @@
+name: home_dashboard
+description: 首页仪表板模块
+version: 1.0.0
+
+environment:
+  sdk: ">=3.2.0 <4.0.0"
+
+dependencies:
+  # 数据序列化
+  freezed_annotation: ^2.4.4
+  json_annotation: ^4.8.1
+
+  # 网络请求
+  dio: ^5.4.0
+
+  # 工具库
+  intl: ^0.19.0
+  equatable: ^2.0.5
+  uuid: ^4.5.1
+
+
+dev_dependencies:
+  # 代码生成
+  build_runner: ^2.4.7
+  freezed: ^2.5.7
+  json_serializable: ^6.9.0
+
+  # 测试
+  test: ^1.24.0
+  mockito: ^5.4.4
+
+  # 代码质量
+  lints: ^3.0.0
+  very_good_analysis: ^6.0.0
+

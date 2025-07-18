@@ -1,0 +1,28 @@
+name: home_dashboard
+version: 1.0.0
+description: 首页仪表板模块
+author: Pet App Team
+type: ui
+platform: crossPlatform
+framework: agnostic
+complexity: complex
+maturity: development
+tags: []
+created_at: 2025-07-18T18:39:20.283670
+
+# 模板依赖
+dependencies:
+  []
+
+# 模板配置
+configuration:
+  include_tests: true
+  include_documentation: true
+  include_examples: true
+  enable_git_init: true
+
+# 生成信息
+generation:
+  tool: Ming Status CLI
+  tool_version: 1.0.0
+  generated_at: 2025-07-18T18:39:20.283670

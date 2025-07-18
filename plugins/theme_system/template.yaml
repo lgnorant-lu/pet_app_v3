@@ -1,0 +1,28 @@
+name: theme_system
+version: 1.0.0
+description: 主题系统插件
+author: Pet App Team
+type: plugin
+platform: crossPlatform
+framework: agnostic
+complexity: medium
+maturity: development
+tags: []
+created_at: 2025-07-18T18:39:52.907921
+
+# 模板依赖
+dependencies:
+  []
+
+# 模板配置
+configuration:
+  include_tests: true
+  include_documentation: true
+  include_examples: true
+  enable_git_init: true
+
+# 生成信息
+generation:
+  tool: Ming Status CLI
+  tool_version: 1.0.0
+  generated_at: 2025-07-18T18:39:52.907921
