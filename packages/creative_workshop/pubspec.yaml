@@ -1,0 +1,33 @@
+name: creative_workshop
+description: 创意工坊核心模块
+version: 1.0.0
+
+publish_to: none
+
+environment:
+  sdk: ">=3.2.0 <4.0.0"
+
+dependencies:
+  # 核心依赖
+  plugin_system:
+    path: ../plugin_system
+
+  # Flutter 框架
+  flutter:
+    sdk: flutter
+
+  # 工具库
+  uuid: ^4.5.1
+
+
+dev_dependencies:
+  # Flutter 测试
+  flutter_test:
+    sdk: flutter
+
+  # 测试
+  test: ^1.24.0
+
+  # 代码质量
+  very_good_analysis: ^6.0.0
+
