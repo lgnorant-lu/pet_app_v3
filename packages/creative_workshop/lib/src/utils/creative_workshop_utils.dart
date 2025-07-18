@@ -15,7 +15,7 @@ Change History:
 import 'dart:math';
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart'; // 注释掉Flutter依赖以支持纯Dart测试
 
 /// creative_workshop主要工具类
 ///
@@ -62,7 +62,8 @@ class CreativeWorkshopUtils {
   }
 
   /// 格式化日期时间
-  static String formatDateTime(DateTime dateTime) => '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
+  static String formatDateTime(DateTime dateTime) =>
+      '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
 }
 
 /// creative_workshop数据验证器
@@ -194,7 +195,8 @@ class CreativeWorkshopFormatter {
   }
 
   /// 格式化货币
-  static String formatCurrency(double amount, {String symbol = '¥'}) => '$symbol${amount.toStringAsFixed(2)}';
+  static String formatCurrency(double amount, {String symbol = '¥'}) =>
+      '$symbol${amount.toStringAsFixed(2)}';
 
   /// 格式化数字（添加千分位分隔符）
   static String formatNumber(num number) {
@@ -263,13 +265,14 @@ class CreativeWorkshopHelper {
     bytes[6] = (bytes[6] & 0x0f) | 0x40; // 版本4
     bytes[8] = (bytes[8] & 0x3f) | 0x80; // 变体
 
-    final hex = bytes.map((int b) => b.toRadixString(16).padLeft(2, '0')).join();
+    final hex =
+        bytes.map((int b) => b.toRadixString(16).padLeft(2, '0')).join();
     return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20, 32)}';
   }
 
   /// 防抖函数
   static Timer? _debounceTimer;
-  static void debounce(VoidCallback callback, Duration duration) {
+  static void debounce(void Function() callback, Duration duration) {
     _debounceTimer?.cancel();
     _debounceTimer = Timer(duration, callback);
   }
@@ -292,7 +295,8 @@ class CreativeWorkshopHelper {
   }
 
   /// 深拷贝Map
-  static Map<String, dynamic> deepCopyMap(Map<String, dynamic> original) => Map<String, dynamic>.from(jsonDecode(jsonEncode(original)) as Map);
+  static Map<String, dynamic> deepCopyMap(Map<String, dynamic> original) =>
+      Map<String, dynamic>.from(jsonDecode(jsonEncode(original)) as Map);
 }
 
 /// String扩展方法
@@ -322,9 +326,9 @@ extension CreativeWorkshopStringExtension on String {
 
   /// 转换为蛇形命名
   String get toSnakeCase => replaceAllMapped(
-      RegExp('[A-Z]'),
-      (Match match) => '_${match.group(0)!.toLowerCase()}',
-    ).replaceFirst(RegExp(r'^\_'), '');
+        RegExp('[A-Z]'),
+        (Match match) => '_${match.group(0)!.toLowerCase()}',
+      ).replaceFirst(RegExp(r'^\_'), '');
 }
 
 /// DateTime扩展方法

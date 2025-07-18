@@ -461,7 +461,7 @@ class _StatusBarState extends State<StatusBar> {
 
       // 这里提供一个基于时间和随机因子的模拟实现
       final now = DateTime.now();
-      final baseMemory = 64; // 基础内存 64MB
+      const baseMemory = 64; // 基础内存 64MB
       final timeVariation =
           (now.millisecondsSinceEpoch % 1000) / 10; // 0-100的时间变化
       final randomFactor = (now.microsecond % 50); // 0-50的随机因子

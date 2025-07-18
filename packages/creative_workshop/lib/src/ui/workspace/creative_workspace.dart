@@ -12,9 +12,9 @@ Change History:
 ---------------------------------------------------------------
 */
 
-import 'package:flutter/material.dart';
-import 'package:creative_workshop/src/ui/index.dart';
 import 'package:creative_workshop/src/core/projects/index.dart';
+import 'package:creative_workshop/src/ui/index.dart';
+import 'package:flutter/material.dart';
 
 /// 工作区布局模式
 enum WorkspaceLayout {
@@ -40,6 +40,7 @@ class CreativeWorkspace extends StatefulWidget {
     this.showProjectBrowser = true,
     this.showPropertiesPanel = true,
     this.showToolbar = true,
+    this.onLayoutChanged,
   });
 
   /// 工作区布局
@@ -56,6 +57,9 @@ class CreativeWorkspace extends StatefulWidget {
 
   /// 是否显示工具栏
   final bool showToolbar;
+
+  /// 布局变更回调
+  final void Function(WorkspaceLayout)? onLayoutChanged;
 
   @override
   State<CreativeWorkspace> createState() => _CreativeWorkspaceState();
@@ -414,12 +418,12 @@ class _CreativeWorkspaceState extends State<CreativeWorkspace> {
     switch (layout) {
       case WorkspaceLayout.standard:
         return '标准';
-      case WorkspaceLayout.minimal:
-        return '简洁';
-      case WorkspaceLayout.fullscreen:
-        return '全屏';
-      case WorkspaceLayout.split:
-        return '分屏';
+      case WorkspaceLayout.gaming:
+        return '游戏';
+      case WorkspaceLayout.focus:
+        return '专注';
+      case WorkspaceLayout.custom:
+        return '自定义';
     }
   }
 }

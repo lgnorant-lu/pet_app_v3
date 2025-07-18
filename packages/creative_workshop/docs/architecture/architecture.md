@@ -339,3 +339,13 @@ final performanceConfig = PerformanceConfig(
 - 作品分享
 - 模板市场
 - 用户评价
+
+## 质量保证
+
+Creative Workshop 采用分层测试策略，确保代码质量和系统稳定性：
+
+- **单元测试**: 覆盖核心组件和工具类
+- **集成测试**: 验证模块间协作
+- **性能测试**: 确保系统性能表现
+
+这个架构确保了 Creative Workshop 的高质量、高性能和高可维护性。

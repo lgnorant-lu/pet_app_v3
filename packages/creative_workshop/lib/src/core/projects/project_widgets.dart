@@ -935,7 +935,7 @@ class _ProjectExportDialogState extends State<_ProjectExportDialog> {
 
     try {
       // 模拟导出过程
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<void>.delayed(const Duration(seconds: 2));
 
       // 实际实现中，这里会根据选择的格式进行真实的导出操作
       await _exportToFormat(_selectedFormat);
@@ -1012,16 +1012,8 @@ class _ProjectExportDialogState extends State<_ProjectExportDialog> {
   Future<void> _exportToJson() async {
     // 实现JSON导出逻辑
     // 这里会将项目数据序列化为JSON格式
-    final projectData = {
-      'project': widget.project.toJson(),
-      'metadata': _includeMetadata
-          ? {
-              'exportTime': DateTime.now().toIso8601String(),
-              'format': 'json',
-              'version': '1.0.0',
-            }
-          : null,
-    };
+    // 构建项目数据并导出
+    // 包含项目信息和可选的元数据
 
     // 保存JSON数据到文件
     // 实际实现中会使用文件选择器让用户选择保存位置

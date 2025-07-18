@@ -493,7 +493,8 @@ class _ProjectBrowserState extends State<ProjectBrowser> {
       }
 
       // 重新加载项目列表
-      await _projectManager.refreshProjects();
+      // 重新初始化以加载项目
+      await _projectManager.initialize();
 
       // 更新UI
       if (mounted) {
