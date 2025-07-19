@@ -16,6 +16,7 @@ import 'dart:async';
 
 import 'package:plugin_system/src/core/plugin.dart';
 import 'package:plugin_system/src/core/plugin_exceptions.dart';
+import 'package:plugin_system/src/core/plugin_registry.dart';
 
 /// 权限策略
 enum PermissionPolicy {
@@ -60,6 +61,9 @@ class PermissionManager {
   /// 单例实例
   static final PermissionManager _instance = PermissionManager._();
   static PermissionManager get instance => _instance;
+
+  /// 插件注册表引用
+  final PluginRegistry _registry = PluginRegistry.instance;
 
   /// 权限策略配置
   final Map<Permission, PermissionPolicy> _permissionPolicies =
@@ -135,6 +139,15 @@ class PermissionManager {
     // 2. 显示用户授权对话框
     // 3. 记录授权结果
     // 4. 通知相关组件
+
+    // 检查插件是否存在
+    if (!_registry.contains(pluginId)) {
+      return _denyPermission(
+        pluginId,
+        permission,
+        'Plugin not found: $pluginId',
+      );
+    }
 
     final PermissionPolicy policy = _getPermissionPolicy(permission);
 

@@ -378,11 +378,13 @@ class PluginLoader {
 
   /// 卸载所有插件
   Future<void> unloadAllPlugins({bool force = false}) async {
-    final List<Plugin> allPlugins = _registry.getAll();
+    // 创建插件ID列表的副本以避免并发修改
+    final List<String> pluginIds =
+        _registry.getAll().map((Plugin p) => p.id).toList();
 
-    for (final Plugin plugin in allPlugins) {
+    for (final String pluginId in pluginIds) {
       try {
-        await unloadPlugin(plugin.id, force: force);
+        await unloadPlugin(pluginId, force: force);
       } catch (e) {
         if (!force) {
           rethrow;

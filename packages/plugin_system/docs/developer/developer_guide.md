@@ -4,6 +4,9 @@
 
 本文档面向 Plugin System 的核心开发者和高级用户，提供深入的技术细节、扩展指南和最佳实践。
 
+**版本**: v1.3.0
+**更新内容**: 新增HotReloadManager、DependencyManager、PermissionManager开发指南
+
 ## 开发环境设置
 
 ### 1. 环境要求
