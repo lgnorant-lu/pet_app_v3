@@ -131,32 +131,36 @@ class _GameAreaState extends State<GameArea> {
     );
   }
 
-  Widget _buildGameStateIndicator(SimpleGameState state) {
+  Widget _buildGameStateIndicator(GameState state) {
     Color color;
     String text;
     IconData icon;
 
     switch (state) {
-      case SimpleGameState.notStarted:
+      case GameState.notStarted:
         color = Colors.grey;
         text = '未开始';
         icon = Icons.play_circle_outline;
-      case SimpleGameState.playing:
+      case GameState.playing:
         color = Colors.green;
         text = '进行中';
         icon = Icons.play_circle_filled;
-      case SimpleGameState.paused:
+      case GameState.paused:
         color = Colors.orange;
         text = '暂停';
         icon = Icons.pause_circle_filled;
-      case SimpleGameState.gameOver:
+      case GameState.gameOver:
         color = Colors.red;
         text = '游戏结束';
         icon = Icons.stop_circle;
-      case SimpleGameState.victory:
+      case GameState.victory:
         color = Colors.purple;
         text = '胜利';
         icon = Icons.emoji_events;
+      case GameState.defeat:
+        color = Colors.red;
+        text = '失败';
+        icon = Icons.cancel;
     }
 
     return Container(

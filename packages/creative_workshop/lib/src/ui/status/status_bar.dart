@@ -422,33 +422,37 @@ class _StatusBarState extends State<StatusBar> {
     return '';
   }
 
-  String _getGameStateName(SimpleGameState state) {
+  String _getGameStateName(GameState state) {
     switch (state) {
-      case SimpleGameState.notStarted:
+      case GameState.notStarted:
         return '未开始';
-      case SimpleGameState.playing:
+      case GameState.playing:
         return '进行中';
-      case SimpleGameState.paused:
+      case GameState.paused:
         return '暂停';
-      case SimpleGameState.gameOver:
+      case GameState.gameOver:
         return '结束';
-      case SimpleGameState.victory:
+      case GameState.victory:
         return '胜利';
+      case GameState.defeat:
+        return '失败';
     }
   }
 
-  Color _getGameStateColor(SimpleGameState state) {
+  Color _getGameStateColor(GameState state) {
     switch (state) {
-      case SimpleGameState.notStarted:
+      case GameState.notStarted:
         return Colors.grey;
-      case SimpleGameState.playing:
+      case GameState.playing:
         return Colors.green;
-      case SimpleGameState.paused:
+      case GameState.paused:
         return Colors.orange;
-      case SimpleGameState.gameOver:
+      case GameState.gameOver:
         return Colors.red;
-      case SimpleGameState.victory:
+      case GameState.victory:
         return Colors.purple;
+      case GameState.defeat:
+        return Colors.red;
     }
   }
 

@@ -14,14 +14,14 @@ Change History:
 
 import 'package:flutter/foundation.dart';
 import 'package:creative_workshop/src/core/games/simple_games.dart';
+import 'package:creative_workshop/src/core/games/game_plugin.dart';
 
 /// 简化的游戏管理器
 /// 负责管理简化版本的游戏类
 class SimpleGameManager extends ChangeNotifier {
-  
   SimpleGameManager._internal();
   static SimpleGameManager? _instance;
-  
+
   /// 获取单例实例
   static SimpleGameManager get instance {
     _instance ??= SimpleGameManager._internal();
@@ -30,24 +30,24 @@ class SimpleGameManager extends ChangeNotifier {
 
   /// 已注册的游戏
   final Map<String, SimpleGame> _games = <String, SimpleGame>{};
-  
+
   /// 当前激活的游戏
   SimpleGame? _activeGame;
   String? _activeGameId;
-  
+
   /// 游戏历史记录
   final List<String> _gameHistory = <String>[];
-  
+
   /// 最大历史记录数量
   static const int _maxHistorySize = 10;
 
   /// 获取当前激活的游戏
   SimpleGame? get activeGame => _activeGame;
   String? get activeGameId => _activeGameId;
-  
+
   /// 获取所有游戏
   Map<String, SimpleGame> get games => Map.unmodifiable(_games);
-  
+
   /// 获取游戏历史记录
   List<String> get gameHistory => List.unmodifiable(_gameHistory);
 
@@ -56,10 +56,10 @@ class SimpleGameManager extends ChangeNotifier {
     try {
       // 注册内置游戏
       await _registerBuiltinGames();
-      
+
       // 设置默认游戏
       _setDefaultGame();
-      
+
       debugPrint('简化游戏管理器初始化完成：${_games.length} 个游戏');
     } catch (e) {
       debugPrint('游戏管理器初始化失败: $e');
@@ -72,11 +72,11 @@ class SimpleGameManager extends ChangeNotifier {
     // 注册点击游戏
     final clickGame = SimpleClickGame();
     _games[clickGame.id] = clickGame;
-    
+
     // 注册猜数字游戏
     final guessGame = SimpleGuessGame();
     _games[guessGame.id] = guessGame;
-    
+
     debugPrint('内置游戏注册完成：${_games.length} 个游戏');
   }
 
@@ -97,10 +97,10 @@ class SimpleGameManager extends ChangeNotifier {
     final game = _games[gameId];
     if (game != null) {
       // 停用当前游戏
-      if (_activeGame != null && _activeGame!.gameState == SimpleGameState.playing) {
+      if (_activeGame != null && _activeGame!.gameState == GameState.playing) {
         _activeGame!.pauseGame();
       }
-      
+
       _activeGame = game;
       _activeGameId = gameId;
       _updateGameHistory(gameId);
@@ -115,7 +115,7 @@ class SimpleGameManager extends ChangeNotifier {
   /// 停用当前游戏
   void deactivateCurrentGame() {
     if (_activeGame != null) {
-      if (_activeGame!.gameState == SimpleGameState.playing) {
+      if (_activeGame!.gameState == GameState.playing) {
         _activeGame!.pauseGame();
       }
       debugPrint('游戏已停用: ${_activeGame!.name}');
@@ -140,7 +140,7 @@ class SimpleGameManager extends ChangeNotifier {
       debugPrint('游戏已存在: ${game.id}');
       return false;
     }
-    
+
     _games[game.id] = game;
     debugPrint('游戏注册成功: ${game.name} (${game.id})');
     notifyListeners();
@@ -162,10 +162,10 @@ class SimpleGameManager extends ChangeNotifier {
 
     // 从游戏列表移除
     _games.remove(gameId);
-    
+
     // 从历史记录移除
     _gameHistory.removeWhere((String id) => id == gameId);
-    
+
     debugPrint('游戏注销成功: ${game.name} (${game.id})');
     notifyListeners();
     return true;
@@ -181,7 +181,8 @@ class SimpleGameManager extends ChangeNotifier {
   SimpleGame? getGame(String gameId) => _games[gameId];
 
   /// 获取所有游戏名称
-  List<String> getGameNames() => _games.values.map((SimpleGame game) => game.name).toList();
+  List<String> getGameNames() =>
+      _games.values.map((SimpleGame game) => game.name).toList();
 
   /// 获取所有游戏ID
   List<String> getGameIds() => _games.keys.toList();
@@ -190,10 +191,10 @@ class SimpleGameManager extends ChangeNotifier {
   void _updateGameHistory(String gameId) {
     // 移除已存在的记录
     _gameHistory.removeWhere((String id) => id == gameId);
-    
+
     // 添加到末尾
     _gameHistory.add(gameId);
-    
+
     // 限制历史记录大小
     if (_gameHistory.length > _maxHistorySize) {
       _gameHistory.removeAt(0);
@@ -203,11 +204,11 @@ class SimpleGameManager extends ChangeNotifier {
   /// 获取游戏统计信息
   Map<String, dynamic> getGameStatistics() {
     final stats = <String, dynamic>{};
-    
+
     stats['totalGames'] = _games.length;
     stats['activeGameId'] = _activeGameId;
     stats['historySize'] = _gameHistory.length;
-    
+
     // 按游戏类型统计
     final gameStats = <String, dynamic>{};
     for (final game in _games.values) {
@@ -220,14 +221,14 @@ class SimpleGameManager extends ChangeNotifier {
       };
     }
     stats['gameDetails'] = gameStats;
-    
+
     return stats;
   }
 
   /// 重置所有游戏统计
   void resetAllGameStats() {
     for (final game in _games.values) {
-      if (game.gameState != SimpleGameState.notStarted) {
+      if (game.gameState != GameState.notStarted) {
         game.endGame();
       }
     }
@@ -240,11 +241,11 @@ class SimpleGameManager extends ChangeNotifier {
   void dispose() {
     // 停用当前游戏
     deactivateCurrentGame();
-    
+
     // 清空游戏列表
     _games.clear();
     _gameHistory.clear();
-    
+
     debugPrint('简化游戏管理器已清理');
     super.dispose();
   }

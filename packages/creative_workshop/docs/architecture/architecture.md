@@ -65,6 +65,13 @@ Creative Workshop 是一个模块化的创意工坊系统，采用分层架构�
 - **WorkshopConfig**: 工坊配置管理
 - **WorkshopEvents**: 事件系统
 
+#### 1.5 存储系统 (Storage)
+- **ProjectStorage**: 项目存储接口
+- **MemoryProjectStorage**: 内存存储实现
+- **LocalProjectStorage**: 本地文件存储
+- **WebProjectStorage**: Web平台存储
+- **ProjectStorageManager**: 存储管理器
+
 ### 2. 用户界面 (UI)
 
 #### 2.1 工作区 (Workspace)

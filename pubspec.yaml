@@ -1,6 +1,6 @@
 name: pet_app_v3_workspace
 description: Pet App V3 多包工作空间
-version: 1.0.0+1
+version: 1.4.0+1
 publish_to: 'none'
 
 environment:

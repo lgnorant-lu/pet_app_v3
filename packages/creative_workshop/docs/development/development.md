@@ -9,7 +9,8 @@
 ### 1. 系统要求
 
 - **Flutter SDK**: 3.0.0 或更高版本
-- **Dart SDK**: 2.17.0 或更高版本
+- **Dart SDK**: 3.2.0 或更高版本
+- **Plugin System**: 必需的插件系统依赖
 - **IDE**: VS Code 或 Android Studio
 - **操作系统**: Windows 10+, macOS 10.14+, Linux (Ubuntu 18.04+)
 
@@ -284,6 +285,40 @@ void registerCustomTools() {
     'custom_brush',
     () => CustomBrushTool(),
   );
+}
+```
+
+#### 1.4 插件系统集成
+
+Creative Workshop 完全集成了 Plugin System，支持工具和游戏插件的动态加载。
+
+```dart
+// 创建工具插件
+class MyToolPlugin extends ToolPlugin {
+  @override
+  PluginInfo get info => PluginInfo(
+    id: 'my_tool_plugin',
+    name: '我的工具插件',
+    version: '1.0.0',
+    description: '自定义工具插件',
+    author: '开发者',
+    supportedPlatforms: [PluginPlatform.all],
+  );
+
+  @override
+  Future<void> initialize() async {
+    // 插件初始化逻辑
+  }
+
+  @override
+  Future<void> dispose() async {
+    // 插件清理逻辑
+  }
+}
+
+// 注册插件到系统
+void registerPlugin() {
+  PluginManager.instance.registerPlugin(MyToolPlugin());
 }
 ```
 

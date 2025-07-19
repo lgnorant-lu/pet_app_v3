@@ -15,6 +15,7 @@ Change History:
 import 'package:flutter/material.dart';
 import 'package:creative_workshop/src/core/games/simple_games.dart';
 import 'package:creative_workshop/src/core/games/game_manager.dart';
+import 'package:creative_workshop/src/core/games/game_plugin.dart';
 
 /// 游戏画布组件
 class GameCanvas extends StatefulWidget {
@@ -47,7 +48,7 @@ class _GameCanvasState extends State<GameCanvas> {
   @override
   Widget build(BuildContext context) {
     final activeGame = _gameManager.activeGame;
-    
+
     if (activeGame == null) {
       return const Center(
         child: Column(
@@ -123,7 +124,7 @@ class _GameControlPanelState extends State<GameControlPanel> {
   @override
   Widget build(BuildContext context) {
     final activeGame = _gameManager.activeGame;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -164,12 +165,11 @@ class _GameControlPanelState extends State<GameControlPanel> {
             ],
           ),
           const SizedBox(height: 16),
-          
           if (activeGame != null) ...<Widget>[
             // 游戏状态信息
             _buildGameInfo(activeGame),
             const SizedBox(height: 16),
-            
+
             // 游戏控制按钮
             activeGame.buildControlPanel(),
           ] else ...<Widget>[
@@ -189,91 +189,98 @@ class _GameControlPanelState extends State<GameControlPanel> {
   }
 
   Widget _buildGameInfo(SimpleGame game) => Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: Colors.grey.shade200),
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Column(
-        children: <Widget>[
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              const Text('状态:', style: TextStyle(fontWeight: FontWeight.w500)),
-              _buildGameStateChip(game.gameState),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              const Text('分数:', style: TextStyle(fontWeight: FontWeight.w500)),
-              Text(
-                '${game.score}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              const Text('最高分:', style: TextStyle(fontWeight: FontWeight.w500)),
-              Text(
-                '${game.highScore}',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.orange,
-                ),
-              ),
-            ],
-          ),
-          if (game.gameTime > 0) ...<Widget>[
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: Border.all(color: Colors.grey.shade200),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Column(
+          children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                const Text('状态:',
+                    style: TextStyle(fontWeight: FontWeight.w500)),
+                _buildGameStateChip(game.gameState),
+              ],
+            ),
             const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                const Text('时间:', style: TextStyle(fontWeight: FontWeight.w500)),
+                const Text('分数:',
+                    style: TextStyle(fontWeight: FontWeight.w500)),
                 Text(
-                  '${game.gameTime}秒',
+                  '${game.score}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.green,
+                    color: Colors.blue,
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                const Text('最高分:',
+                    style: TextStyle(fontWeight: FontWeight.w500)),
+                Text(
+                  '${game.highScore}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+              ],
+            ),
+            if (game.gameTime > 0) ...<Widget>[
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  const Text('时间:',
+                      style: TextStyle(fontWeight: FontWeight.w500)),
+                  Text(
+                    '${game.gameTime}秒',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ],
-        ],
-      ),
-    );
+        ),
+      );
 
-  Widget _buildGameStateChip(SimpleGameState state) {
+  Widget _buildGameStateChip(GameState state) {
     Color color;
     String text;
-    
+
     switch (state) {
-      case SimpleGameState.notStarted:
+      case GameState.notStarted:
         color = Colors.grey;
         text = '未开始';
-      case SimpleGameState.playing:
+      case GameState.playing:
         color = Colors.green;
         text = '进行中';
-      case SimpleGameState.paused:
+      case GameState.paused:
         color = Colors.orange;
         text = '暂停';
-      case SimpleGameState.gameOver:
+      case GameState.gameOver:
         color = Colors.red;
         text = '游戏结束';
-      case SimpleGameState.victory:
+      case GameState.victory:
         color = Colors.purple;
         text = '胜利';
+      case GameState.defeat:
+        color = Colors.red;
+        text = '失败';
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
@@ -325,7 +332,7 @@ class _GameSelectorState extends State<GameSelector> {
   Widget build(BuildContext context) {
     final games = _gameManager.games;
     final activeGameId = _gameManager.activeGameId;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -350,7 +357,6 @@ class _GameSelectorState extends State<GameSelector> {
             ],
           ),
           const SizedBox(height: 16),
-          
           if (games.isEmpty) ...<Widget>[
             const Center(
               child: Text(
@@ -362,7 +368,8 @@ class _GameSelectorState extends State<GameSelector> {
               ),
             ),
           ] else ...<Widget>[
-            ...games.values.map((SimpleGame game) => _buildGameTile(game, activeGameId)),
+            ...games.values
+                .map((SimpleGame game) => _buildGameTile(game, activeGameId)),
           ],
         ],
       ),
@@ -371,7 +378,7 @@ class _GameSelectorState extends State<GameSelector> {
 
   Widget _buildGameTile(SimpleGame game, String? activeGameId) {
     final isActive = game.id == activeGameId;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(

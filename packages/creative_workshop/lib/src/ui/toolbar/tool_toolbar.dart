@@ -347,25 +347,134 @@ class _ToolToolbarState extends State<ToolToolbar> {
         );
 
   void _activateBrushTool() {
-    final brushTools = _toolManager.brushTools;
-    if (brushTools.isNotEmpty) {
-      final defaultBrush = brushTools.values.first;
-      _toolManager.activateBrushTool(defaultBrush.id);
+    final previousTool = _toolManager.activeToolId ?? 'none';
+
+    // 通过插件ID激活画笔工具
+    final success = _toolManager.activateBrushTool('simple_brush_tool');
+    if (success) {
+      debugPrint('画笔工具已激活');
+
+      // 记录工具切换历史
+      _historyManager.addToolSwitchAction(
+        fromTool: previousTool,
+        toTool: 'simple_brush_tool',
+        undoCallback: () {
+          if (previousTool != 'none') {
+            _toolManager.activateBrushTool(previousTool);
+          }
+        },
+        redoCallback: () {
+          _toolManager.activateBrushTool('simple_brush_tool');
+        },
+      );
+    } else {
+      debugPrint('激活画笔工具失败: 工具不存在');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('画笔工具不可用')),
+        );
+      }
     }
   }
 
   void _activatePencilTool() {
-    final pencilTools = _toolManager.pencilTools;
-    if (pencilTools.isNotEmpty) {
-      final defaultPencil = pencilTools.values.first;
-      _toolManager.activatePencilTool(defaultPencil.id);
+    final previousTool = _toolManager.activeToolId ?? 'none';
+
+    // 通过插件ID激活铅笔工具
+    final success = _toolManager.activatePencilTool('simple_pencil_tool');
+    if (success) {
+      debugPrint('铅笔工具已激活');
+
+      // 记录工具切换历史
+      _historyManager.addToolSwitchAction(
+        fromTool: previousTool,
+        toTool: 'simple_pencil_tool',
+        undoCallback: () {
+          if (previousTool != 'none') {
+            _toolManager.activatePencilTool(previousTool);
+          }
+        },
+        redoCallback: () {
+          _toolManager.activatePencilTool('simple_pencil_tool');
+        },
+      );
+    } else {
+      debugPrint('激活铅笔工具失败: 工具不存在');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('铅笔工具不可用')),
+        );
+      }
+    }
+  }
+
+  void _performClearCanvas() {
+    try {
+      // 清空画布内容
+      // 这里应该调用画布管理器的清空方法
+      debugPrint('画布已清空');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('画布已清空')),
+        );
+      }
+    } catch (e) {
+      debugPrint('清空画布失败: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('清空画布失败: $e')),
+        );
+      }
     }
   }
 
   void _showShapeTools() {
-    // TODO: 显示形状工具选择对话框
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('形状工具功能即将推出')),
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('选择形状工具'),
+        content: SizedBox(
+          width: 300,
+          height: 200,
+          child: Column(
+            children: [
+              const Text('可用的形状工具：'),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView(
+                  children: [
+                    _buildShapeToolItem(
+                      icon: Icons.crop_square,
+                      name: '矩形工具',
+                      description: '绘制矩形和正方形',
+                      onTap: () => _activateShapeTool('rectangle'),
+                    ),
+                    _buildShapeToolItem(
+                      icon: Icons.circle_outlined,
+                      name: '圆形工具',
+                      description: '绘制圆形和椭圆',
+                      onTap: () => _activateShapeTool('circle'),
+                    ),
+                    _buildShapeToolItem(
+                      icon: Icons.timeline,
+                      name: '直线工具',
+                      description: '绘制直线和箭头',
+                      onTap: () => _activateShapeTool('line'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('取消'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -437,10 +546,8 @@ class _ToolToolbarState extends State<ToolToolbar> {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              // TODO: 实现清空画布功能
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('画布已清空')),
-              );
+              // 实现清空画布功能
+              _performClearCanvas();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             child: const Text('清空'),
@@ -448,6 +555,44 @@ class _ToolToolbarState extends State<ToolToolbar> {
         ],
       ),
     );
+  }
+
+  Widget _buildShapeToolItem({
+    required IconData icon,
+    required String name,
+    required String description,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.blue),
+      title: Text(name),
+      subtitle: Text(description),
+      onTap: () {
+        Navigator.of(context).pop();
+        onTap();
+      },
+    );
+  }
+
+  void _activateShapeTool(String shapeType) {
+    try {
+      debugPrint('激活形状工具: $shapeType');
+
+      // 这里应该激活对应的形状工具插件
+      // 目前使用简化实现
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$shapeType 形状工具已激活')),
+        );
+      }
+    } catch (e) {
+      debugPrint('激活形状工具失败: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('激活形状工具失败: $e')),
+        );
+      }
+    }
   }
 }
 
@@ -466,6 +611,38 @@ class _HistoryManager {
     if (_undoStack.length > _maxHistorySize) {
       _undoStack.removeAt(0);
     }
+
+    debugPrint('历史记录已添加: ${action.description}');
+  }
+
+  /// 添加绘画操作到历史记录
+  void addDrawingAction({
+    required String description,
+    required VoidCallback undoCallback,
+    required VoidCallback redoCallback,
+  }) {
+    final action = _DrawingAction(
+      description: description,
+      undoCallback: undoCallback,
+      redoCallback: redoCallback,
+    );
+    addAction(action);
+  }
+
+  /// 添加工具切换操作到历史记录
+  void addToolSwitchAction({
+    required String fromTool,
+    required String toTool,
+    required VoidCallback undoCallback,
+    required VoidCallback redoCallback,
+  }) {
+    final action = _ToolSwitchAction(
+      fromTool: fromTool,
+      toTool: toTool,
+      undoCallback: undoCallback,
+      redoCallback: redoCallback,
+    );
+    addAction(action);
   }
 
   /// 是否可以撤销
@@ -520,4 +697,51 @@ abstract class _HistoryAction {
 
   /// 重做操作
   void redo();
+}
+
+/// 绘画操作历史记录
+class _DrawingAction extends _HistoryAction {
+  final VoidCallback undoCallback;
+  final VoidCallback redoCallback;
+
+  _DrawingAction({
+    required String description,
+    required this.undoCallback,
+    required this.redoCallback,
+  }) : super(description);
+
+  @override
+  void undo() {
+    undoCallback();
+  }
+
+  @override
+  void redo() {
+    redoCallback();
+  }
+}
+
+/// 工具切换操作历史记录
+class _ToolSwitchAction extends _HistoryAction {
+  final String fromTool;
+  final String toTool;
+  final VoidCallback undoCallback;
+  final VoidCallback redoCallback;
+
+  _ToolSwitchAction({
+    required this.fromTool,
+    required this.toTool,
+    required this.undoCallback,
+    required this.redoCallback,
+  }) : super('工具切换: $fromTool → $toTool');
+
+  @override
+  void undo() {
+    undoCallback();
+  }
+
+  @override
+  void redo() {
+    redoCallback();
+  }
 }

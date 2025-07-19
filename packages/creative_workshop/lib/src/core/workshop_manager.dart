@@ -17,7 +17,9 @@ import 'package:flutter/foundation.dart';
 import 'package:plugin_system/plugin_system.dart';
 
 import 'package:creative_workshop/src/core/tools/tool_plugin.dart';
+import 'package:creative_workshop/src/core/tools/drawing_tools.dart';
 import 'package:creative_workshop/src/core/games/game_plugin.dart';
+import 'package:creative_workshop/src/core/games/simple_games.dart';
 import 'package:creative_workshop/src/core/projects/project_manager.dart';
 
 /// 工坊状态
@@ -385,22 +387,34 @@ class WorkshopManager extends ChangeNotifier {
 
   /// 注册内置工具插件
   Future<void> _registerBuiltinTools() async {
+    // TODO(Critical): [Phase 2.9.2] 实现内置工具插件注册逻辑
+    // 需要实现：
+    // 1. 画笔工具注册 - BrushTool插件实例化和注册
+    // 2. 形状工具注册 - ShapeTools插件实例化和注册
+    // 3. 橡皮擦工具注册 - EraserTool插件实例化和注册
+    // 4. 文本工具注册 - TextTool插件实例化和注册
+    // 5. 选择工具注册 - SelectionTool插件实例化和注册
+    // 6. 工具权限配置和验证
+    // 7. 工具依赖关系管理
+    // 8. 工具加载失败的错误处理和回滚
+    //
+    // 当前状态: 完全占位符实现，所有工具注册都被注释掉
+    // 影响: 无法使用任何内置工具，工坊功能不可用
+    // 优先级: Critical - 阻塞核心功能
     _log('info', '注册内置工具插件');
 
     try {
       // 注册画笔工具
-      // await _registerBrushTool();
+      final brushTool = SimpleBrushTool();
+      await _pluginRegistry.register(brushTool);
+      _log('info', '画笔工具注册成功: ${brushTool.id}');
 
-      // 注册形状工具
-      // await _registerShapeTools();
+      // 注册铅笔工具
+      final pencilTool = SimplePencilTool();
+      await _pluginRegistry.register(pencilTool);
+      _log('info', '铅笔工具注册成功: ${pencilTool.id}');
 
-      // 注册橡皮擦工具
-      // await _registerEraserTool();
-
-      // 注册文本工具
-      // await _registerTextTool();
-
-      _log('info', '内置工具插件注册完成');
+      _log('info', '内置工具插件注册完成，共注册 2 个工具');
     } catch (e) {
       _log('warning', '注册内置工具插件时发生错误: $e');
       rethrow;
@@ -409,19 +423,29 @@ class WorkshopManager extends ChangeNotifier {
 
   /// 注册内置游戏插件
   Future<void> _registerBuiltinGames() async {
+    // TODO(Critical): [Phase 2.9.2] 实现内置游戏插件注册逻辑
+    // 需要实现：
+    // 1. 点击游戏注册 - ClickGame插件实例化和注册
+    // 2. 猜数字游戏注册 - NumberGuessGame插件实例化和注册
+    // 3. 记忆游戏注册 - MemoryGame插件实例化和注册
+    // 4. 拼图游戏注册 - PuzzleGame插件实例化和注册
+    // 5. 绘画游戏注册 - DrawingGame插件实例化和注册
+    // 6. 游戏权限配置和验证
+    // 7. 游戏依赖关系管理
+    // 8. 游戏加载失败的错误处理和回滚
+    //
+    // 当前状态: 完全占位符实现，所有游戏注册都被注释掉
+    // 影响: 无法使用任何内置游戏，工坊游戏功能不可用
+    // 优先级: Critical - 阻塞核心功能
     _log('info', '注册内置游戏插件');
 
     try {
       // 注册点击游戏
-      // await _registerClickGame();
+      final clickGame = SimpleClickGame();
+      await _pluginRegistry.register(clickGame);
+      _log('info', '点击游戏注册成功: ${clickGame.id}');
 
-      // 注册猜数字游戏
-      // await _registerNumberGuessGame();
-
-      // 注册记忆游戏
-      // await _registerMemoryGame();
-
-      _log('info', '内置游戏插件注册完成');
+      _log('info', '内置游戏插件注册完成，共注册 1 个游戏');
     } catch (e) {
       _log('warning', '注册内置游戏插件时发生错误: $e');
       rethrow;
@@ -432,29 +456,43 @@ class WorkshopManager extends ChangeNotifier {
 
   /// 获取用户插件列表
   Future<List<Map<String, dynamic>>> _getUserPluginList() async {
+    // TODO(High): [Phase 2.9.2] 实现真实的用户插件列表获取
+    // 需要实现：
+    // 1. 从SharedPreferences读取用户插件配置
+    // 2. 从文件系统扫描插件目录
+    // 3. 验证插件文件完整性和签名
+    // 4. 支持插件版本管理和更新检测
+    // 5. 插件启用/禁用状态管理
+    // 6. 插件依赖关系验证
+    // 7. 错误插件的过滤和报告
+    //
+    // 当前状态: 使用硬编码模拟数据
+    // 影响: 无法加载真实的用户插件，功能受限
+    // 优先级: High - 影响用户体验
     _log('info', '获取用户插件列表');
 
     try {
       // 从本地存储读取插件配置
       // 这里使用模拟数据，实际应该从SharedPreferences或文件系统读取
-      final List<Map<String, dynamic>> userPlugins = <Map<String, dynamic>>[
-        <String, dynamic>{
-          'id': 'user_drawing_tool',
-          'name': '用户绘画工具',
-          'type': 'tool',
-          'version': '1.0.0',
-          'enabled': true,
-          'path': '/plugins/user_drawing_tool',
-        },
-        <String, dynamic>{
-          'id': 'user_puzzle_game',
-          'name': '用户拼图游戏',
-          'type': 'game',
-          'version': '1.2.0',
-          'enabled': true,
-          'path': '/plugins/user_puzzle_game',
-        },
-      ];
+      // 获取已注册的插件列表
+      final registeredPlugins = _pluginRegistry.getAllPlugins();
+      final List<Map<String, dynamic>> userPlugins = <Map<String, dynamic>>[];
+
+      // 转换为用户插件信息格式
+      for (final plugin in registeredPlugins) {
+        // 跳过内置插件，只返回用户插件
+        if (!_isBuiltinPlugin(plugin.id)) {
+          userPlugins.add(<String, dynamic>{
+            'id': plugin.id,
+            'name': plugin.name,
+            'type': _getPluginType(plugin),
+            'version': plugin.version,
+            'enabled': true, // 已注册的插件默认为启用状态
+            'author': plugin.author,
+            'description': plugin.description,
+          });
+        }
+      }
 
       _log('info', '找到 ${userPlugins.length} 个用户插件');
       return userPlugins;
@@ -522,6 +560,19 @@ class WorkshopManager extends ChangeNotifier {
 
   /// 加载用户工具插件
   Future<void> _loadUserToolPlugin(Map<String, dynamic> pluginInfo) async {
+    // TODO(High): [Phase 2.9.2] 实现用户工具插件动态加载
+    // 需要实现：
+    // 1. 从插件路径读取插件文件
+    // 2. 验证插件签名和完整性
+    // 3. 动态实例化ToolPlugin子类
+    // 4. 注册到PluginRegistry
+    // 5. 权限验证和配置
+    // 6. 依赖关系检查和解析
+    // 7. 插件初始化和生命周期管理
+    //
+    // 当前状态: 完全占位符实现，无实际加载逻辑
+    // 影响: 无法使用用户自定义工具插件
+    // 优先级: High - 影响扩展性
     final String pluginId = pluginInfo['id'] as String;
     _log('info', '加载用户工具插件: $pluginId');
 
@@ -537,6 +588,19 @@ class WorkshopManager extends ChangeNotifier {
 
   /// 加载用户游戏插件
   Future<void> _loadUserGamePlugin(Map<String, dynamic> pluginInfo) async {
+    // TODO(High): [Phase 2.9.2] 实现用户游戏插件动态加载
+    // 需要实现：
+    // 1. 从插件路径读取插件文件
+    // 2. 验证插件签名和完整性
+    // 3. 动态实例化GamePlugin子类
+    // 4. 注册到PluginRegistry
+    // 5. 权限验证和配置
+    // 6. 依赖关系检查和解析
+    // 7. 插件初始化和生命周期管理
+    //
+    // 当前状态: 完全占位符实现，无实际加载逻辑
+    // 影响: 无法使用用户自定义游戏插件
+    // 优先级: High - 影响扩展性
     final String pluginId = pluginInfo['id'] as String;
     _log('info', '加载用户游戏插件: $pluginId');
 
@@ -547,6 +611,29 @@ class WorkshopManager extends ChangeNotifier {
     } catch (e) {
       _log('warning', '加载用户游戏插件失败: $pluginId, 错误: $e');
       rethrow;
+    }
+  }
+
+  // ===== 辅助方法 =====
+
+  /// 判断是否为内置插件
+  bool _isBuiltinPlugin(String pluginId) {
+    const builtinPluginIds = <String>{
+      'simple_brush_tool',
+      'simple_pencil_tool',
+      'simple_click_game',
+    };
+    return builtinPluginIds.contains(pluginId);
+  }
+
+  /// 获取插件类型
+  String _getPluginType(Plugin plugin) {
+    if (plugin is ToolPlugin) {
+      return 'tool';
+    } else if (plugin is GamePlugin) {
+      return 'game';
+    } else {
+      return 'unknown';
     }
   }
 }

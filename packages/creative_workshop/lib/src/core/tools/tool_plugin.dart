@@ -19,18 +19,25 @@ import 'package:plugin_system/plugin_system.dart';
 enum ToolType {
   /// 绘画工具
   drawing,
+
   /// 编辑工具
   editing,
+
   /// 效果工具
   effects,
+
   /// 文本工具
   text,
+
   /// 形状工具
   shapes,
+
   /// 选择工具
   selection,
+
   /// 变换工具
   transform,
+
   /// 自定义工具
   custom,
 }
@@ -48,19 +55,19 @@ class ToolConfig {
 
   /// 工具名称
   final String name;
-  
+
   /// 工具图标
   final IconData icon;
-  
+
   /// 快捷键
   final String? shortcut;
-  
+
   /// 提示文本
   final String? tooltip;
-  
+
   /// 是否启用
   final bool isEnabled;
-  
+
   /// 工具设置
   final Map<String, dynamic> settings;
 }
@@ -75,10 +82,10 @@ class ToolResult {
 
   /// 操作是否成功
   final bool success;
-  
+
   /// 结果数据
   final dynamic data;
-  
+
   /// 错误信息
   final String? error;
 }
@@ -94,9 +101,36 @@ abstract class ToolPlugin extends Plugin {
 
   /// 工具类型
   final ToolType toolType;
-  
+
   /// 工具配置
   final ToolConfig toolConfig;
+
+  // Plugin基类的抽象方法需要在具体实现中重写
+  // 这里提供默认的配置面板实现
+  Widget buildConfigurationPanel() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            toolConfig.name,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          if (toolConfig.tooltip != null) ...[
+            const SizedBox(height: 8),
+            Text(toolConfig.tooltip!),
+          ],
+          const SizedBox(height: 16),
+          // 子类可以重写此方法来提供自定义配置
+          ...buildCustomSettings(),
+        ],
+      ),
+    );
+  }
+
+  /// 子类重写此方法来提供自定义设置
+  List<Widget> buildCustomSettings() => [];
 
   @override
   PluginCategory get category => PluginCategory.tool;
@@ -206,7 +240,8 @@ abstract class TransformTool extends ToolPlugin {
 
 /// 工具插件工厂
 class ToolPluginFactory {
-  static final Map<String, ToolPlugin Function()> _toolFactories = <String, ToolPlugin Function()>{};
+  static final Map<String, ToolPlugin Function()> _toolFactories =
+      <String, ToolPlugin Function()>{};
 
   /// 注册工具插件
   static void registerTool(String toolId, ToolPlugin Function() factory) {

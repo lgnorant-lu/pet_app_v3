@@ -154,6 +154,40 @@ class ToolManager {
 }
 ```
 
+### 存储系统
+
+#### ProjectStorage
+
+项目存储接口，定义了项目数据的存储和检索方法。
+
+```dart
+abstract class ProjectStorage {
+  Future<void> saveProject(CreativeProject project);
+  Future<CreativeProject?> loadProject(String projectId);
+  Future<void> deleteProject(String projectId);
+  Future<List<String>> getAllProjectIds();
+  Future<bool> projectExists(String projectId);
+  Future<int> getProjectSize(String projectId);
+}
+```
+
+#### ProjectStorageManager
+
+存储管理器，负责管理不同平台的存储实现。
+
+```dart
+class ProjectStorageManager {
+  static ProjectStorageManager get instance;
+
+  Future<void> initialize();
+  ProjectStorage get storage;
+
+  Future<void> saveProjects(List<CreativeProject> projects);
+  Future<List<CreativeProject>> loadProjects(List<String> projectIds);
+  Future<Map<String, dynamic>> getStorageStats();
+}
+```
+
 ## UI 组件
 
 ### CreativeWorkspace
@@ -331,11 +365,12 @@ enum CanvasMode {
 
 ```dart
 enum GameState {
-  idle,     // 空闲
-  running,  // 运行中
-  paused,   // 暂停
-  finished, // 完成
-  error,    // 错误
+  notStarted, // 未开始
+  playing,    // 进行中
+  paused,     // 暂停
+  gameOver,   // 游戏结束
+  victory,    // 胜利
+  defeat,     // 失败
 }
 ```
 
