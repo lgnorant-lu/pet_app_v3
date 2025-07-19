@@ -3,12 +3,13 @@
 File name:          workshop_manager.dart
 Author:             Pet App Team
 Date created:       2025-07-18
-Last modified:      2025-07-18
+Last modified:      2025-07-19
 Dart Version:       3.2+
 Description:        创意工坊核心管理器
 ---------------------------------------------------------------
 Change History:
     2025-07-18: Initial creation - 创意工坊核心管理器;
+    2025-07-19: 优化初始化逻辑，支持重复调用;
 ---------------------------------------------------------------
 */
 
@@ -89,6 +90,25 @@ class WorkshopManager extends ChangeNotifier {
 
   /// 初始化创意工坊
   Future<bool> initialize() async {
+    // 检查是否已经初始化
+    if (_state == WorkshopState.ready || _state == WorkshopState.running) {
+      _log('info', '创意工坊已经初始化，跳过重复初始化');
+      return true;
+    }
+
+    // 如果正在初始化中，等待完成
+    if (_state == WorkshopState.initializing) {
+      _log('info', '创意工坊正在初始化中，等待完成');
+      // 等待状态变为ready或error
+      await for (final WorkshopState state in _stateController.stream) {
+        if (state == WorkshopState.ready) {
+          return true;
+        } else if (state == WorkshopState.error) {
+          return false;
+        }
+      }
+    }
+
     try {
       _setState(WorkshopState.initializing);
 
@@ -406,15 +426,25 @@ class WorkshopManager extends ChangeNotifier {
     try {
       // 注册画笔工具
       final brushTool = SimpleBrushTool();
-      await _pluginRegistry.register(brushTool);
-      _log('info', '画笔工具注册成功: ${brushTool.id}');
+      final brushRegistered =
+          await _pluginRegistry.registerIfNotExists(brushTool);
+      if (brushRegistered) {
+        _log('info', '画笔工具注册成功: ${brushTool.id}');
+      } else {
+        _log('info', '画笔工具已存在，跳过注册: ${brushTool.id}');
+      }
 
       // 注册铅笔工具
       final pencilTool = SimplePencilTool();
-      await _pluginRegistry.register(pencilTool);
-      _log('info', '铅笔工具注册成功: ${pencilTool.id}');
+      final pencilRegistered =
+          await _pluginRegistry.registerIfNotExists(pencilTool);
+      if (pencilRegistered) {
+        _log('info', '铅笔工具注册成功: ${pencilTool.id}');
+      } else {
+        _log('info', '铅笔工具已存在，跳过注册: ${pencilTool.id}');
+      }
 
-      _log('info', '内置工具插件注册完成，共注册 2 个工具');
+      _log('info', '内置工具插件注册完成');
     } catch (e) {
       _log('warning', '注册内置工具插件时发生错误: $e');
       rethrow;
@@ -442,10 +472,15 @@ class WorkshopManager extends ChangeNotifier {
     try {
       // 注册点击游戏
       final clickGame = SimpleClickGame();
-      await _pluginRegistry.register(clickGame);
-      _log('info', '点击游戏注册成功: ${clickGame.id}');
+      final gameRegistered =
+          await _pluginRegistry.registerIfNotExists(clickGame);
+      if (gameRegistered) {
+        _log('info', '点击游戏注册成功: ${clickGame.id}');
+      } else {
+        _log('info', '点击游戏已存在，跳过注册: ${clickGame.id}');
+      }
 
-      _log('info', '内置游戏插件注册完成，共注册 1 个游戏');
+      _log('info', '内置游戏插件注册完成');
     } catch (e) {
       _log('warning', '注册内置游戏插件时发生错误: $e');
       rethrow;

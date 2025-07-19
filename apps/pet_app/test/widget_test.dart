@@ -1,30 +1,53 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+/*
+---------------------------------------------------------------
+File name:          widget_test.dart
+Author:             Pet App V3 Team
+Date created:       2025-07-19
+Last modified:      2025-07-19
+Dart Version:       3.2+
+Description:        Pet App V3 Widget测试 - Phase 3.1
+---------------------------------------------------------------
+*/
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:pet_app_v3/main.dart';
+import 'package:pet_app_v3/app.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  group('Pet App V3 Widget Tests', () {
+    testWidgets('App should start and show splash screen', (
+      WidgetTester tester,
+    ) async {
+      // Build our app and trigger a frame.
+      await tester.pumpWidget(const PetAppV3());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      // Wait for splash screen to appear
+      await tester.pump();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      // Verify that splash screen elements are present
+      expect(find.text('Pet App V3'), findsOneWidget);
+      expect(find.text('万物皆插件的跨平台应用框架'), findsOneWidget);
+      expect(find.text('正在启动 Pet App V3...'), findsOneWidget);
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      // 清理所有pending timers
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('App should show version information', (
+      WidgetTester tester,
+    ) async {
+      // Build our app and trigger a frame.
+      await tester.pumpWidget(const PetAppV3());
+
+      // Wait for splash screen to appear
+      await tester.pump();
+
+      // Verify version information
+      expect(find.text('Version 3.1.0 - Phase 3.1'), findsOneWidget);
+
+      // 清理所有pending timers
+      await tester.pumpAndSettle();
+    });
   });
 }

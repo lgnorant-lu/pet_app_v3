@@ -19,7 +19,7 @@ Pet App V3 是 Pet App 系列的第三代产品，完全重构并采用了企业
 pet_app_v3/
 ├── packages/
 │   ├── plugin_system/        # 插件系统 ✅ v1.2.0
-│   └── creative_workshop/    # 创意工坊 ✅ v1.3.0
+│   └── creative_workshop/    # 创意工坊 ✅ v1.4.0
 ├── docs/                     # 项目文档
 ├── lib/                      # 主应用代码
 ├── test/                     # 测试文件
@@ -35,7 +35,7 @@ pet_app_v3/
 - **权限管理**: 完整的插件权限系统
 - **测试覆盖**: 100%测试通过率
 
-### 🎨 Creative Workshop (v1.3.0)
+### 🎨 Creative Workshop (v1.4.0)
 - **绘画功能**: 多种绘画工具，支持画笔、铅笔、形状工具
 - **游戏系统**: 内置游戏引擎，支持自定义游戏开发
 - **项目管理**: 完整的项目生命周期管理

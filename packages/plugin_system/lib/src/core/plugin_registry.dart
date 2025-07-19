@@ -3,12 +3,13 @@
 File name:          plugin_registry.dart
 Author:             lgnorant-lu
 Date created:       2025/07/18
-Last modified:      2025/07/18
+Last modified:      2025/07/19
 Dart Version:       3.2+
 Description:        插件注册中心 (Plugin registry)
 ---------------------------------------------------------------
 Change History:
     2025/07/18: Initial creation - 插件注册中心 (Plugin registry);
+    2025/07/19: 优化注册逻辑，支持重复注册;
 ---------------------------------------------------------------
 */
 import 'dart:async';
@@ -62,6 +63,22 @@ class PluginRegistry {
 
     // 通知插件已注册
     _notifyPluginRegistered(plugin);
+  }
+
+  /// 安全注册插件（如果不存在则注册）
+  Future<bool> registerIfNotExists(Plugin plugin) async {
+    if (_plugins.containsKey(plugin.id)) {
+      // 插件已存在，跳过注册
+      return false;
+    }
+
+    try {
+      await register(plugin);
+      return true;
+    } catch (e) {
+      // 注册失败，重新抛出异常
+      rethrow;
+    }
   }
 
   /// 注销插件
