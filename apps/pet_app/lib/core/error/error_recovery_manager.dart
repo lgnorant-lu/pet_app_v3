@@ -14,18 +14,22 @@ Change History:
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart'; // 不必要的导入，foundation.dart已提供所需元素
 
 /// 错误级别
 enum ErrorLevel {
   /// 信息
   info,
+
   /// 警告
   warning,
+
   /// 错误
   error,
+
   /// 严重错误
   severe,
+
   /// 致命错误
   fatal,
 }
@@ -34,16 +38,22 @@ enum ErrorLevel {
 enum ErrorType {
   /// 网络错误
   network,
+
   /// 存储错误
   storage,
+
   /// 插件错误
   plugin,
+
   /// 模块错误
   module,
+
   /// UI错误
   ui,
+
   /// 系统错误
   system,
+
   /// 未知错误
   unknown,
 }
@@ -58,7 +68,7 @@ class ErrorInfo {
   final StackTrace? stackTrace;
   final DateTime timestamp;
   final Map<String, dynamic> context;
-  
+
   ErrorInfo({
     required this.id,
     required this.level,
@@ -75,16 +85,16 @@ class ErrorInfo {
 abstract class RecoveryStrategy {
   /// 策略名称
   String get name;
-  
+
   /// 是否可以处理此错误
   bool canHandle(ErrorInfo errorInfo);
-  
+
   /// 执行恢复
   Future<bool> recover(ErrorInfo errorInfo);
 }
 
 /// 错误恢复管理器
-/// 
+///
 /// Phase 3.1 核心功能：
 /// - 错误恢复机制
 /// - 故障转移策略
@@ -93,37 +103,37 @@ abstract class RecoveryStrategy {
 class ErrorRecoveryManager {
   static final ErrorRecoveryManager _instance = ErrorRecoveryManager._();
   static ErrorRecoveryManager get instance => _instance;
-  
+
   ErrorRecoveryManager._();
 
   /// 是否已初始化
   bool _isInitialized = false;
-  
+
   /// 错误历史记录
   final List<ErrorInfo> _errorHistory = [];
-  
+
   /// 恢复策略列表
   final List<RecoveryStrategy> _strategies = [];
-  
+
   /// 错误事件流控制器
-  final StreamController<ErrorInfo> _errorController = 
+  final StreamController<ErrorInfo> _errorController =
       StreamController<ErrorInfo>.broadcast();
-  
+
   /// 错误计数器
   final Map<ErrorType, int> _errorCounts = {};
-  
+
   /// 最大错误历史记录数
   static const int _maxHistorySize = 1000;
 
   /// 获取是否已初始化
   bool get isInitialized => _isInitialized;
-  
+
   /// 获取错误历史记录
   List<ErrorInfo> get errorHistory => List.unmodifiable(_errorHistory);
-  
+
   /// 获取错误事件流
   Stream<ErrorInfo> get errorStream => _errorController.stream;
-  
+
   /// 获取错误统计
   Map<ErrorType, int> get errorCounts => Map.unmodifiable(_errorCounts);
 
@@ -136,13 +146,12 @@ class ErrorRecoveryManager {
 
     try {
       _log('info', '初始化错误恢复管理器');
-      
+
       // 注册默认恢复策略
       _registerDefaultStrategies();
-      
+
       _isInitialized = true;
       _log('info', '错误恢复管理器初始化完成');
-      
     } catch (e, stackTrace) {
       _log('severe', '错误恢复管理器初始化失败', e, stackTrace);
       rethrow;
@@ -164,7 +173,7 @@ class ErrorRecoveryManager {
         'context': details.context?.toString() ?? 'unknown',
       },
     );
-    
+
     _handleError(errorInfo);
   }
 
@@ -179,7 +188,7 @@ class ErrorRecoveryManager {
       stackTrace: stackTrace,
       timestamp: DateTime.now(),
     );
-    
+
     _handleError(errorInfo);
   }
 
@@ -202,7 +211,7 @@ class ErrorRecoveryManager {
       timestamp: DateTime.now(),
       context: context,
     );
-    
+
     await _handleError(errorInfo);
   }
 
@@ -226,10 +235,14 @@ class ErrorRecoveryManager {
     final now = DateTime.now();
     final last24Hours = now.subtract(const Duration(hours: 24));
     final last7Days = now.subtract(const Duration(days: 7));
-    
-    final recent24h = _errorHistory.where((e) => e.timestamp.isAfter(last24Hours)).length;
-    final recent7d = _errorHistory.where((e) => e.timestamp.isAfter(last7Days)).length;
-    
+
+    final recent24h = _errorHistory
+        .where((e) => e.timestamp.isAfter(last24Hours))
+        .length;
+    final recent7d = _errorHistory
+        .where((e) => e.timestamp.isAfter(last7Days))
+        .length;
+
     return {
       'total_errors': _errorHistory.length,
       'errors_24h': recent24h,
@@ -251,13 +264,12 @@ class ErrorRecoveryManager {
     try {
       // 记录错误
       _recordError(errorInfo);
-      
+
       // 发送错误事件
       _errorController.add(errorInfo);
-      
+
       // 尝试恢复
       await _attemptRecovery(errorInfo);
-      
     } catch (e, stackTrace) {
       _log('severe', '处理错误时发生异常', e, stackTrace);
     }
@@ -267,15 +279,15 @@ class ErrorRecoveryManager {
   void _recordError(ErrorInfo errorInfo) {
     // 添加到历史记录
     _errorHistory.add(errorInfo);
-    
+
     // 限制历史记录大小
     if (_errorHistory.length > _maxHistorySize) {
       _errorHistory.removeAt(0);
     }
-    
+
     // 更新错误计数
     _errorCounts[errorInfo.type] = (_errorCounts[errorInfo.type] ?? 0) + 1;
-    
+
     _log(
       errorInfo.level.name,
       '错误记录: [${errorInfo.type.name}] ${errorInfo.message}',
@@ -290,22 +302,21 @@ class ErrorRecoveryManager {
       if (strategy.canHandle(errorInfo)) {
         try {
           _log('info', '尝试使用策略恢复: ${strategy.name}');
-          
+
           final recovered = await strategy.recover(errorInfo);
-          
+
           if (recovered) {
             _log('info', '错误恢复成功: ${strategy.name}');
             return;
           } else {
             _log('warning', '错误恢复失败: ${strategy.name}');
           }
-          
         } catch (e, stackTrace) {
           _log('warning', '恢复策略执行失败: ${strategy.name}', e, stackTrace);
         }
       }
     }
-    
+
     _log('warning', '没有找到合适的恢复策略: ${errorInfo.type.name}');
   }
 
@@ -313,13 +324,13 @@ class ErrorRecoveryManager {
   void _registerDefaultStrategies() {
     // 网络错误恢复策略
     addRecoveryStrategy(_NetworkErrorRecoveryStrategy());
-    
+
     // 存储错误恢复策略
     addRecoveryStrategy(_StorageErrorRecoveryStrategy());
-    
+
     // 插件错误恢复策略
     addRecoveryStrategy(_PluginErrorRecoveryStrategy());
-    
+
     // UI错误恢复策略
     addRecoveryStrategy(_UIErrorRecoveryStrategy());
   }
@@ -331,7 +342,12 @@ class ErrorRecoveryManager {
   }
 
   /// 日志记录
-  void _log(String level, String message, [Object? error, StackTrace? stackTrace]) {
+  void _log(
+    String level,
+    String message, [
+    Object? error,
+    StackTrace? stackTrace,
+  ]) {
     if (kDebugMode) {
       final timestamp = DateTime.now().toIso8601String();
       print('[$timestamp] [ErrorRecoveryManager] [$level] $message');

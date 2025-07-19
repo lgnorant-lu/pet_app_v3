@@ -14,6 +14,8 @@ Change History:
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'framework/main_app_framework.dart';
+// import 'framework/quick_action_panel.dart'; // 暂时未使用
 
 /// 导航页面信息
 class NavigationPage {
@@ -23,7 +25,7 @@ class NavigationPage {
   final IconData? activeIcon;
   final Widget page;
   final bool enabled;
-  
+
   NavigationPage({
     required this.id,
     required this.title,
@@ -35,7 +37,7 @@ class NavigationPage {
 }
 
 /// 主导航界面
-/// 
+///
 /// Phase 3.1 功能：
 /// - 底部导航栏
 /// - 模块页面切换
@@ -51,10 +53,10 @@ class MainNavigation extends StatefulWidget {
 class _MainNavigationState extends State<MainNavigation> {
   /// 当前选中的页面索引
   int _currentIndex = 0;
-  
+
   /// 页面控制器
   late PageController _pageController;
-  
+
   /// 导航页面列表
   late List<NavigationPage> _pages;
 
@@ -111,31 +113,69 @@ class _MainNavigationState extends State<MainNavigation> {
       setState(() {
         _currentIndex = index;
       });
-      
+
       _pageController.animateToPage(
         index,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
-      
+
       _log('info', '切换到页面: ${_pages[index].title}');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
-        children: _pages.map((page) => page.page).toList(),
+    return MainAppFramework(
+      title: 'Pet App V3',
+      quickActions: _buildQuickActions(),
+      child: Scaffold(
+        body: PageView(
+          controller: _pageController,
+          onPageChanged: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+          children: _pages.map((page) => page.page).toList(),
+        ),
+        bottomNavigationBar: _buildBottomNavigationBar(),
       ),
-      bottomNavigationBar: _buildBottomNavigationBar(),
     );
+  }
+
+  /// 构建快捷操作
+  List<QuickAction> _buildQuickActions() {
+    return [
+      QuickAction(
+        id: 'quick_home',
+        title: '首页',
+        icon: Icons.home,
+        onTap: () => _onPageChanged(0),
+        tooltip: '快速返回首页',
+      ),
+      QuickAction(
+        id: 'quick_workshop',
+        title: '工坊',
+        icon: Icons.build,
+        onTap: () => _onPageChanged(1),
+        tooltip: '打开创意工坊',
+      ),
+      QuickAction(
+        id: 'quick_apps',
+        title: '应用',
+        icon: Icons.apps,
+        onTap: () => _onPageChanged(2),
+        tooltip: '管理应用',
+      ),
+      QuickAction(
+        id: 'quick_settings',
+        title: '设置',
+        icon: Icons.settings,
+        onTap: () => _onPageChanged(3),
+        tooltip: '打开设置',
+      ),
+    ];
   }
 
   /// 构建底部导航栏
@@ -170,34 +210,21 @@ class _HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Pet App V3'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Pet App V3'), centerTitle: true),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.pets,
-              size: 64,
-              color: Colors.blue,
-            ),
+            Icon(Icons.pets, size: 64, color: Colors.blue),
             SizedBox(height: 24),
             Text(
               '欢迎使用 Pet App V3',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
             Text(
               '万物皆插件的跨平台应用框架',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 32),
@@ -239,34 +266,21 @@ class _CreativeWorkshopPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('创意工坊'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('创意工坊'), centerTitle: true),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.build,
-              size: 64,
-              color: Colors.orange,
-            ),
+            Icon(Icons.build, size: 64, color: Colors.orange),
             SizedBox(height: 24),
             Text(
               '创意工坊',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
             Text(
               '插件创建、管理、分发的核心平台',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 32),
@@ -308,34 +322,21 @@ class _AppManagerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('应用管理'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('应用管理'), centerTitle: true),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.apps,
-              size: 64,
-              color: Colors.green,
-            ),
+            Icon(Icons.apps, size: 64, color: Colors.green),
             SizedBox(height: 24),
             Text(
               '应用管理',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
             Text(
               '管理已安装的应用和插件',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 32),
@@ -377,34 +378,21 @@ class _SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('设置'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('设置'), centerTitle: true),
       body: const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.settings,
-              size: 64,
-              color: Colors.purple,
-            ),
+            Icon(Icons.settings, size: 64, color: Colors.purple),
             SizedBox(height: 24),
             Text(
               '设置',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 16),
             Text(
               '应用设置和个性化配置',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.grey,
-              ),
+              style: TextStyle(fontSize: 16, color: Colors.grey),
               textAlign: TextAlign.center,
             ),
             SizedBox(height: 32),

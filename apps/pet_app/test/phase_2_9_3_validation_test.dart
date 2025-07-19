@@ -12,7 +12,7 @@ Change History:
 ---------------------------------------------------------------
 */
 
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart'; // 暂时未使用
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_system/plugin_system.dart';
 import 'package:creative_workshop/creative_workshop.dart';
@@ -90,7 +90,7 @@ void main() {
         final stopwatch = Stopwatch()..start();
 
         // 模拟插件加载
-        final pluginRegistry = PluginRegistry.instance;
+        PluginRegistry.instance; // 确保插件注册中心初始化
         final workshopManager = WorkshopManager.instance;
         await workshopManager.initialize();
 
@@ -221,7 +221,7 @@ Future<void> _testToolPluginWorkflow(WidgetTester tester) async {
 /// 测试项目保存工作流程
 Future<void> _testProjectSaveWorkflow(WidgetTester tester) async {
   // 模拟项目保存
-  final workshopManager = WorkshopManager.instance;
+  WorkshopManager.instance; // 确保工坊管理器初始化
 
   // 创建测试项目
   final testProject = {

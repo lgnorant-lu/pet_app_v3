@@ -24,6 +24,13 @@ import 'package:creative_workshop/creative_workshop.dart';
 // import 'package:app_manager/app_manager.dart';
 // import 'package:settings_system/settings_system.dart';
 
+// Phase 3.2.1: 统一消息总线
+// import 'core/communication/unified_message_bus.dart'; // 暂时未使用
+import 'core/communication/module_communication_coordinator.dart' as comm;
+import 'core/communication/cross_module_event_router.dart';
+import 'core/communication/data_sync_manager.dart';
+import 'core/communication/conflict_resolution_engine.dart';
+
 import 'core/lifecycle/app_lifecycle_manager.dart';
 import 'core/persistence/app_state_manager.dart';
 import 'core/modules/module_loader.dart';
@@ -153,21 +160,86 @@ class _PetAppV3State extends State<PetAppV3> with WidgetsBindingObserver {
     try {
       _log('info', '开始加载插件系统');
 
-      // 1. 初始化插件注册中心
-      final pluginRegistry = PluginRegistry.instance;
+      // 1. 初始化统一消息总线和通信协调器
+      await _initializeCommunicationSystem();
+
+      // 2. 初始化插件注册中心
+      PluginRegistry.instance; // 确保插件注册中心初始化
       _log('info', '✅ 插件注册中心初始化完成');
 
-      // 2. 初始化插件加载器
-      final pluginLoader = PluginLoader.instance;
+      // 3. 初始化插件加载器
+      PluginLoader.instance; // 确保插件加载器初始化
       _log('info', '✅ 插件加载器初始化完成');
 
-      // 3. 加载Creative Workshop内置插件
+      // 4. 加载Creative Workshop内置插件
       await _loadCreativeWorkshopPlugins();
 
       _log('info', '✅ 插件加载完成');
     } catch (e, stackTrace) {
       _log('severe', '插件加载失败', e, stackTrace);
       // 插件加载失败不应该阻止应用启动
+    }
+  }
+
+  /// 初始化通信系统
+  Future<void> _initializeCommunicationSystem() async {
+    try {
+      _log('info', '初始化统一消息总线');
+
+      // 获取通信协调器实例
+      final coordinator = comm.ModuleCommunicationCoordinator.instance;
+
+      // 初始化跨模块事件路由器
+      final eventRouter = CrossModuleEventRouter.instance;
+      await eventRouter.initialize();
+      _log('info', '✅ 跨模块事件路由器初始化完成');
+
+      // 初始化数据同步管理器
+      final dataSyncManager = DataSyncManager.instance;
+
+      // 注册主应用的数据同步配置
+      dataSyncManager.registerSyncConfig(
+        const SyncConfig(
+          moduleId: 'pet_app_main',
+          dataKeys: {
+            'app_state',
+            'user_preferences',
+            'plugin_states',
+            'error_logs',
+          },
+          strategy: SyncStrategy.realtime,
+        ),
+      );
+
+      _log('info', '✅ 数据同步管理器初始化完成');
+
+      // 初始化冲突解决引擎
+      final conflictEngine = ConflictResolutionEngine.instance;
+      conflictEngine.initialize();
+      _log('info', '✅ 冲突解决引擎初始化完成');
+
+      // 注册主应用模块
+      coordinator.registerModule(
+        comm.ModuleInfo(
+          id: 'pet_app_main',
+          name: 'Pet App V3 主应用',
+          version: '3.1.0',
+          type: 'main_app',
+          capabilities: const {
+            'lifecycle_management': true,
+            'state_persistence': true,
+            'error_recovery': true,
+          },
+        ),
+      );
+
+      // 更新主应用状态
+      coordinator.updateModuleStatus('pet_app_main', comm.ModuleStatus.running);
+
+      _log('info', '✅ 统一消息总线初始化完成');
+    } catch (e, stackTrace) {
+      _log('warning', '通信系统初始化失败', e, stackTrace);
+      rethrow;
     }
   }
 
