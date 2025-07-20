@@ -33,6 +33,9 @@ dependencies:
   # Phase 3.1 Dependencies - 应用生命周期管理
   shared_preferences: ^2.2.2  # 状态持久化
 
+  # Phase 4.2 Dependencies - 设置系统
+  flutter_riverpod: ^2.4.9  # 状态管理
+
   # Local Package Dependencies - Pet App V3 Modules
   # Phase 2.9.3: 逐步启用模块依赖进行验证
   plugin_system:

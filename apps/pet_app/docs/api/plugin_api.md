@@ -1,7 +1,94 @@
 # Pet App V3 API Documentation
 
 ## 概述
-Pet App V3 完整API文档，涵盖应用生命周期、模块通信、UI框架和导航系统。
+Pet App V3 完整API文档，涵盖应用生命周期、模块通信、UI框架、导航系统和用户界面组件。
+
+## Phase 4 用户界面API
+
+### 首页仪表板 (Phase 4.1)
+
+#### HomeProvider
+```dart
+class HomeProvider extends StateNotifier<HomeData> {
+  Future<void> refresh();
+  void updateModuleStatus(String moduleId, ModuleStatus status);
+  void addRecentProject(String projectName);
+  void unlockAchievement(String achievementId);
+}
+
+// 使用方式
+final homeData = ref.watch(homeProvider);
+final homeNotifier = ref.read(homeProvider.notifier);
+```
+
+#### HomeData
+```dart
+class HomeData {
+  final List<ModuleInfo> modules;
+  final Map<String, dynamic> userStats;
+  final List<String> recentProjects;
+  final List<String> achievements;
+  final bool isLoading;
+
+  HomeData copyWith({...});
+}
+```
+
+#### ModuleInfo
+```dart
+class ModuleInfo {
+  final String id;
+  final String name;
+  final String description;
+  final IconData icon;
+  final ModuleStatus status;
+  final String route;
+
+  ModuleInfo copyWith({...});
+}
+```
+
+### 设置系统 (Phase 4.2)
+
+#### SettingsProvider
+```dart
+class SettingsProvider extends StateNotifier<SettingsData> {
+  Future<void> updateGeneralSettings(GeneralSettings settings);
+  Future<void> updateAppearanceSettings(AppearanceSettings settings);
+  Future<void> updateNotificationSettings(NotificationSettings settings);
+  Future<void> updatePrivacySettings(PrivacySettings settings);
+  Future<void> updateAdvancedSettings(AdvancedSettings settings);
+  Future<void> resetToDefaults();
+  Future<void> exportSettings();
+  Future<void> importSettings(Map<String, dynamic> data);
+}
+```
+
+#### SettingsData
+```dart
+class SettingsData {
+  final GeneralSettings general;
+  final AppearanceSettings appearance;
+  final NotificationSettings notifications;
+  final PrivacySettings privacy;
+  final AdvancedSettings advanced;
+
+  SettingsData copyWith({...});
+}
+```
+
+#### GeneralSettings
+```dart
+class GeneralSettings {
+  final String language;
+  final String region;
+  final bool autoSave;
+  final bool startOnBoot;
+  final bool checkUpdates;
+
+  GeneralSettings copyWith({...});
+}
+```
 
 ## Phase 3 核心API
 

@@ -15,6 +15,7 @@ Change History:
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Phase 2.9.3: 逐步启用模块导入进行验证
 import 'package:plugin_system/plugin_system.dart';
@@ -258,31 +259,33 @@ class _PetAppV3State extends State<PetAppV3> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Pet App V3',
+    return ProviderScope(
+      child: MaterialApp(
+        title: 'Pet App V3',
 
-      // 主题配置
-      theme: _buildLightTheme(),
-      darkTheme: _buildDarkTheme(),
-      themeMode: _themeMode,
+        // 主题配置
+        theme: _buildLightTheme(),
+        darkTheme: _buildDarkTheme(),
+        themeMode: _themeMode,
 
-      // 国际化配置
-      locale: _locale,
-      supportedLocales: const [
-        Locale('zh', 'CN'), // 中文简体
-        Locale('en', 'US'), // 英文
-      ],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-      ],
+        // 国际化配置
+        locale: _locale,
+        supportedLocales: const [
+          Locale('zh', 'CN'), // 中文简体
+          Locale('en', 'US'), // 英文
+        ],
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
 
-      // 主界面
-      home: _buildHome(),
+        // 主界面
+        home: _buildHome(),
 
-      // 调试配置
-      debugShowCheckedModeBanner: kDebugMode,
+        // 调试配置
+        debugShowCheckedModeBanner: kDebugMode,
+      ),
     );
   }
 

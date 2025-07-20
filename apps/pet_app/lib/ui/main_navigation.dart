@@ -14,7 +14,10 @@ Change History:
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'framework/main_app_framework.dart';
+import 'pages/home/home_page.dart';
+import 'pages/settings/pages/settings_page.dart';
 // import 'framework/quick_action_panel.dart'; // 暂时未使用
 
 /// 导航页面信息
@@ -43,14 +46,18 @@ class NavigationPage {
 /// - 模块页面切换
 /// - 响应式布局
 /// - 状态保持
-class MainNavigation extends StatefulWidget {
+///
+/// Phase 4.1 更新：
+/// - 集成新的首页仪表板
+/// - 支持Riverpod状态管理
+class MainNavigation extends ConsumerStatefulWidget {
   const MainNavigation({super.key});
 
   @override
-  State<MainNavigation> createState() => _MainNavigationState();
+  ConsumerState<MainNavigation> createState() => _MainNavigationState();
 }
 
-class _MainNavigationState extends State<MainNavigation> {
+class _MainNavigationState extends ConsumerState<MainNavigation> {
   /// 当前选中的页面索引
   int _currentIndex = 0;
 
@@ -81,7 +88,7 @@ class _MainNavigationState extends State<MainNavigation> {
         title: '首页',
         icon: Icons.home_outlined,
         activeIcon: Icons.home,
-        page: const _HomePage(),
+        page: const HomePage(),
       ),
       NavigationPage(
         id: 'creative_workshop',
@@ -102,7 +109,7 @@ class _MainNavigationState extends State<MainNavigation> {
         title: '设置',
         icon: Icons.settings_outlined,
         activeIcon: Icons.settings,
-        page: const _SettingsPage(),
+        page: const SettingsPage(),
       ),
     ];
   }
@@ -200,62 +207,6 @@ class _MainNavigationState extends State<MainNavigation> {
       final timestamp = DateTime.now().toIso8601String();
       print('[$timestamp] [MainNavigation] [$level] $message');
     }
-  }
-}
-
-/// 首页
-class _HomePage extends StatelessWidget {
-  const _HomePage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Pet App V3'), centerTitle: true),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.pets, size: 64, color: Colors.blue),
-            SizedBox(height: 24),
-            Text(
-              '欢迎使用 Pet App V3',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            Text(
-              '万物皆插件的跨平台应用框架',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 32),
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Text(
-                      'Phase 3.1 - 应用生命周期管理',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '✅ 应用启动流程优化\n'
-                      '✅ 状态持久化系统\n'
-                      '✅ 模块加载顺序管理\n'
-                      '✅ 错误恢复机制',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 
@@ -358,63 +309,6 @@ class _AppManagerPage extends StatelessWidget {
                       '• 应用列表管理\n'
                       '• 插件状态监控\n'
                       '• 性能分析工具',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// 设置页面
-class _SettingsPage extends StatelessWidget {
-  const _SettingsPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('设置'), centerTitle: true),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.settings, size: 64, color: Colors.purple),
-            SizedBox(height: 24),
-            Text(
-              '设置',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            Text(
-              '应用设置和个性化配置',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 32),
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Text(
-                      'Settings System v1.0.0',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '🚧 待开发功能\n'
-                      '• 主题设置\n'
-                      '• 语言设置\n'
-                      '• 插件配置\n'
-                      '• 数据管理',
                       style: TextStyle(fontSize: 14),
                     ),
                   ],

@@ -1,7 +1,7 @@
 # Pet App V3 部署指南
 
 ## 概述
-Pet App V3 Phase 3 部署指南，涵盖多平台构建、发布流程和运维监控。
+Pet App V3 Phase 4.1-4.2 部署指南，涵盖多平台构建、发布流程和运维监控。
 
 ## 部署环境要求
 
@@ -32,7 +32,7 @@ Pet App V3 Phase 3 部署指南，涵盖多平台构建、发布流程和运维�
 ```dart
 class AppConfig {
   static const String appName = 'Pet App V3';
-  static const String version = '3.3.0';
+  static const String version = '4.2.0';
   static const int buildNumber = 1;
   
   // 环境配置

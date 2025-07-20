@@ -19,10 +19,14 @@ pet_app_v3/apps/pet_app/
 │   │   ├── lifecycle/           # 生命周期管理
 │   │   ├── communication/       # 通信系统
 │   │   ├── plugins/            # 插件系统
-│   │   └── workshop/           # 创意工坊
+│   │   ├── workshop/           # 创意工坊
+│   │   └── providers/          # 状态管理
 │   ├── ui/                     # UI组件
 │   │   ├── framework/          # 主框架
 │   │   ├── navigation/         # 导航系统
+│   │   ├── pages/              # 页面组件
+│   │   │   ├── home/           # 首页仪表板
+│   │   │   └── settings/       # 设置页面
 │   │   └── components/         # 通用组件
 │   ├── app.dart               # 应用入口
 │   └── main.dart              # 主函数
@@ -36,10 +40,13 @@ pet_app_v3/apps/pet_app/
 dependencies:
   flutter:
     sdk: flutter
+  # 状态管理
+  flutter_riverpod: ^2.4.9
   # 核心依赖
-  provider: ^6.1.1
   shared_preferences: ^2.2.2
   path_provider: ^2.1.1
+  # UI组件
+  cupertino_icons: ^1.0.2
   
 dev_dependencies:
   flutter_test:
@@ -381,6 +388,185 @@ class CustomGamePlugin extends GamePlugin {
   @override
   Future<void> pauseGame() async {
     // 游戏暂停逻辑
+  }
+}
+```
+
+## Phase 4 UI开发
+
+### 1. 首页仪表板开发
+
+#### 创建新的首页组件
+```dart
+class CustomDashboardWidget extends ConsumerWidget {
+  const CustomDashboardWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final homeData = ref.watch(homeProvider);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '自定义仪表板',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            if (homeData.isLoading)
+              const CircularProgressIndicator()
+            else
+              _buildContent(context, homeData),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildContent(BuildContext context, HomeData data) {
+    // 自定义内容实现
+    return Container();
+  }
+}
+```
+
+#### 集成到首页
+```dart
+// 在 home_page.dart 中添加新组件
+SliverToBoxAdapter(
+  child: Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: CustomDashboardWidget(),
+  ),
+),
+```
+
+### 2. 设置系统开发
+
+#### 创建新的设置分类
+```dart
+class CustomSettings {
+  final bool enableFeature;
+  final String customValue;
+  final int threshold;
+
+  const CustomSettings({
+    this.enableFeature = false,
+    this.customValue = '',
+    this.threshold = 10,
+  });
+
+  CustomSettings copyWith({
+    bool? enableFeature,
+    String? customValue,
+    int? threshold,
+  }) {
+    return CustomSettings(
+      enableFeature: enableFeature ?? this.enableFeature,
+      customValue: customValue ?? this.customValue,
+      threshold: threshold ?? this.threshold,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'enableFeature': enableFeature,
+      'customValue': customValue,
+      'threshold': threshold,
+    };
+  }
+
+  factory CustomSettings.fromJson(Map<String, dynamic> json) {
+    return CustomSettings(
+      enableFeature: json['enableFeature'] ?? false,
+      customValue: json['customValue'] ?? '',
+      threshold: json['threshold'] ?? 10,
+    );
+  }
+}
+```
+
+#### 创建设置页面
+```dart
+class CustomSettingsPage extends ConsumerWidget {
+  const CustomSettingsPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settings = ref.watch(customSettingsProvider);
+    final notifier = ref.read(customSettingsProvider.notifier);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('自定义设置'),
+      ),
+      body: ListView(
+        children: [
+          SettingsSection(
+            title: '功能设置',
+            children: [
+              SwitchListTile(
+                title: const Text('启用功能'),
+                subtitle: const Text('开启或关闭自定义功能'),
+                value: settings.enableFeature,
+                onChanged: (value) {
+                  notifier.updateEnableFeature(value);
+                },
+              ),
+              ListTile(
+                title: const Text('自定义值'),
+                subtitle: Text(settings.customValue.isEmpty ? '未设置' : settings.customValue),
+                trailing: const Icon(Icons.edit),
+                onTap: () => _showEditDialog(context, notifier),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+### 3. 状态管理开发
+
+#### 创建Provider
+```dart
+final customSettingsProvider = StateNotifierProvider<CustomSettingsNotifier, CustomSettings>((ref) {
+  return CustomSettingsNotifier();
+});
+
+class CustomSettingsNotifier extends StateNotifier<CustomSettings> {
+  CustomSettingsNotifier() : super(const CustomSettings()) {
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    // 从持久化存储加载设置
+    final prefs = await SharedPreferences.getInstance();
+    final jsonString = prefs.getString('custom_settings');
+    if (jsonString != null) {
+      final json = jsonDecode(jsonString);
+      state = CustomSettings.fromJson(json);
+    }
+  }
+
+  Future<void> updateEnableFeature(bool value) async {
+    state = state.copyWith(enableFeature: value);
+    await _saveSettings();
+  }
+
+  Future<void> updateCustomValue(String value) async {
+    state = state.copyWith(customValue: value);
+    await _saveSettings();
+  }
+
+  Future<void> _saveSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('custom_settings', jsonEncode(state.toJson()));
   }
 }
 ```
