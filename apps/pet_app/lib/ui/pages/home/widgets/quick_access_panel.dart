@@ -10,7 +10,6 @@ Description:        快速访问面板组件 - 常用功能快捷入口
 */
 
 import 'package:flutter/material.dart';
-import 'package:pet_app_v3/constants/app_strings.dart';
 
 /// 快速访问面板
 class QuickAccessPanel extends StatelessWidget {
@@ -19,7 +18,7 @@ class QuickAccessPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Card(
       elevation: 1,
       child: Padding(
@@ -49,9 +48,9 @@ class QuickAccessPanel extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // 快速操作按钮
             Wrap(
               spacing: 12,
@@ -116,7 +115,7 @@ class QuickAccessPanel extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     final theme = Theme.of(context);
-    
+
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
@@ -126,19 +125,12 @@ class QuickAccessPanel extends StatelessWidget {
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: color.withOpacity(0.2),
-            width: 1,
-          ),
+          border: Border.all(color: color.withOpacity(0.2), width: 1),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 24,
-            ),
+            Icon(icon, color: color, size: 24),
             const SizedBox(height: 6),
             Text(
               label,
@@ -178,9 +170,9 @@ class QuickAccessPanel extends StatelessWidget {
         _showFeedback(context);
         break;
       default:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('功能开发中: $actionId')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('功能开发中: $actionId')));
     }
   }
 
@@ -199,9 +191,9 @@ class QuickAccessPanel extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('创意工坊功能开发中...')),
-              );
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(const SnackBar(content: Text('创意工坊功能开发中...')));
             },
             child: const Text('创建'),
           ),
@@ -220,10 +212,7 @@ class QuickAccessPanel extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              '最近项目',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+            Text('最近项目', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 16),
             const Text('暂无最近项目'),
             const SizedBox(height: 16),
@@ -242,16 +231,16 @@ class QuickAccessPanel extends StatelessWidget {
 
   /// 导航到插件管理
   void _navigateToPluginManager(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('插件管理功能开发中...')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('插件管理功能开发中...')));
   }
 
   /// 显示工具箱
   void _showToolbox(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('工具箱功能开发中...')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('工具箱功能开发中...')));
   }
 
   /// 显示帮助
@@ -260,7 +249,9 @@ class QuickAccessPanel extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('帮助文档'),
-        content: const Text('Pet App V3 使用指南\n\n1. 首页仪表板显示各模块状态\n2. 快速访问面板提供常用功能\n3. 设置页面可配置应用偏好'),
+        content: const Text(
+          'Pet App V3 使用指南\n\n1. 首页仪表板显示各模块状态\n2. 快速访问面板提供常用功能\n3. 设置页面可配置应用偏好',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -273,15 +264,15 @@ class QuickAccessPanel extends StatelessWidget {
 
   /// 显示反馈
   void _showFeedback(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('反馈功能开发中...')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('反馈功能开发中...')));
   }
 
   /// 显示所有操作
   void _showAllActions(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('更多快速操作功能开发中...')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('更多快速操作功能开发中...')));
   }
 }

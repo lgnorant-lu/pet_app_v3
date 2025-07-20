@@ -1,0 +1,10 @@
+^D:\狗PY\PYTHONPROJECT\CRUD\TASKS_ORGANIZING\PET_APP_V3\APPS\PET_APP\WINDOWS\RUNNER\CMAKELISTS.TXT
+setlocal
+D:\VS\VisualStudio\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe -SD:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/windows -BD:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64 --check-stamp-file D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

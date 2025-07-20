@@ -9,7 +9,7 @@ Description:        设置模型测试 - 数据模型功能验证
 ---------------------------------------------------------------
 */
 
-import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart';
 import 'package:pet_app_v3/core/models/settings_models.dart';
 
 void main() {
@@ -120,7 +120,10 @@ void main() {
 
         expect(pluginSettings.enabledPlugins, equals(['plugin1', 'plugin2']));
         expect(pluginSettings.disabledPlugins, equals(['plugin3']));
-        expect(pluginSettings.permissions, equals({'plugin1': true, 'plugin2': false}));
+        expect(
+          pluginSettings.permissions,
+          equals({'plugin1': true, 'plugin2': false}),
+        );
         expect(pluginSettings.autoUpdate, isFalse);
         expect(pluginSettings.allowBetaPlugins, isTrue);
         expect(pluginSettings.storeUrl, equals('https://store.example.com'));
@@ -212,14 +215,17 @@ void main() {
         final restored = Settings.fromJson(json);
 
         expect(restored.app.themeMode, equals(original.app.themeMode));
-        expect(restored.plugins.autoUpdate, equals(original.plugins.autoUpdate));
+        expect(
+          restored.plugins.autoUpdate,
+          equals(original.plugins.autoUpdate),
+        );
         expect(restored.user.fontSize, equals(original.user.fontSize));
       });
 
       test('应该能够使用copyWith更新Settings', () {
         const original = Settings();
         const newAppSettings = AppSettings(themeMode: AppThemeMode.dark);
-        
+
         final updated = original.copyWith(app: newAppSettings);
 
         expect(updated.app.themeMode, equals(AppThemeMode.dark));

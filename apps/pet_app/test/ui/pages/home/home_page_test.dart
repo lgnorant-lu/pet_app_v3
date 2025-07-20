@@ -16,7 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pet_app_v3/ui/pages/home/home_page.dart';
 import 'package:pet_app_v3/ui/pages/home/widgets/welcome_header.dart';
 import 'package:pet_app_v3/ui/pages/home/widgets/quick_access_panel.dart';
-import 'package:pet_app_v3/ui/pages/home/widgets/user_overview_widget.dart';
+
 import 'package:pet_app_v3/ui/pages/home/widgets/module_status_card.dart';
 import 'package:pet_app_v3/core/providers/home_provider.dart';
 import 'package:pet_app_v3/core/providers/settings_provider.dart';

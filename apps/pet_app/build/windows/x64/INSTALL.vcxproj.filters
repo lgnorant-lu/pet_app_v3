@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\狗py\pythonProject\CRUD\Tasks_organizing\pet_app_v3\apps\pet_app\build\windows\x64\CMakeFiles\cb9aa63ee0434b803a80f2c77181cf15\INSTALL_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{BE150BD5-BDF2-345E-91F0-C0B4586E58F6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/Debug/data/icudtl.dat
+D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/Debug/flutter_windows.dll
+D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/Debug/native_assets.json
+D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/Debug/data/flutter_assets/AssetManifest.bin
+D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/Debug/data/flutter_assets/AssetManifest.json
+D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/Debug/data/flutter_assets/FontManifest.json
+D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/Debug/data/flutter_assets/fonts/MaterialIcons-Regular.otf
+D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/Debug/data/flutter_assets/kernel_blob.bin
+D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/Debug/data/flutter_assets/NativeAssetsManifest.json
+D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/Debug/data/flutter_assets/NOTICES.Z
+D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/Debug/data/flutter_assets/packages/cupertino_icons/assets/CupertinoIcons.ttf
+D:/狗py/pythonProject/CRUD/Tasks_organizing/pet_app_v3/apps/pet_app/build/windows/x64/runner/Debug/data/flutter_assets/shaders/ink_sparkle.frag

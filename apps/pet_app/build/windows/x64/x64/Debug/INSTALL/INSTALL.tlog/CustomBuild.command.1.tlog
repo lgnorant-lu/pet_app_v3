@@ -1,0 +1,10 @@
+^D:\狗PY\PYTHONPROJECT\CRUD\TASKS_ORGANIZING\PET_APP_V3\APPS\PET_APP\BUILD\WINDOWS\X64\CMAKEFILES\CB9AA63EE0434B803A80F2C77181CF15\INSTALL_FORCE.RULE
+setlocal
+cd .
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd

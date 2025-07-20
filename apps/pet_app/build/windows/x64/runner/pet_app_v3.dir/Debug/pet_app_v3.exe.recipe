@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>D:\狗py\pythonProject\CRUD\Tasks_organizing\pet_app_v3\apps\pet_app\build\windows\x64\x64\Debug\ZERO_CHECK</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\狗py\pythonProject\CRUD\Tasks_organizing\pet_app_v3\apps\pet_app\build\windows\x64\flutter\x64\Debug\flutter_assemble</FullPath>
+    </ProjectOutput>
+    <ProjectOutput>
+      <FullPath>D:\狗py\pythonProject\CRUD\Tasks_organizing\pet_app_v3\apps\pet_app\build\windows\x64\runner\Debug\pet_app_v3.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles />
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
+</Project>

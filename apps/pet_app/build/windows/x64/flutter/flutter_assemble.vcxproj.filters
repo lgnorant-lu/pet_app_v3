@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="D:\狗py\pythonProject\CRUD\Tasks_organizing\pet_app_v3\apps\pet_app\build\windows\x64\CMakeFiles\2aa028a1f6329c894be0e5c9784d0e83\flutter_windows.dll.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\狗py\pythonProject\CRUD\Tasks_organizing\pet_app_v3\apps\pet_app\build\windows\x64\CMakeFiles\4e412fdaca51f45a715a59b4f498bdd8\flutter_assemble.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="D:\狗py\pythonProject\CRUD\Tasks_organizing\pet_app_v3\apps\pet_app\windows\flutter\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="D:\狗py\pythonProject\CRUD\Tasks_organizing\pet_app_v3\apps\pet_app\build\windows\x64\flutter\CMakeFiles\flutter_assemble" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{BE150BD5-BDF2-345E-91F0-C0B4586E58F6}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
