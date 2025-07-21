@@ -1,0 +1,216 @@
+# Melos Monorepo管理配置
+# 更多信息: https://pub.dev/packages/melos
+
+name: desktop_pet
+
+# 包配置
+packages:
+  - .
+  - pro_*/**
+  - packages/**
+  - apps/**
+  - tools/**
+  - modules/**
+
+# 忽略配置
+ignore:
+  - "**/.*"
+  - "**/build/**"
+  - "**/.dart_tool/**"
+  - "**/generated/**"
+  - "**/*.g.dart"
+  - "**/*.freezed.dart"
+  - "**/*.mocks.dart"
+
+# IDE配置
+ide:
+  intellij:
+    enabled: true
+    moduleNamePrefix: "desktop_pet_"
+
+# 命令配置
+command:
+  version:
+    # 版本管理策略
+    strategy: all
+    # 更新依赖
+    updateGitTagRefs: true
+    # 工作区依赖
+    workspaceChangelog: true
+
+# 脚本配置
+scripts:
+  # === 开发脚本 ===
+
+  # 🚀 获取所有依赖
+  get:
+    run: melos exec -- "flutter pub get"
+    description: 获取所有包的依赖
+
+  # 🧹 清理构建文件
+  clean:
+    run: melos exec -- "flutter clean"
+    description: 清理所有包的构建文件
+
+  # 🔄 重置项目
+  reset:
+    run: |
+      melos clean
+      melos get
+    description: 重置整个项目（清理+获取依赖）
+
+  # 🔧 代码生成
+  generate:
+    run: melos exec -- "dart run build_runner build --delete-conflicting-outputs"
+    description: 运行代码生成
+    packageFilters:
+      dependsOn: "build_runner"
+
+  # 👀 监听代码生成
+  watch:
+    run: melos exec -- "dart run build_runner watch --delete-conflicting-outputs"
+    description: 监听文件变化并自动生成代码
+    packageFilters:
+      dependsOn: "build_runner"
+
+  # === 质量保证脚本 ===
+
+  # 📊 代码分析
+  analyze:
+    run: melos exec -- "dart analyze ."
+    description: 分析所有包的代码质量
+
+  # 🎨 代码格式化
+  format:
+    run: melos exec -- "dart format . --set-exit-if-changed"
+    description: 格式化所有包的代码
+
+  # 🔍 格式检查
+  format-check:
+    run: melos exec -- "dart format . --output=none --set-exit-if-changed"
+    description: 检查代码格式是否正确
+
+  # ✅ 质量检查
+  quality:
+    run: |
+      melos format-check
+      melos analyze
+    description: 运行所有质量检查
+
+  # 🔧 修复代码
+  fix:
+    run: melos exec -- "dart fix --apply"
+    description: 自动修复代码问题
+
+  # === 测试脚本 ===
+
+  # 🧪 单元测试
+  test:
+    run: melos exec -- "flutter test"
+    description: 运行所有单元测试
+    packageFilters:
+      dirExists: test
+
+  # 📱 Widget测试
+  test-widget:
+    run: melos exec -- "flutter test test/widget"
+    description: 运行Widget测试
+    packageFilters:
+      dirExists: test/widget
+
+  # 🔗 集成测试
+  test-integration:
+    run: melos exec -- "flutter test integration_test"
+    description: 运行集成测试
+    packageFilters:
+      dirExists: integration_test
+
+  # 📊 测试覆盖率
+  coverage:
+    run: melos exec -- "flutter test --coverage"
+    description: 生成测试覆盖率报告
+    packageFilters:
+      dirExists: test
+
+  # 🎯 完整测试
+  test-all:
+    run: |
+      melos test
+      melos test-widget
+      melos test-integration
+    description: 运行所有类型的测试
+
+  # === 构建脚本 ===
+
+  # 🏗️ 构建所有
+  build:
+    run: melos exec -- "flutter build"
+    description: 构建所有应用
+    packageFilters:
+      scope: "apps/*"
+
+  # 📦 构建APK
+  build-apk:
+    run: melos exec -- "flutter build apk"
+    description: 构建Android APK
+    packageFilters:
+      scope: "apps/*"
+
+  # 🍎 构建iOS
+  build-ios:
+    run: melos exec -- "flutter build ios"
+    description: 构建iOS应用
+    packageFilters:
+      scope: "apps/*"
+
+  # 🌐 构建Web
+  build-web:
+    run: melos exec -- "flutter build web"
+    description: 构建Web应用
+    packageFilters:
+      scope: "apps/*"
+
+  # === 依赖管理脚本 ===
+
+  # 📋 依赖列表
+  deps:
+    run: melos list --long
+    description: 显示所有包及其依赖
+
+  # 🔄 更新依赖
+  upgrade:
+    run: melos exec -- "flutter pub upgrade"
+    description: 更新所有包的依赖
+
+  # 🔍 依赖检查
+  deps-check:
+    run: melos exec -- "flutter pub deps"
+    description: 检查依赖关系
+
+  # 🧹 依赖清理
+  deps-clean:
+    run: |
+      melos exec -- "flutter pub deps --style=compact"
+      melos exec -- "flutter pub get --offline"
+    description: 清理并重新获取依赖
+
+  # 📊 依赖图
+  deps-graph:
+    run: melos graph
+    description: 生成依赖关系图
+
+  # 🚀 完整工作流
+  workflow:
+    run: |
+      echo "🧹 清理项目..."
+      melos clean
+      echo "📦 获取依赖..."
+      melos get
+      echo "🔧 生成代码..."
+      melos generate
+      echo "📊 质量检查..."
+      melos quality
+      echo "🧪 运行测试..."
+      melos test
+      echo "✅ 工作流完成！"
+    description: 运行完整的开发工作流

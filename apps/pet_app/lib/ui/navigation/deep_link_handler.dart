@@ -15,7 +15,7 @@ Change History:
 import 'package:flutter/foundation.dart';
 // import 'package:flutter/services.dart'; // 暂时未使用
 import 'dart:async';
-import '../../core/communication/unified_message_bus.dart';
+import 'package:communication_system/communication_system.dart' as comm;
 
 /// 深度链接类型
 enum DeepLinkType {
@@ -123,7 +123,7 @@ class DeepLinkHandler {
   static DeepLinkHandler get instance => _instance;
 
   /// 统一消息总线
-  final UnifiedMessageBus _messageBus = UnifiedMessageBus.instance;
+  final comm.UnifiedMessageBus _messageBus = comm.UnifiedMessageBus.instance;
 
   /// 支持的应用协议
   final Set<String> _supportedSchemes = {'petapp', 'https', 'http'};
@@ -292,12 +292,17 @@ class DeepLinkHandler {
     parameters.addAll(pathParams);
 
     // 发送导航事件
-    _messageBus.publishEvent('deep_link_handler', 'internal_link_handled', {
-      'originalUrl': linkInfo.originalUrl,
-      'targetRoute': targetRoute,
-      'parameters': parameters,
-      'timestamp': linkInfo.timestamp.toIso8601String(),
-    }, priority: MessagePriority.high);
+    _messageBus.publishEvent(
+      'deep_link_handler',
+      'internal_link_handled',
+      {
+        'originalUrl': linkInfo.originalUrl,
+        'targetRoute': targetRoute,
+        'parameters': parameters,
+        'timestamp': linkInfo.timestamp.toIso8601String(),
+      },
+      priority: comm.MessagePriority.high,
+    );
 
     _updateStats('internal_success');
 

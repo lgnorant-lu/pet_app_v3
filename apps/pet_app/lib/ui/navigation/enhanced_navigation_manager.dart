@@ -16,7 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'dart:async';
-import '../../core/communication/unified_message_bus.dart';
+import 'package:communication_system/communication_system.dart' as comm;
 // import '../../core/communication/module_communication_coordinator.dart' as comm; // 暂时未使用
 
 /// 导航事件类型
@@ -180,7 +180,7 @@ class EnhancedNavigationManager {
   static EnhancedNavigationManager get instance => _instance;
 
   /// 统一消息总线
-  final UnifiedMessageBus _messageBus = UnifiedMessageBus.instance;
+  final comm.UnifiedMessageBus _messageBus = comm.UnifiedMessageBus.instance;
 
   /// 通信协调器 (暂时未使用)
   // final comm.ModuleCommunicationCoordinator _coordinator =
@@ -203,7 +203,7 @@ class EnhancedNavigationManager {
   bool _isNavigating = false;
 
   /// 消息订阅
-  MessageSubscription? _messageSubscription;
+  StreamSubscription? _messageSubscription;
 
   /// 初始化导航管理器
   Future<void> initialize() async {
@@ -274,18 +274,17 @@ class EnhancedNavigationManager {
 
   /// 订阅导航相关消息
   void _subscribeToNavigationMessages() {
-    _messageSubscription = _messageBus.subscribe(
-      _handleNavigationMessage,
-      filter: (message) =>
-          message.action.startsWith('navigate_') ||
-          message.action.startsWith('navigation_'),
-    );
+    _messageSubscription = _messageBus.messageStream
+        .where(
+          (message) =>
+              message.action.startsWith('navigate_') ||
+              message.action.startsWith('navigation_'),
+        )
+        .listen(_handleNavigationMessage);
   }
 
   /// 处理导航消息
-  Future<Map<String, dynamic>?> _handleNavigationMessage(
-    UnifiedMessage message,
-  ) async {
+  Future<void> _handleNavigationMessage(comm.UnifiedMessage message) async {
     switch (message.action) {
       case 'navigate_to_home':
         await navigateTo('/');
@@ -303,7 +302,6 @@ class EnhancedNavigationManager {
         await goForward();
         break;
     }
-    return null;
   }
 
   /// 注册路由信息
@@ -430,7 +428,7 @@ class EnhancedNavigationManager {
           'parameters': parameters,
           'timestamp': DateTime.now().toIso8601String(),
         },
-        priority: MessagePriority.normal,
+        priority: comm.MessagePriority.normal,
       );
 
       // 触发触觉反馈

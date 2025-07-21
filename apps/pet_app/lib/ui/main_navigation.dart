@@ -15,9 +15,10 @@ Change History:
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'framework/main_app_framework.dart';
-import 'pages/home/home_page.dart';
-import 'pages/settings/pages/settings_page.dart';
+
+import 'package:home_dashboard/home_dashboard.dart';
+import 'package:settings_system/settings_system.dart';
+import 'package:desktop_pet/desktop_pet.dart';
 // import 'framework/quick_action_panel.dart'; // 暂时未使用
 
 /// 导航页面信息
@@ -91,6 +92,13 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
         page: const HomePage(),
       ),
       NavigationPage(
+        id: 'desktop_pet',
+        title: '桌宠',
+        icon: Icons.pets_outlined,
+        activeIcon: Icons.pets,
+        page: const PetSettingsScreen(),
+      ),
+      NavigationPage(
         id: 'creative_workshop',
         title: '创意工坊',
         icon: Icons.build_outlined,
@@ -133,56 +141,78 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
-    return MainAppFramework(
-      title: 'Pet App V3',
-      quickActions: _buildQuickActions(),
-      child: Scaffold(
-        body: PageView(
-          controller: _pageController,
-          onPageChanged: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          children: _pages.map((page) => page.page).toList(),
-        ),
-        bottomNavigationBar: _buildBottomNavigationBar(),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Pet App V3'),
+        elevation: 0,
+        actions: [
+          // 快速操作按钮
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert),
+            onSelected: (value) {
+              switch (value) {
+                case 'home':
+                  _onPageChanged(0);
+                  break;
+                case 'workshop':
+                  _onPageChanged(1);
+                  break;
+                case 'apps':
+                  _onPageChanged(2);
+                  break;
+                case 'settings':
+                  _onPageChanged(3);
+                  break;
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'home',
+                child: ListTile(
+                  leading: Icon(Icons.home),
+                  title: Text('首页'),
+                  dense: true,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'workshop',
+                child: ListTile(
+                  leading: Icon(Icons.build),
+                  title: Text('工坊'),
+                  dense: true,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'apps',
+                child: ListTile(
+                  leading: Icon(Icons.apps),
+                  title: Text('应用'),
+                  dense: true,
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'settings',
+                child: ListTile(
+                  leading: Icon(Icons.settings),
+                  title: Text('设置'),
+                  dense: true,
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        children: _pages.map((page) => page.page).toList(),
+      ),
+      bottomNavigationBar: _buildBottomNavigationBar(),
     );
-  }
-
-  /// 构建快捷操作
-  List<QuickAction> _buildQuickActions() {
-    return [
-      QuickAction(
-        id: 'quick_home',
-        title: '首页',
-        icon: Icons.home,
-        onTap: () => _onPageChanged(0),
-        tooltip: '快速返回首页',
-      ),
-      QuickAction(
-        id: 'quick_workshop',
-        title: '工坊',
-        icon: Icons.build,
-        onTap: () => _onPageChanged(1),
-        tooltip: '打开创意工坊',
-      ),
-      QuickAction(
-        id: 'quick_apps',
-        title: '应用',
-        icon: Icons.apps,
-        onTap: () => _onPageChanged(2),
-        tooltip: '管理应用',
-      ),
-      QuickAction(
-        id: 'quick_settings',
-        title: '设置',
-        icon: Icons.settings,
-        onTap: () => _onPageChanged(3),
-        tooltip: '打开设置',
-      ),
-    ];
   }
 
   /// 构建底部导航栏

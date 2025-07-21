@@ -15,6 +15,7 @@ Change History:
 import 'dart:math';
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/material.dart';
 
 /// settings_system主要工具类
 ///
@@ -64,7 +65,6 @@ class SettingsSystemUtils {
   static String formatDateTime(DateTime dateTime) {
     return '${dateTime.year}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.day.toString().padLeft(2, '0')}';
   }
-
 }
 
 /// settings_system数据验证器
@@ -98,11 +98,11 @@ class SettingsSystemValidator {
   /// 验证密码强度
   static bool isValidPassword(String password, {int minLength = 8}) {
     if (password.length < minLength) return false;
-    
+
     // 至少包含一个数字和一个字母
     final hasNumber = RegExp(r'[0-9]').hasMatch(password);
     final hasLetter = RegExp(r'[a-zA-Z]').hasMatch(password);
-    
+
     return hasNumber && hasLetter;
   }
 
@@ -122,15 +122,15 @@ class SettingsSystemValidator {
     int? maxLength,
   }) {
     if (value == null) return null;
-    
+
     if (minLength != null && value.length < minLength) {
       return '$fieldName长度不能少于$minLength个字符';
     }
-    
+
     if (maxLength != null && value.length > maxLength) {
       return '$fieldName长度不能超过$maxLength个字符';
     }
-    
+
     return null;
   }
 
@@ -149,7 +149,6 @@ class SettingsSystemValidator {
     final phoneRegex = RegExp(r'^1[3-9]\d{9}$');
     return phoneRegex.hasMatch(phone);
   }
-
 }
 
 /// settings_system数据格式化器
@@ -190,7 +189,8 @@ class SettingsSystemFormatter {
   static String formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024) return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    if (bytes < 1024 * 1024 * 1024)
+      return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
@@ -204,12 +204,12 @@ class SettingsSystemFormatter {
     final parts = number.toString().split('.');
     final integerPart = parts[0];
     final decimalPart = parts.length > 1 ? '.${parts[1]}' : '';
-    
+
     final formatted = integerPart.replaceAllMapped(
       RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
       (match) => '${match[1]},',
     );
-    
+
     return formatted + decimalPart;
   }
 
@@ -217,7 +217,7 @@ class SettingsSystemFormatter {
   static String formatRelativeTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
     if (difference.inDays > 0) {
       return '${difference.inDays}天前';
     } else if (difference.inHours > 0) {
@@ -228,7 +228,6 @@ class SettingsSystemFormatter {
       return '刚刚';
     }
   }
-
 }
 
 /// settings_system辅助函数集合
@@ -262,11 +261,11 @@ class SettingsSystemHelper {
   static String generateUuid() {
     final random = Random();
     final bytes = List<int>.generate(16, (i) => random.nextInt(256));
-    
+
     // 设置版本号和变体
     bytes[6] = (bytes[6] & 0x0f) | 0x40; // 版本4
     bytes[8] = (bytes[8] & 0x3f) | 0x80; // 变体
-    
+
     final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
     return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20, 32)}';
   }
@@ -299,7 +298,6 @@ class SettingsSystemHelper {
   static Map<String, dynamic> deepCopyMap(Map<String, dynamic> original) {
     return Map<String, dynamic>.from(jsonDecode(jsonEncode(original)) as Map);
   }
-
 }
 
 /// String扩展方法
@@ -320,10 +318,10 @@ extension SettingsSystemStringExtension on String {
   String get toCamelCase {
     final words = split(RegExp(r'[\s_-]+'));
     if (words.isEmpty) return this;
-    
+
     final first = words.first.toLowerCase();
     final rest = words.skip(1).map((word) => word.capitalize);
-    
+
     return first + rest.join();
   }
 
@@ -334,7 +332,6 @@ extension SettingsSystemStringExtension on String {
       (match) => '_${match.group(0)!.toLowerCase()}',
     ).replaceFirst(RegExp(r'^\_'), '');
   }
-
 }
 
 /// DateTime扩展方法
@@ -348,13 +345,17 @@ extension SettingsSystemDateTimeExtension on DateTime {
   /// 是否为昨天
   bool get isYesterday {
     final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    return year == yesterday.year && month == yesterday.month && day == yesterday.day;
+    return year == yesterday.year &&
+        month == yesterday.month &&
+        day == yesterday.day;
   }
 
   /// 格式化为友好的时间显示
   String get toFriendlyString {
-    if (isToday) return '今天 ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-    if (isYesterday) return '昨天 ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+    if (isToday)
+      return '今天 ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
+    if (isYesterday)
+      return '昨天 ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
     return '${month.toString().padLeft(2, '0')}/${day.toString().padLeft(2, '0')} ${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
   }
 }

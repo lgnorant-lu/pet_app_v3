@@ -25,12 +25,8 @@ import 'package:creative_workshop/creative_workshop.dart';
 // import 'package:app_manager/app_manager.dart';
 // import 'package:settings_system/settings_system.dart';
 
-// Phase 3.2.1: 统一消息总线
-// import 'core/communication/unified_message_bus.dart'; // 暂时未使用
-import 'core/communication/module_communication_coordinator.dart' as comm;
-import 'core/communication/cross_module_event_router.dart';
-import 'core/communication/data_sync_manager.dart';
-import 'core/communication/conflict_resolution_engine.dart';
+// Phase 5.0.4: Communication System 模块导入
+import 'package:communication_system/communication_system.dart' as comm;
 
 import 'core/lifecycle/app_lifecycle_manager.dart';
 import 'core/persistence/app_state_manager.dart';
@@ -191,16 +187,16 @@ class _PetAppV3State extends State<PetAppV3> with WidgetsBindingObserver {
       final coordinator = comm.ModuleCommunicationCoordinator.instance;
 
       // 初始化跨模块事件路由器
-      final eventRouter = CrossModuleEventRouter.instance;
+      final eventRouter = comm.CrossModuleEventRouter.instance;
       await eventRouter.initialize();
       _log('info', '✅ 跨模块事件路由器初始化完成');
 
       // 初始化数据同步管理器
-      final dataSyncManager = DataSyncManager.instance;
+      final dataSyncManager = comm.DataSyncManager.instance;
 
       // 注册主应用的数据同步配置
       dataSyncManager.registerSyncConfig(
-        const SyncConfig(
+        const comm.SyncConfig(
           moduleId: 'pet_app_main',
           dataKeys: {
             'app_state',
@@ -208,25 +204,25 @@ class _PetAppV3State extends State<PetAppV3> with WidgetsBindingObserver {
             'plugin_states',
             'error_logs',
           },
-          strategy: SyncStrategy.realtime,
+          strategy: comm.SyncStrategy.realtime,
         ),
       );
 
       _log('info', '✅ 数据同步管理器初始化完成');
 
       // 初始化冲突解决引擎
-      final conflictEngine = ConflictResolutionEngine.instance;
+      final conflictEngine = comm.ConflictResolutionEngine.instance;
       conflictEngine.initialize();
       _log('info', '✅ 冲突解决引擎初始化完成');
 
       // 注册主应用模块
       coordinator.registerModule(
-        comm.ModuleInfo(
+        const comm.ModuleInfo(
           id: 'pet_app_main',
           name: 'Pet App V3 主应用',
           version: '3.1.0',
           type: 'main_app',
-          capabilities: const {
+          capabilities: {
             'lifecycle_management': true,
             'state_persistence': true,
             'error_recovery': true,

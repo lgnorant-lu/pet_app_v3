@@ -14,6 +14,7 @@ Change History:
 
 import 'dart:async';
 import 'dart:developer' as developer;
+import 'package:flutter/foundation.dart';
 
 /// 模块接口定义
 abstract class ModuleInterface {
@@ -31,7 +32,7 @@ abstract class ModuleInterface {
 }
 
 /// home_dashboard模块实现
-/// 
+///
 /// 提供首页仪表板模块
 class HomeDashboardModule implements ModuleInterface {
   /// 模块实例
@@ -41,18 +42,27 @@ class HomeDashboardModule implements ModuleInterface {
   bool _isInitialized = false;
 
   /// 日志记录器
-  static void _log(String level, String message, [Object? error, StackTrace? stackTrace]) {
+  static void _log(String level, String message,
+      [Object? error, StackTrace? stackTrace]) {
     if (kDebugMode) {
-      developer.log(message, name: 'HomeDashboardModule', level: _getLogLevel(level), error: error, stackTrace: stackTrace);
+      developer.log(message,
+          name: 'HomeDashboardModule',
+          level: _getLogLevel(level),
+          error: error,
+          stackTrace: stackTrace);
     }
   }
 
   static int _getLogLevel(String level) {
     switch (level.toLowerCase()) {
-      case 'info': return 800;
-      case 'warning': return 900;
-      case 'severe': return 1000;
-      default: return 700;
+      case 'info':
+        return 800;
+      case 'warning':
+        return 900;
+      case 'severe':
+        return 1000;
+      default:
+        return 700;
     }
   }
 
@@ -92,7 +102,7 @@ class HomeDashboardModule implements ModuleInterface {
   @override
   Future<void> dispose() async {
     // TODO: 实现模块清理逻辑
-    
+
     print('home_dashboard模块清理完成');
   }
 
@@ -150,5 +160,4 @@ class HomeDashboardModule implements ModuleInterface {
     _log('info', '初始化基础服务');
     // 实现基础服务初始化逻辑
   }
-
 }

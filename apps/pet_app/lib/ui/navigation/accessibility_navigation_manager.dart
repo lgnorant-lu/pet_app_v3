@@ -15,7 +15,7 @@ Change History:
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'dart:math' as math;
-import '../../core/communication/unified_message_bus.dart';
+import 'package:communication_system/communication_system.dart' as comm;
 
 /// 无障碍功能类型
 enum AccessibilityFeature {
@@ -160,7 +160,7 @@ class AccessibilityNavigationManager {
   static AccessibilityNavigationManager get instance => _instance;
 
   /// 统一消息总线
-  final UnifiedMessageBus _messageBus = UnifiedMessageBus.instance;
+  final comm.UnifiedMessageBus _messageBus = comm.UnifiedMessageBus.instance;
 
   /// 焦点管理器
   final FocusManager _focusManager = FocusManager();

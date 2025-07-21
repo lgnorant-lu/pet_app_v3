@@ -1,0 +1,28 @@
+name: desktop_pet
+version: 1.0.0
+description: 桌面宠物系统 - 智能AI桌宠核心模块
+author: Pet App V3 Team
+type: full
+platform: crossPlatform
+framework: flutter
+complexity: enterprise
+maturity: development
+tags: []
+created_at: 2025-07-21T06:54:30.624470
+
+# 模板依赖
+dependencies:
+  []
+
+# 模板配置
+configuration:
+  include_tests: true
+  include_documentation: true
+  include_examples: true
+  enable_git_init: true
+
+# 生成信息
+generation:
+  tool: Ming Status CLI
+  tool_version: 1.0.0
+  generated_at: 2025-07-21T06:54:30.625472

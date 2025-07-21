@@ -1,0 +1,35 @@
+# Build Runner配置 - 基本完整可用版本
+# 更多信息: https://pub.dev/packages/build_runner
+
+targets:
+  $default:
+    builders:
+      # JSON序列化
+      json_serializable:
+        enabled: true
+        options:
+          explicit_to_json: true
+          field_rename: snake
+          include_if_null: false
+          create_factory: true
+          create_to_json: true
+          checked: true
+
+      # Freezed数据类
+      freezed:
+        enabled: true
+
+      # Riverpod状态管理
+      riverpod_generator:
+        enabled: true
+
+      # Retrofit API客户端
+      retrofit_generator:
+        enabled: true
+
+      # Mockito测试Mock
+      mockito|mockBuilder:
+        enabled: true
+        generate_for:
+          - test/**
+          - test_driver/**

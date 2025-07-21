@@ -15,8 +15,7 @@ Change History:
 import 'package:flutter/material.dart';
 // import 'package:flutter/foundation.dart'; // 暂时未使用
 import 'dart:async';
-import '../../core/communication/unified_message_bus.dart';
-import '../../core/communication/module_communication_coordinator.dart' as comm;
+import 'package:communication_system/communication_system.dart' as comm;
 
 /// 状态栏项目类型
 enum StatusBarItemType {
@@ -91,7 +90,7 @@ class AppStatusBar extends StatefulWidget {
 
 class _AppStatusBarState extends State<AppStatusBar> {
   /// 统一消息总线
-  final UnifiedMessageBus _messageBus = UnifiedMessageBus.instance;
+  final comm.UnifiedMessageBus _messageBus = comm.UnifiedMessageBus.instance;
 
   /// 通信协调器
   final comm.ModuleCommunicationCoordinator _coordinator =
@@ -120,7 +119,7 @@ class _AppStatusBarState extends State<AppStatusBar> {
   Timer? _performanceTimer;
 
   /// 消息订阅
-  MessageSubscription? _messageSubscription;
+  StreamSubscription? _messageSubscription;
 
   @override
   void initState() {
@@ -164,19 +163,18 @@ class _AppStatusBarState extends State<AppStatusBar> {
 
   /// 订阅消息
   void _subscribeToMessages() {
-    _messageSubscription = _messageBus.subscribe(
-      _handleStatusMessage,
-      filter: (message) =>
-          message.action.startsWith('system_') ||
-          message.action.startsWith('module_') ||
-          message.action.startsWith('notification_'),
-    );
+    _messageSubscription = _messageBus.messageStream
+        .where(
+          (message) =>
+              message.action.startsWith('system_') ||
+              message.action.startsWith('module_') ||
+              message.action.startsWith('notification_'),
+        )
+        .listen(_handleStatusMessage);
   }
 
   /// 处理状态消息
-  Future<Map<String, dynamic>?> _handleStatusMessage(
-    UnifiedMessage message,
-  ) async {
+  void _handleStatusMessage(comm.UnifiedMessage message) {
     switch (message.action) {
       case 'system_status_update':
         _handleSystemStatusUpdate(message);
@@ -197,7 +195,7 @@ class _AppStatusBarState extends State<AppStatusBar> {
   }
 
   /// 处理系统状态更新
-  void _handleSystemStatusUpdate(UnifiedMessage message) {
+  void _handleSystemStatusUpdate(comm.UnifiedMessage message) {
     final data = message.data;
     setState(() {
       _systemStatus = data['status'] ?? 'unknown';
@@ -224,14 +222,14 @@ class _AppStatusBarState extends State<AppStatusBar> {
   }
 
   /// 处理新通知
-  void _handleNewNotification(UnifiedMessage message) {
+  void _handleNewNotification(comm.UnifiedMessage message) {
     setState(() {
       _notificationCount++;
     });
   }
 
   /// 处理清除通知
-  void _handleClearNotifications(UnifiedMessage message) {
+  void _handleClearNotifications(comm.UnifiedMessage message) {
     setState(() {
       _notificationCount = 0;
     });
@@ -254,7 +252,9 @@ class _AppStatusBarState extends State<AppStatusBar> {
       decoration: BoxDecoration(
         color:
             widget.backgroundColor ??
-            Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.8),
+            Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.8),
         border: Border(
           bottom: BorderSide(color: Theme.of(context).dividerColor, width: 0.5),
         ),

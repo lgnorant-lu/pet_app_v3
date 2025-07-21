@@ -15,7 +15,7 @@ Change History:
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 // import 'dart:convert'; // 暂时未使用
-import '../../core/communication/unified_message_bus.dart';
+import 'package:communication_system/communication_system.dart' as comm;
 
 /// 导航历史条目
 class NavigationHistoryEntry {
@@ -168,7 +168,7 @@ class NavigationHistoryManager {
   static NavigationHistoryManager get instance => _instance;
 
   /// 统一消息总线
-  final UnifiedMessageBus _messageBus = UnifiedMessageBus.instance;
+  final comm.UnifiedMessageBus _messageBus = comm.UnifiedMessageBus.instance;
 
   /// 导航历史栈
   final List<NavigationHistoryEntry> _historyStack = [];

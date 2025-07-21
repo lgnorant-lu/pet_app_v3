@@ -1,7 +1,7 @@
 # Pet App V3 开发者指南
 
 ## 概述
-Pet App V3 开发者指南，涵盖架构设计、开发流程、测试规范和部署指南。
+Pet App V3 开发者指南，涵盖模块化架构设计、开发流程、测试规范和部署指南。经过 Phase 5 模块化重构，项目采用完全解耦的独立模块架构。
 
 ## 开发环境设置
 
@@ -10,36 +10,62 @@ Pet App V3 开发者指南，涵盖架构设计、开发流程、测试规范和
 - **Dart**: 3.2.0 或更高版本
 - **IDE**: VS Code 或 Android Studio
 - **Git**: 用于版本控制
+- **Ming Status CLI**: 用于模块创建和管理
 
-### 项目结构
+### 项目结构 (Phase 5 模块化重构后)
 ```
-pet_app_v3/apps/pet_app/
-├── lib/
-│   ├── core/                    # 核心系统
-│   │   ├── lifecycle/           # 生命周期管理
-│   │   ├── communication/       # 通信系统
-│   │   ├── plugins/            # 插件系统
-│   │   ├── workshop/           # 创意工坊
-│   │   └── providers/          # 状态管理
-│   ├── ui/                     # UI组件
-│   │   ├── framework/          # 主框架
-│   │   ├── navigation/         # 导航系统
-│   │   ├── pages/              # 页面组件
-│   │   │   ├── home/           # 首页仪表板
-│   │   │   └── settings/       # 设置页面
-│   │   └── components/         # 通用组件
-│   ├── app.dart               # 应用入口
-│   └── main.dart              # 主函数
-├── test/                      # 测试文件
-├── docs/                      # 文档
-└── pubspec.yaml              # 依赖配置
+pet_app_v3/
+├── apps/
+│   └── pet_app/                 # 主应用
+│       ├── lib/
+│       │   ├── core/            # 核心系统 (保留)
+│       │   │   ├── lifecycle/   # 生命周期管理
+│       │   │   ├── plugins/     # 插件系统
+│       │   │   ├── workshop/    # 创意工坊
+│       │   │   └── providers/   # 状态管理
+│       │   ├── ui/              # UI组件
+│       │   │   ├── framework/   # 主框架
+│       │   │   ├── navigation/  # 导航系统
+│       │   │   └── components/  # 通用组件
+│       │   ├── app.dart         # 应用入口
+│       │   └── main.dart        # 主函数
+│       ├── test/                # 测试文件
+│       ├── docs/                # 文档
+│       └── pubspec.yaml         # 依赖配置
+└── packages/                    # 独立模块包
+    ├── home_dashboard/          # 首页仪表板模块
+    ├── settings_system/         # 设置系统模块
+    ├── desktop_pet/             # 桌宠系统模块
+    ├── app_manager/             # 应用管理器模块
+    └── communication_system/    # 通信系统模块
 ```
 
-### 依赖管理
+### 模块化架构特点
+- **完全解耦**: 每个模块都是独立的 Dart 包
+- **统一通信**: 通过 `communication_system` 模块协调
+- **标准化**: 所有模块遵循统一的架构模式
+- **可维护性**: 模块间依赖清晰，便于维护和扩展
+
+### 依赖管理 (Phase 5 模块化架构)
+
+#### 主应用依赖配置
 ```yaml
 dependencies:
   flutter:
     sdk: flutter
+
+  # Phase 5: 独立模块依赖
+  home_dashboard:
+    path: ../../packages/home_dashboard
+  settings_system:
+    path: ../../packages/settings_system
+  desktop_pet:
+    path: ../../packages/desktop_pet
+  app_manager:
+    path: ../../packages/app_manager
+  communication_system:
+    path: ../../packages/communication_system
+
   # 状态管理
   flutter_riverpod: ^2.4.9
   # 核心依赖
@@ -56,801 +82,76 @@ dev_dependencies:
   build_runner: ^2.4.7
 ```
 
-## 架构设计原则
+## 模块化架构原则
 
-### 1. 分层架构
+### 设计原则
+- **完全解耦**: 每个模块都是独立的 Dart 包
+- **统一通信**: 通过 communication_system 模块协调
+- **标准化**: 所有模块遵循统一的架构模式
+- **可维护性**: 模块间依赖清晰，便于维护和扩展
+
+### 开发流程
 ```
-┌─────────────────┐
-│   表现层 (UI)    │  ← 用户界面和交互
-├─────────────────┤
-│   业务层 (Core)  │  ← 业务逻辑和数据处理
-├─────────────────┤
-│   通信层 (Comm)  │  ← 模块间通信和事件
-├─────────────────┤
-│   基础层 (Base)  │  ← 生命周期和状态管理
-└─────────────────┘
+需求分析 → 模块设计 → 接口定义 → 实现开发 → 单元测试 → 集成测试 → 文档更新
 ```
 
-### 2. 模块化设计
-- **高内聚**: 模块内部功能紧密相关
-- **低耦合**: 模块间通过接口通信
-- **可插拔**: 模块可以独立开发和部署
-- **可测试**: 每个模块都有完整的测试覆盖
+### 代码规范
+- 遵循 Dart/Flutter 官方代码规范
+- 使用 `dart analyze` 进行静态分析
+- 保持 0 错误 0 警告的代码质量
 
-### 3. 事件驱动
-- **异步通信**: 基于事件的异步消息传递
-- **松耦合**: 发送者和接收者不直接依赖
-- **可扩展**: 易于添加新的事件处理器
-- **可监控**: 完整的事件追踪和调试
-
-## 开发流程
-
-### 1. 功能开发流程
-```
-需求分析 → 架构设计 → 接口定义 → 实现开发 → 单元测试 → 集成测试 → 文档更新 → 代码审查 → 合并部署
-```
-
-### 2. 代码规范
-
-#### 命名规范
-```dart
-// 类名：大驼峰
-class NavigationManager { }
-
-// 方法名：小驼峰
-void navigateToPage() { }
-
-// 常量：大写下划线
-const int MAX_RETRY_COUNT = 3;
-
-// 私有成员：下划线前缀
-String _privateField;
-```
-
-#### 文件组织
-```dart
-/*
----------------------------------------------------------------
-File name:          navigation_manager.dart
-Author:             Pet App V3 Team
-Date created:       2025-07-19
-Last modified:      2025-07-19
-Dart Version:       3.2+
-Description:        导航管理器实现
----------------------------------------------------------------
-Change History:
-    2025-07-19: 初始实现导航管理功能
----------------------------------------------------------------
-*/
-
-import 'package:flutter/material.dart';
-import 'dart:async';
-
-// 导入顺序：Flutter → Dart → 第三方 → 项目内部
-```
-
-### 3. 测试规范
-
-#### 测试覆盖要求
+### 测试规范
 - **单元测试**: 覆盖率 > 90%
 - **集成测试**: 覆盖主要业务流程
-- **UI测试**: 覆盖关键用户交互
-- **性能测试**: 验证关键性能指标
-
-#### 测试文件结构
-```dart
-void main() {
-  group('NavigationManager Tests', () {
-    late NavigationManager navigationManager;
-
-    setUp(() {
-      navigationManager = NavigationManager();
-    });
-
-    tearDown(() {
-      navigationManager.dispose();
-    });
-
-    group('基础功能', () {
-      test('应该能够注册路由', () {
-        // 测试实现
-      });
-    });
-  });
-}
-```
-
-## 核心系统开发
-
-### 1. 生命周期管理开发
-
-#### 实现新的生命周期状态
-```dart
-enum CustomLifecycleState {
-  initializing,
-  ready,
-  suspended,
-  terminated,
-}
-
-class CustomLifecycleManager extends AppLifecycleManager {
-  @override
-  Future<void> handleStateChange(CustomLifecycleState newState) async {
-    // 自定义状态处理逻辑
-  }
-}
-```
-
-#### 注册生命周期监听器
-```dart
-AppLifecycleManager.instance.stateStream.listen((state) {
-  switch (state) {
-    case AppLifecycleState.started:
-      // 应用启动处理
-      break;
-    case AppLifecycleState.paused:
-      // 应用暂停处理
-      break;
-  }
-});
-```
-
-### 2. 消息总线开发
-
-#### 定义新的消息类型
-```dart
-class CustomMessage extends UnifiedMessage {
-  final String customData;
-  
-  CustomMessage({
-    required String sender,
-    required String action,
-    required this.customData,
-    Map<String, dynamic>? data,
-  }) : super(
-    sender: sender,
-    action: action,
-    data: data ?? {},
-  );
-}
-```
-
-#### 实现消息处理器
-```dart
-class CustomMessageHandler {
-  MessageSubscription? _subscription;
-  
-  void initialize() {
-    _subscription = UnifiedMessageBus.instance.subscribe(
-      _handleMessage,
-      filter: (message) => message.action.startsWith('custom_'),
-    );
-  }
-  
-  Future<UnifiedMessage?> _handleMessage(UnifiedMessage message) async {
-    // 消息处理逻辑
-    return null;
-  }
-  
-  void dispose() {
-    _subscription?.cancel();
-  }
-}
-```
-
-### 3. UI组件开发
-
-#### 创建新的UI组件
-```dart
-class CustomWidget extends StatefulWidget {
-  final String title;
-  final VoidCallback? onTap;
-  
-  const CustomWidget({
-    Key? key,
-    required this.title,
-    this.onTap,
-  }) : super(key: key);
-  
-  @override
-  State<CustomWidget> createState() => _CustomWidgetState();
-}
-
-class _CustomWidgetState extends State<CustomWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        child: Text(widget.title),
-      ),
-    );
-  }
-}
-```
-
-#### 集成到导航系统
-```dart
-// 注册路由
-NavigationManager.instance.registerRoute(
-  '/custom',
-  (context, parameters) => CustomWidget(
-    title: parameters['title'] ?? 'Default Title',
-    onTap: () => NavigationManager.instance.navigateBack(),
-  ),
-);
-
-// 注册快捷键
-KeyboardShortcutManager.instance.registerShortcut(
-  ShortcutEntry(
-    id: 'open_custom',
-    combination: ShortcutCombination.simple(
-      key: LogicalKeyboardKey.keyC,
-      ctrl: true,
-    ),
-    action: () async {
-      await NavigationManager.instance.navigateTo('/custom');
-      return true;
-    },
-  ),
-);
-```
-
-## 插件开发
-
-### 1. 创建新插件
-
-#### 插件基础结构
-```dart
-class CustomPlugin extends PluginInterface {
-  @override
-  String get name => 'custom_plugin';
-  
-  @override
-  String get version => '1.0.0';
-  
-  @override
-  String get description => '自定义插件示例';
-  
-  @override
-  Future<void> initialize() async {
-    // 插件初始化逻辑
-  }
-  
-  @override
-  Future<void> dispose() async {
-    // 插件清理逻辑
-  }
-  
-  @override
-  Widget buildWidget(BuildContext context) {
-    return CustomPluginWidget();
-  }
-}
-```
-
-#### 注册插件
-```dart
-void main() async {
-  // 注册插件
-  PluginRegistry.instance.register(CustomPlugin());
-  
-  // 启动应用
-  runApp(MyApp());
-}
-```
-
-### 2. 工具插件开发
-
-#### 实现工具插件接口
-```dart
-class CustomToolPlugin extends ToolPlugin {
-  @override
-  String get toolName => 'Custom Tool';
-  
-  @override
-  IconData get toolIcon => Icons.build;
-  
-  @override
-  Widget buildToolInterface(BuildContext context) {
-    return CustomToolInterface();
-  }
-  
-  @override
-  Future<void> executeTool(Map<String, dynamic> parameters) async {
-    // 工具执行逻辑
-  }
-}
-```
-
-### 3. 游戏插件开发
-
-#### 实现游戏插件接口
-```dart
-class CustomGamePlugin extends GamePlugin {
-  @override
-  String get gameName => 'Custom Game';
-  
-  @override
-  String get gameDescription => '自定义游戏示例';
-  
-  @override
-  Widget buildGameInterface(BuildContext context) {
-    return CustomGameInterface();
-  }
-  
-  @override
-  Future<void> startGame() async {
-    // 游戏启动逻辑
-  }
-  
-  @override
-  Future<void> pauseGame() async {
-    // 游戏暂停逻辑
-  }
-}
-```
-
-## Phase 4 UI开发
-
-### 1. 首页仪表板开发
-
-#### 创建新的首页组件
-```dart
-class CustomDashboardWidget extends ConsumerWidget {
-  const CustomDashboardWidget({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final homeData = ref.watch(homeProvider);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '自定义仪表板',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            if (homeData.isLoading)
-              const CircularProgressIndicator()
-            else
-              _buildContent(context, homeData),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContent(BuildContext context, HomeData data) {
-    // 自定义内容实现
-    return Container();
-  }
-}
-```
-
-#### 集成到首页
-```dart
-// 在 home_page.dart 中添加新组件
-SliverToBoxAdapter(
-  child: Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: CustomDashboardWidget(),
-  ),
-),
-```
-
-### 2. 设置系统开发
-
-#### 创建新的设置分类
-```dart
-class CustomSettings {
-  final bool enableFeature;
-  final String customValue;
-  final int threshold;
-
-  const CustomSettings({
-    this.enableFeature = false,
-    this.customValue = '',
-    this.threshold = 10,
-  });
-
-  CustomSettings copyWith({
-    bool? enableFeature,
-    String? customValue,
-    int? threshold,
-  }) {
-    return CustomSettings(
-      enableFeature: enableFeature ?? this.enableFeature,
-      customValue: customValue ?? this.customValue,
-      threshold: threshold ?? this.threshold,
-    );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'enableFeature': enableFeature,
-      'customValue': customValue,
-      'threshold': threshold,
-    };
-  }
-
-  factory CustomSettings.fromJson(Map<String, dynamic> json) {
-    return CustomSettings(
-      enableFeature: json['enableFeature'] ?? false,
-      customValue: json['customValue'] ?? '',
-      threshold: json['threshold'] ?? 10,
-    );
-  }
-}
-```
-
-#### 创建设置页面
-```dart
-class CustomSettingsPage extends ConsumerWidget {
-  const CustomSettingsPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final settings = ref.watch(customSettingsProvider);
-    final notifier = ref.read(customSettingsProvider.notifier);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('自定义设置'),
-      ),
-      body: ListView(
-        children: [
-          SettingsSection(
-            title: '功能设置',
-            children: [
-              SwitchListTile(
-                title: const Text('启用功能'),
-                subtitle: const Text('开启或关闭自定义功能'),
-                value: settings.enableFeature,
-                onChanged: (value) {
-                  notifier.updateEnableFeature(value);
-                },
-              ),
-              ListTile(
-                title: const Text('自定义值'),
-                subtitle: Text(settings.customValue.isEmpty ? '未设置' : settings.customValue),
-                trailing: const Icon(Icons.edit),
-                onTap: () => _showEditDialog(context, notifier),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-```
-
-### 3. 状态管理开发
-
-#### 创建Provider
-```dart
-final customSettingsProvider = StateNotifierProvider<CustomSettingsNotifier, CustomSettings>((ref) {
-  return CustomSettingsNotifier();
-});
-
-class CustomSettingsNotifier extends StateNotifier<CustomSettings> {
-  CustomSettingsNotifier() : super(const CustomSettings()) {
-    _loadSettings();
-  }
-
-  Future<void> _loadSettings() async {
-    // 从持久化存储加载设置
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString('custom_settings');
-    if (jsonString != null) {
-      final json = jsonDecode(jsonString);
-      state = CustomSettings.fromJson(json);
-    }
-  }
-
-  Future<void> updateEnableFeature(bool value) async {
-    state = state.copyWith(enableFeature: value);
-    await _saveSettings();
-  }
-
-  Future<void> updateCustomValue(String value) async {
-    state = state.copyWith(customValue: value);
-    await _saveSettings();
-  }
-
-  Future<void> _saveSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('custom_settings', jsonEncode(state.toJson()));
-  }
-}
-```
-
-## 测试开发
-
-### 1. 单元测试
-
-#### 测试生命周期管理
-```dart
-void main() {
-  group('AppLifecycleManager Tests', () {
-    late AppLifecycleManager manager;
-    
-    setUp(() {
-      manager = AppLifecycleManager.instance;
-    });
-    
-    test('应该能够初始化', () async {
-      await manager.initialize();
-      expect(manager.currentState, equals(AppLifecycleState.initialized));
-    });
-    
-    test('应该能够启动应用', () async {
-      await manager.startApplication();
-      expect(manager.currentState, equals(AppLifecycleState.started));
-    });
-  });
-}
-```
-
-#### 测试消息总线
-```dart
-void main() {
-  group('UnifiedMessageBus Tests', () {
-    late UnifiedMessageBus messageBus;
-    
-    setUp(() {
-      messageBus = UnifiedMessageBus.instance;
-    });
-    
-    test('应该能够发布和接收消息', () async {
-      String? receivedAction;
-      
-      final subscription = messageBus.subscribe(
-        (message) async {
-          receivedAction = message.action;
-          return null;
-        },
-      );
-      
-      await messageBus.publishEvent('test', 'test_action', {});
-      
-      expect(receivedAction, equals('test_action'));
-      subscription.cancel();
-    });
-  });
-}
-```
-
-### 2. 集成测试
-
-#### 测试模块集成
-```dart
-void main() {
-  group('Module Integration Tests', () {
-    testWidgets('应该能够加载和切换模块', (WidgetTester tester) async {
-      await tester.pumpWidget(const MainAppFramework(
-        initialModule: 'home',
-      ));
-      
-      // 验证初始模块加载
-      expect(find.text('首页'), findsOneWidget);
-      
-      // 切换到创意工坊
-      await tester.tap(find.text('创意工坊'));
-      await tester.pumpAndSettle();
-      
-      // 验证模块切换
-      expect(find.text('创意工坊'), findsOneWidget);
-    });
-  });
-}
-```
-
-## 性能优化
-
-### 1. 内存管理
-```dart
-class MemoryOptimizedWidget extends StatefulWidget {
-  @override
-  State<MemoryOptimizedWidget> createState() => _MemoryOptimizedWidgetState();
-}
-
-class _MemoryOptimizedWidgetState extends State<MemoryOptimizedWidget> {
-  late StreamSubscription _subscription;
-  
-  @override
-  void initState() {
-    super.initState();
-    _subscription = someStream.listen(_handleData);
-  }
-  
-  @override
-  void dispose() {
-    _subscription.cancel(); // 防止内存泄漏
-    super.dispose();
-  }
-  
-  void _handleData(dynamic data) {
-    if (mounted) { // 检查组件是否仍然挂载
-      setState(() {
-        // 更新状态
-      });
-    }
-  }
-}
-```
-
-### 2. 性能监控
-```dart
-class PerformanceMonitor {
-  static void measureExecutionTime(String operation, Function() function) {
-    final stopwatch = Stopwatch()..start();
-    function();
-    stopwatch.stop();
-    
-    debugPrint('$operation took ${stopwatch.elapsedMilliseconds}ms');
-  }
-  
-  static Future<void> measureAsyncExecutionTime(
-    String operation,
-    Future<void> Function() function,
-  ) async {
-    final stopwatch = Stopwatch()..start();
-    await function();
-    stopwatch.stop();
-    
-    debugPrint('$operation took ${stopwatch.elapsedMilliseconds}ms');
-  }
-}
-```
-
-## 调试和故障排除
-
-### 1. 日志系统
-```dart
-class Logger {
-  static void debug(String message) {
-    if (kDebugMode) {
-      print('[DEBUG] $message');
-    }
-  }
-  
-  static void info(String message) {
-    print('[INFO] $message');
-  }
-  
-  static void error(String message, [Object? error, StackTrace? stackTrace]) {
-    print('[ERROR] $message');
-    if (error != null) print('Error: $error');
-    if (stackTrace != null) print('Stack trace: $stackTrace');
-  }
-}
-```
-
-### 2. 错误处理
-```dart
-class ErrorHandler {
-  static void handleError(Object error, StackTrace stackTrace) {
-    Logger.error('Unhandled error', error, stackTrace);
-    
-    // 发送错误报告
-    _sendErrorReport(error, stackTrace);
-    
-    // 尝试恢复
-    _attemptRecovery();
-  }
-  
-  static void _sendErrorReport(Object error, StackTrace stackTrace) {
-    // 实现错误报告逻辑
-  }
-  
-  static void _attemptRecovery() {
-    // 实现错误恢复逻辑
-  }
-}
-```
-
-## 部署指南
-
-### 1. 构建配置
-```yaml
-# pubspec.yaml
-flutter:
-  assets:
-    - assets/images/
-    - assets/configs/
-  
-  fonts:
-    - family: CustomFont
-      fonts:
-        - asset: fonts/CustomFont-Regular.ttf
-```
-
-### 2. 平台特定配置
-
-#### Android配置
-```xml
-<!-- android/app/src/main/AndroidManifest.xml -->
-<application
-    android:name=".MainApplication"
-    android:label="Pet App V3"
-    android:icon="@mipmap/ic_launcher">
-    
-    <activity
-        android:name=".MainActivity"
-        android:exported="true"
-        android:launchMode="singleTop"
-        android:theme="@style/LaunchTheme">
-        
-        <intent-filter android:autoVerify="true">
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="petapp" />
-        </intent-filter>
-    </activity>
-</application>
-```
-
-#### iOS配置
-```xml
-<!-- ios/Runner/Info.plist -->
-<key>CFBundleURLTypes</key>
-<array>
-    <dict>
-        <key>CFBundleURLName</key>
-        <string>petapp.deeplink</string>
-        <key>CFBundleURLSchemes</key>
-        <array>
-            <string>petapp</string>
-        </array>
-    </dict>
-</array>
-```
-
-### 3. 构建命令
+- **静态分析**: 0 错误 0 警告
+
+## 模块开发
+
+### 新模块开发流程
+1. **使用 Ming CLI 创建模块**: `ming template create`
+2. **实现模块核心功能**: 按照标准架构模式开发
+3. **集成通信接口**: 与 communication_system 集成
+4. **编写测试用例**: 确保高质量的测试覆盖
+5. **更新主应用依赖**: 在主应用中添加模块依赖
+6. **文档更新**: 更新相关文档和使用指南
+
+### 模块标准规范
+- **目录结构**: 遵循标准的 Dart 包结构
+- **导出接口**: 通过 `lib/module_name.dart` 统一导出
+- **测试覆盖**: 保持高质量的测试覆盖率
+- **文档完善**: 包含 README、API 文档和使用示例
+
+## 快速开始
+
+### 安装和运行
 ```bash
-# 开发构建
+# 克隆项目
+git clone <repository-url>
+cd pet_app_v3/apps/pet_app
+
+# 安装依赖
+flutter pub get
+
+# 运行应用
 flutter run
-
-# 发布构建
-flutter build apk --release
-flutter build ios --release
-flutter build web --release
-
-# 分析构建
-flutter analyze
-flutter test --coverage
 ```
 
-## 版本管理
-
-### 1. 版本号规范
-- **主版本号**: 重大架构变更
-- **次版本号**: 新功能添加
-- **修订版本号**: 错误修复
-
-### 2. 发布流程
+### 测试
 ```bash
-# 1. 更新版本号
-# pubspec.yaml: version: 3.3.0+1
-
-# 2. 更新变更日志
-# CHANGELOG.md
-
-# 3. 运行测试
+# 运行测试
 flutter test
 
-# 4. 构建发布版本
-flutter build apk --release
-
-# 5. 创建Git标签
-git tag v3.3.0
-git push origin v3.3.0
+# 静态分析
+dart analyze
 ```
+
+## 文档
+
+详细的开发文档请参考：
+- [API文档](../api/plugin_api.md) - 完整的API接口说明
+- [架构文档](../architecture/system_architecture.md) - 系统架构设计
+- [用户指南](../user/user_guide.md) - 用户使用指南
+- [测试报告](../testing/test_report.md) - 详细测试报告
+- [部署指南](../deployment/deployment_guide.md) - 部署和发布指南
+
+

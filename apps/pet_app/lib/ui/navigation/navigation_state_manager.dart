@@ -15,7 +15,7 @@ Change History:
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 import 'dart:convert';
-import '../../core/communication/unified_message_bus.dart';
+import 'package:communication_system/communication_system.dart' as comm;
 
 /// 页面状态条目
 class PageStateEntry {
@@ -108,7 +108,7 @@ class NavigationStateManager {
   static NavigationStateManager get instance => _instance;
 
   /// 统一消息总线
-  final UnifiedMessageBus _messageBus = UnifiedMessageBus.instance;
+  final comm.UnifiedMessageBus _messageBus = comm.UnifiedMessageBus.instance;
 
   /// 状态缓存
   final Map<String, PageStateEntry> _stateCache = {};

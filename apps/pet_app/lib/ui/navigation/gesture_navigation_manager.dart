@@ -16,7 +16,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'dart:async';
 import 'dart:math' as math;
-import '../../core/communication/unified_message_bus.dart';
+import 'package:communication_system/communication_system.dart' as comm;
 
 /// 手势类型
 enum GestureType {
@@ -213,7 +213,7 @@ class GestureNavigationManager {
   static GestureNavigationManager get instance => _instance;
 
   /// 统一消息总线
-  final UnifiedMessageBus _messageBus = UnifiedMessageBus.instance;
+  final comm.UnifiedMessageBus _messageBus = comm.UnifiedMessageBus.instance;
 
   /// 注册的手势
   final Map<String, GestureEntry> _gestures = {};

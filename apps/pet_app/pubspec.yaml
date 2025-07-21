@@ -42,13 +42,20 @@ dependencies:
     path: ../../packages/plugin_system
   creative_workshop:
     path: ../../packages/creative_workshop
-  # TODO: 修复缺失文件后启用
-  # home_dashboard:
-  #   path: ../../packages/home_dashboard
+  # Phase 5.0.1: Home Dashboard 模块迁移完成
+  home_dashboard:
+    path: ../../packages/home_dashboard
+  # Phase 5.0.2: Settings System 模块迁移完成
+  settings_system:
+    path: ../../packages/settings_system
+  # Phase 5.0.3: Desktop Pet 模块迁移完成
+  desktop_pet:
+    path: ../../packages/desktop_pet
+  # Phase 5.0.4: Communication System 模块抽取完成
+  communication_system:
+    path: ../../packages/communication_system
   # app_manager:
   #   path: ../../packages/app_manager
-  # settings_system:
-  #   path: ../../packages/settings_system
 
 dev_dependencies:
   flutter_test:

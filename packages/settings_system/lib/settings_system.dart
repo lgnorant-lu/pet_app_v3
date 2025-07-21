@@ -13,20 +13,20 @@ Change History:
 */
 
 /// settings_system模块
-/// 
+///
 /// 设置系统模块
-/// 
+///
 /// ## 功能特性
-/// 
+///
 /// - 模块化设计
 /// - 可扩展架构
 /// - 标准化接口
-/// 
+///
 /// ## 使用示例
-/// 
+///
 /// ```dart
 /// import 'package:settings_system/settings_system.dart';
-/// 
+///
 /// // 在Dart应用中使用
 /// void main() async {
 ///   final module = SettingsSystemModule.instance;
@@ -34,7 +34,7 @@ Change History:
 ///   // 使用模块功能
 /// }
 /// ```
-/// 
+///
 /// @author Pet App Team
 /// @version 1.0.0
 library settings_system;
@@ -42,15 +42,16 @@ library settings_system;
 // 核心模块导出
 export 'settings_system_module.dart';
 
-// 通用导出
+// 核心功能导出
 export 'src/core/index.dart';
-export 'src/utils/index.dart';
 
-// 条件导出（根据平台和环境）
-export 'src/cross_platform/index.dart';
-
-// 开发工具导出（仅在开发环境）
-// export 'src/dev_tools/index.dart';
-
-// 测试工具导出（仅在测试环境）
-// export 'src/test_utils/index.dart';
+// 直接导出常用组件（便于使用）
+export 'src/models/settings_models.dart';
+export 'src/services/settings_service.dart';
+export 'src/providers/settings_provider.dart';
+export 'src/widgets/settings_section.dart';
+export 'src/widgets/settings_tile.dart';
+export 'src/pages/settings_page.dart';
+export 'src/pages/app_settings_page.dart';
+export 'src/pages/plugin_settings_page.dart';
+export 'src/pages/user_preferences_page.dart';

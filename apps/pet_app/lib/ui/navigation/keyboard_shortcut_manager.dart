@@ -15,7 +15,7 @@ Change History:
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
-import '../../core/communication/unified_message_bus.dart';
+import 'package:communication_system/communication_system.dart' as comm;
 
 /// 快捷键组合
 class ShortcutCombination {
@@ -194,7 +194,7 @@ class KeyboardShortcutManager {
   static KeyboardShortcutManager get instance => _instance;
 
   /// 统一消息总线
-  final UnifiedMessageBus _messageBus = UnifiedMessageBus.instance;
+  final comm.UnifiedMessageBus _messageBus = comm.UnifiedMessageBus.instance;
 
   /// 注册的快捷键
   final Map<String, ShortcutEntry> _shortcuts = {};

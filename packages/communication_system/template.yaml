@@ -1,0 +1,28 @@
+name: communication_system
+version: 1.0.0
+description: 跨模块通信系统 - 统一消息总线、事件路由、数据同步
+author: lgnorant-lu
+type: system
+platform: crossPlatform
+framework: flutter
+complexity: medium
+maturity: development
+tags: []
+created_at: 2025-07-21T09:01:07.685932
+
+# 模板依赖
+dependencies:
+  []
+
+# 模板配置
+configuration:
+  include_tests: true
+  include_documentation: true
+  include_examples: true
+  enable_git_init: true
+
+# 生成信息
+generation:
+  tool: Ming Status CLI
+  tool_version: 1.0.0
+  generated_at: 2025-07-21T09:01:07.685932
