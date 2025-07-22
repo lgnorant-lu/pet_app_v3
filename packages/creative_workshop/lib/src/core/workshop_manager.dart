@@ -18,9 +18,7 @@ import 'package:flutter/foundation.dart';
 import 'package:plugin_system/plugin_system.dart';
 
 import 'package:creative_workshop/src/core/tools/tool_plugin.dart';
-import 'package:creative_workshop/src/core/tools/drawing_tools.dart';
 import 'package:creative_workshop/src/core/games/game_plugin.dart';
-import 'package:creative_workshop/src/core/games/simple_games.dart';
 import 'package:creative_workshop/src/core/projects/project_manager.dart';
 
 /// 工坊状态
@@ -406,85 +404,33 @@ class WorkshopManager extends ChangeNotifier {
   }
 
   /// 注册内置工具插件
+  ///
+  /// Phase 5.0.6 重构：转型为应用商店模式
+  /// 不再注册内置工具，改为从插件市场动态加载
   Future<void> _registerBuiltinTools() async {
-    // TODO(Critical): [Phase 2.9.2] 实现内置工具插件注册逻辑
-    // 需要实现：
-    // 1. 画笔工具注册 - BrushTool插件实例化和注册
-    // 2. 形状工具注册 - ShapeTools插件实例化和注册
-    // 3. 橡皮擦工具注册 - EraserTool插件实例化和注册
-    // 4. 文本工具注册 - TextTool插件实例化和注册
-    // 5. 选择工具注册 - SelectionTool插件实例化和注册
-    // 6. 工具权限配置和验证
-    // 7. 工具依赖关系管理
-    // 8. 工具加载失败的错误处理和回滚
-    //
-    // 当前状态: 完全占位符实现，所有工具注册都被注释掉
-    // 影响: 无法使用任何内置工具，工坊功能不可用
-    // 优先级: Critical - 阻塞核心功能
-    _log('info', '注册内置工具插件');
+    _log('info', '跳过内置工具注册 - 转型为应用商店模式');
 
-    try {
-      // 注册画笔工具
-      final brushTool = SimpleBrushTool();
-      final brushRegistered =
-          await _pluginRegistry.registerIfNotExists(brushTool);
-      if (brushRegistered) {
-        _log('info', '画笔工具注册成功: ${brushTool.id}');
-      } else {
-        _log('info', '画笔工具已存在，跳过注册: ${brushTool.id}');
-      }
+    // TODO: Phase 5.0.6.2 - 实现从插件市场加载工具
+    // 1. 扫描已安装的工具插件
+    // 2. 动态加载插件到注册中心
+    // 3. 验证插件兼容性和权限
 
-      // 注册铅笔工具
-      final pencilTool = SimplePencilTool();
-      final pencilRegistered =
-          await _pluginRegistry.registerIfNotExists(pencilTool);
-      if (pencilRegistered) {
-        _log('info', '铅笔工具注册成功: ${pencilTool.id}');
-      } else {
-        _log('info', '铅笔工具已存在，跳过注册: ${pencilTool.id}');
-      }
-
-      _log('info', '内置工具插件注册完成');
-    } catch (e) {
-      _log('warning', '注册内置工具插件时发生错误: $e');
-      rethrow;
-    }
+    _log('info', '工具插件注册完成 - 应用商店模式');
   }
 
   /// 注册内置游戏插件
+  ///
+  /// Phase 5.0.6 重构：转型为应用商店模式
+  /// 不再注册内置游戏，改为从插件市场动态加载
   Future<void> _registerBuiltinGames() async {
-    // TODO(Critical): [Phase 2.9.2] 实现内置游戏插件注册逻辑
-    // 需要实现：
-    // 1. 点击游戏注册 - ClickGame插件实例化和注册
-    // 2. 猜数字游戏注册 - NumberGuessGame插件实例化和注册
-    // 3. 记忆游戏注册 - MemoryGame插件实例化和注册
-    // 4. 拼图游戏注册 - PuzzleGame插件实例化和注册
-    // 5. 绘画游戏注册 - DrawingGame插件实例化和注册
-    // 6. 游戏权限配置和验证
-    // 7. 游戏依赖关系管理
-    // 8. 游戏加载失败的错误处理和回滚
-    //
-    // 当前状态: 完全占位符实现，所有游戏注册都被注释掉
-    // 影响: 无法使用任何内置游戏，工坊游戏功能不可用
-    // 优先级: Critical - 阻塞核心功能
-    _log('info', '注册内置游戏插件');
+    _log('info', '跳过内置游戏注册 - 转型为应用商店模式');
 
-    try {
-      // 注册点击游戏
-      final clickGame = SimpleClickGame();
-      final gameRegistered =
-          await _pluginRegistry.registerIfNotExists(clickGame);
-      if (gameRegistered) {
-        _log('info', '点击游戏注册成功: ${clickGame.id}');
-      } else {
-        _log('info', '点击游戏已存在，跳过注册: ${clickGame.id}');
-      }
+    // TODO: Phase 5.0.6.2 - 实现从插件市场加载游戏
+    // 1. 扫描已安装的游戏插件
+    // 2. 动态加载插件到注册中心
+    // 3. 验证插件兼容性和权限
 
-      _log('info', '内置游戏插件注册完成');
-    } catch (e) {
-      _log('warning', '注册内置游戏插件时发生错误: $e');
-      rethrow;
-    }
+    _log('info', '游戏插件注册完成 - 应用商店模式');
   }
 
   // ===== 用户插件管理方法 =====

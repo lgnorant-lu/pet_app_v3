@@ -123,14 +123,14 @@ class _ToolToolbarState extends State<ToolToolbar> {
             _buildToolButton(
               icon: Icons.brush,
               label: '画笔',
-              isSelected: _toolManager.activeTool is SimpleBrushTool,
+              isSelected: _toolManager.activeToolId == 'simple_brush_tool',
               selectedColor: selectedColor,
               onPressed: _activateBrushTool,
             ),
             _buildToolButton(
               icon: Icons.edit,
               label: '铅笔',
-              isSelected: _toolManager.activeTool is SimplePencilTool,
+              isSelected: _toolManager.activeToolId == 'simple_pencil_tool',
               selectedColor: selectedColor,
               onPressed: _activatePencilTool,
             ),
@@ -192,7 +192,7 @@ class _ToolToolbarState extends State<ToolToolbar> {
           _buildToolButton(
             icon: Icons.brush,
             label: '画笔',
-            isSelected: _toolManager.activeTool is SimpleBrushTool,
+            isSelected: _toolManager.activeToolId == 'simple_brush_tool',
             selectedColor: selectedColor,
             onPressed: _activateBrushTool,
           ),
@@ -200,7 +200,7 @@ class _ToolToolbarState extends State<ToolToolbar> {
           _buildToolButton(
             icon: Icons.edit,
             label: '铅笔',
-            isSelected: _toolManager.activeTool is SimplePencilTool,
+            isSelected: _toolManager.activeToolId == 'simple_pencil_tool',
             selectedColor: selectedColor,
             onPressed: _activatePencilTool,
           ),
@@ -350,7 +350,7 @@ class _ToolToolbarState extends State<ToolToolbar> {
     final previousTool = _toolManager.activeToolId ?? 'none';
 
     // 通过插件ID激活画笔工具
-    final success = _toolManager.activateBrushTool('simple_brush_tool');
+    final success = _toolManager.activateTool('simple_brush_tool');
     if (success) {
       debugPrint('画笔工具已激活');
 
@@ -360,11 +360,11 @@ class _ToolToolbarState extends State<ToolToolbar> {
         toTool: 'simple_brush_tool',
         undoCallback: () {
           if (previousTool != 'none') {
-            _toolManager.activateBrushTool(previousTool);
+            _toolManager.activateTool(previousTool);
           }
         },
         redoCallback: () {
-          _toolManager.activateBrushTool('simple_brush_tool');
+          _toolManager.activateTool('simple_brush_tool');
         },
       );
     } else {
@@ -381,7 +381,7 @@ class _ToolToolbarState extends State<ToolToolbar> {
     final previousTool = _toolManager.activeToolId ?? 'none';
 
     // 通过插件ID激活铅笔工具
-    final success = _toolManager.activatePencilTool('simple_pencil_tool');
+    final success = _toolManager.activateTool('simple_pencil_tool');
     if (success) {
       debugPrint('铅笔工具已激活');
 
@@ -391,11 +391,11 @@ class _ToolToolbarState extends State<ToolToolbar> {
         toTool: 'simple_pencil_tool',
         undoCallback: () {
           if (previousTool != 'none') {
-            _toolManager.activatePencilTool(previousTool);
+            _toolManager.activateTool(previousTool);
           }
         },
         redoCallback: () {
-          _toolManager.activatePencilTool('simple_pencil_tool');
+          _toolManager.activateTool('simple_pencil_tool');
         },
       );
     } else {

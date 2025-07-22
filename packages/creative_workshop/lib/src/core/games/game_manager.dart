@@ -13,7 +13,6 @@ Change History:
 */
 
 import 'package:flutter/foundation.dart';
-import 'package:creative_workshop/src/core/games/simple_games.dart';
 import 'package:creative_workshop/src/core/games/game_plugin.dart';
 
 /// 简化的游戏管理器
@@ -29,10 +28,10 @@ class SimpleGameManager extends ChangeNotifier {
   }
 
   /// 已注册的游戏
-  final Map<String, SimpleGame> _games = <String, SimpleGame>{};
+  final Map<String, GamePlugin> _games = <String, GamePlugin>{};
 
   /// 当前激活的游戏
-  SimpleGame? _activeGame;
+  GamePlugin? _activeGame;
   String? _activeGameId;
 
   /// 游戏历史记录
@@ -42,11 +41,11 @@ class SimpleGameManager extends ChangeNotifier {
   static const int _maxHistorySize = 10;
 
   /// 获取当前激活的游戏
-  SimpleGame? get activeGame => _activeGame;
+  GamePlugin? get activeGame => _activeGame;
   String? get activeGameId => _activeGameId;
 
   /// 获取所有游戏
-  Map<String, SimpleGame> get games => Map.unmodifiable(_games);
+  Map<String, GamePlugin> get games => Map.unmodifiable(_games);
 
   /// 获取游戏历史记录
   List<String> get gameHistory => List.unmodifiable(_gameHistory);
@@ -68,16 +67,18 @@ class SimpleGameManager extends ChangeNotifier {
   }
 
   /// 注册内置游戏
+  ///
+  /// Phase 5.0.6 重构：转型为应用商店模式
+  /// 不再注册内置游戏，改为从插件市场动态加载
   Future<void> _registerBuiltinGames() async {
-    // 注册点击游戏
-    final clickGame = SimpleClickGame();
-    _games[clickGame.id] = clickGame;
+    debugPrint('跳过内置游戏注册 - 转型为应用商店模式');
 
-    // 注册猜数字游戏
-    final guessGame = SimpleGuessGame();
-    _games[guessGame.id] = guessGame;
+    // TODO: Phase 5.0.6.2 - 实现从插件市场加载游戏
+    // 1. 扫描已安装的游戏插件
+    // 2. 动态加载插件到注册中心
+    // 3. 验证插件兼容性和权限
 
-    debugPrint('内置游戏注册完成：${_games.length} 个游戏');
+    debugPrint('游戏插件注册完成 - 应用商店模式');
   }
 
   /// 设置默认游戏
@@ -135,7 +136,7 @@ class SimpleGameManager extends ChangeNotifier {
   }
 
   /// 注册新游戏
-  bool registerGame(SimpleGame game) {
+  bool registerGame(GamePlugin game) {
     if (_games.containsKey(game.id)) {
       debugPrint('游戏已存在: ${game.id}');
       return false;
@@ -178,11 +179,11 @@ class SimpleGameManager extends ChangeNotifier {
   bool isGameActive(String gameId) => _activeGameId == gameId;
 
   /// 获取游戏
-  SimpleGame? getGame(String gameId) => _games[gameId];
+  GamePlugin? getGame(String gameId) => _games[gameId];
 
   /// 获取所有游戏名称
   List<String> getGameNames() =>
-      _games.values.map((SimpleGame game) => game.name).toList();
+      _games.values.map<String>((GamePlugin game) => game.name).toList();
 
   /// 获取所有游戏ID
   List<String> getGameIds() => _games.keys.toList();
@@ -215,9 +216,8 @@ class SimpleGameManager extends ChangeNotifier {
       gameStats[game.id] = <String, Object>{
         'name': game.name,
         'state': game.gameState.toString(),
-        'score': game.score,
-        'highScore': game.highScore,
-        'gameTime': game.gameTime,
+        'version': game.version,
+        'description': game.description,
       };
     }
     stats['gameDetails'] = gameStats;

@@ -13,3 +13,6 @@ Description:        核心功能模块导出文件
 export 'providers/index.dart';
 export 'router/index.dart';
 export 'theme/index.dart';
+// 插件管理导出
+export 'plugins/plugin_manager.dart';
+export 'plugins/plugin_registry.dart';

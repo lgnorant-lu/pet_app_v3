@@ -236,7 +236,7 @@ class _StatusBarState extends State<StatusBar> {
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
           Icon(
-            activeGame.icon,
+            activeGame.gameConfig.icon,
             size: 14,
             color: Colors.green,
           ),
@@ -267,7 +267,7 @@ class _StatusBarState extends State<StatusBar> {
           ),
           const SizedBox(width: 6),
           Text(
-            '分数: ${activeGame.score}',
+            '分数: ${activeGame.getCurrentScore()?.score ?? 0}',
             style: const TextStyle(fontSize: 10, color: Colors.grey),
           ),
         ],
@@ -396,30 +396,26 @@ class _StatusBarState extends State<StatusBar> {
   }
 
   IconData _getToolIcon(dynamic tool) {
-    if (tool is SimpleBrushTool) {
-      return Icons.brush;
-    } else if (tool is SimplePencilTool) {
-      return Icons.edit;
-    }
-    return Icons.build;
+    // Phase 5.0.6 - 转型为应用商店模式，使用通用工具图标
+    return Icons.extension;
   }
 
   String _getToolName(dynamic tool) {
-    if (tool is SimpleBrushTool) {
-      return '画笔';
-    } else if (tool is SimplePencilTool) {
-      return '铅笔';
+    // Phase 5.0.6 - 转型为应用商店模式，显示插件名称
+    try {
+      return tool?.name?.toString() ?? tool?.runtimeType.toString() ?? '未知工具';
+    } catch (e) {
+      return '未知工具';
     }
-    return tool.runtimeType.toString();
   }
 
   String _getToolDetails(dynamic tool) {
-    if (tool is SimpleBrushTool) {
-      return '大小: ${tool.brushSize.toInt()}';
-    } else if (tool is SimplePencilTool) {
-      return '大小: ${tool.pencilSize.toInt()}';
+    // Phase 5.0.6 - 转型为应用商店模式，显示插件版本
+    try {
+      return tool?.version != null ? '版本: ${tool.version}' : '';
+    } catch (e) {
+      return '';
     }
-    return '';
   }
 
   String _getGameStateName(GameState state) {

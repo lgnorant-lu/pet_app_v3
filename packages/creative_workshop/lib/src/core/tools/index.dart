@@ -12,9 +12,6 @@ Change History:
 ---------------------------------------------------------------
 */
 
-// 导出具体工具实现
-export 'drawing_tools.dart';
-export 'shape_tools.dart';
 // 导出工具管理器
 export 'tool_manager.dart';
 // 导出工具插件基类

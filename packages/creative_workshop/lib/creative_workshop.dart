@@ -48,9 +48,17 @@ export 'src/core/projects/project_manager.dart';
 export 'src/core/tools/tool_plugin.dart';
 // Phase 2 核心功能导出
 export 'src/core/workshop_manager.dart';
+// 插件系统导出
+export 'src/core/plugins/plugin_manager.dart';
+export 'src/core/plugins/plugin_registry.dart';
+export 'src/core/plugins/plugin_file_manager.dart';
+export 'src/core/plugins/plugin_manifest.dart';
+export 'src/core/plugins/plugin_manifest_parser.dart';
+export 'src/core/plugins/permission_manager.dart';
+export 'src/core/plugins/permission_dialog.dart';
+export 'src/core/plugins/permission_service.dart';
 export 'src/logging/index.dart';
 export 'src/monitoring/index.dart';
-// export 'src/models/index.dart'; // 已删除models模块
 export 'src/providers/index.dart';
 export 'src/repositories/index.dart';
 // 企业级功能导出

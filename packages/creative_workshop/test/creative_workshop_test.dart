@@ -2,137 +2,70 @@
 ---------------------------------------------------------------
 File name:          creative_workshop_test.dart
 Author:             lgnorant-lu
-Date created:       2025-07-18
-Last modified:      2025-07-18
+Date created:       2025-07-23
+Last modified:      2025-07-23
 Dart Version:       3.2+
-Description:        creative_workshop模块测试入口
+Description:        Creative Workshop 主测试入口
 ---------------------------------------------------------------
 Change History:
-    2025-07-18: Initial creation - creative_workshop模块测试入口;
+    2025-07-23: Phase 5.0.6 - 重构为插件管理系统测试;
 ---------------------------------------------------------------
 */
 
-import 'package:test/test.dart';
-// import 'package:creative_workshop/creative_workshop.dart'; // 暂时注释掉以支持纯Dart测试
+import 'package:flutter_test/flutter_test.dart';
+import 'package:creative_workshop/src/core/plugins/plugin_manager.dart';
+import 'package:creative_workshop/src/core/plugins/plugin_registry.dart';
 
 void main() {
-  group('CreativeWorkshop Core Tests', () {
-    test('should have basic test structure', () {
-      // 基础测试结构验证
-      expect(true, isTrue);
-      expect('CreativeWorkshop', isA<String>());
-      expect('CreativeWorkshop'.length, greaterThan(0));
+  group('Creative Workshop Core Tests', () {
+    test('should export main classes', () {
+      // 验证主要类是否正确导出
+      expect(PluginManager.instance, isNotNull);
+      expect(PluginRegistry.instance, isNotNull);
     });
 
-    test('should handle string operations', () {
-      const moduleName = 'CreativeWorkshop';
-      expect(moduleName.toLowerCase(), equals('creativeworkshop'));
-      expect(moduleName.toUpperCase(), equals('CREATIVEWORKSHOP'));
-      expect(moduleName.contains('Creative'), isTrue);
-      expect(moduleName.contains('Workshop'), isTrue);
-    });
+    test('should have correct enum values', () {
+      // 验证枚举值
+      expect(PluginState.values.length, 12);
+      expect(PluginPermission.values.length, 8);
 
-    test('should handle basic data structures', () {
-      final moduleInfo = <String, dynamic>{
-        'name': 'CreativeWorkshop',
-        'version': '1.0.0',
-        'description': 'Creative Workshop Module',
-        'isInitialized': false,
-      };
+      // 验证特定枚举值
+      expect(PluginState.values.contains(PluginState.enabled), isTrue);
+      expect(PluginState.values.contains(PluginState.disabled), isTrue);
+      expect(PluginState.values.contains(PluginState.installed), isTrue);
 
-      expect(moduleInfo['name'], equals('CreativeWorkshop'));
-      expect(moduleInfo['version'], equals('1.0.0'));
-      expect(moduleInfo['description'], isNotEmpty);
-      expect(moduleInfo['isInitialized'], isFalse);
-    });
-
-    test('should handle async operations', () async {
-      // 模拟异步初始化
-      await Future<void>.delayed(const Duration(milliseconds: 10));
-
-      final result = await Future.value('initialized');
-      expect(result, equals('initialized'));
+      expect(PluginPermission.values.contains(PluginPermission.fileSystem),
+          isTrue);
+      expect(
+          PluginPermission.values.contains(PluginPermission.network), isTrue);
+      expect(PluginPermission.values.contains(PluginPermission.camera), isTrue);
     });
   });
 
-  group('CreativeWorkshop Module Info Tests', () {
-    test('should provide module information structure', () {
-      final Map<String, dynamic> info = {
-        'name': 'CreativeWorkshop',
-        'version': '1.0.0',
-        'description': 'Creative Workshop Module for Pet App',
-        'author': 'lgnorant-lu',
-        'dependencies': <String>[],
-      };
-
-      expect(info, isNotNull);
-      expect(info['name'], equals('CreativeWorkshop'));
-      expect(info['version'], isNotNull);
-      expect(info['description'], isNotNull);
-      expect(info['author'], equals('lgnorant-lu'));
-      expect(info['dependencies'], isA<List<String>>());
+  group('Creative Workshop Singleton Tests', () {
+    test('PluginManager should be singleton', () {
+      final instance1 = PluginManager.instance;
+      final instance2 = PluginManager.instance;
+      expect(instance1, same(instance2));
     });
 
-    test('should handle route registration structure', () {
-      final Map<String, Function> routes = <String, Function>{
-        '/workshop': () => 'Workshop Page',
-        '/projects': () => 'Projects Page',
-        '/tools': () => 'Tools Page',
-      };
-
-      expect(routes, isNotNull);
-      expect(routes, isA<Map<String, Function>>());
-      expect(routes.length, equals(3));
-      expect(routes.containsKey('/workshop'), isTrue);
-      expect(routes.containsKey('/projects'), isTrue);
-      expect(routes.containsKey('/tools'), isTrue);
+    test('PluginRegistry should be singleton', () {
+      final instance1 = PluginRegistry.instance;
+      final instance2 = PluginRegistry.instance;
+      expect(instance1, same(instance2));
     });
   });
 
-  group('CreativeWorkshop Lifecycle Tests', () {
-    test('should handle module lifecycle simulation', () async {
-      // 模拟模块生命周期状态
-      var isInitialized = false;
-
-      // 模拟初始化
-      await Future<void>.delayed(const Duration(milliseconds: 5));
-      isInitialized = true;
-      expect(isInitialized, isTrue);
-
-      // 模拟多次初始化调用（已经初始化的情况下）
-      // 这种情况下不需要重复初始化
-      expect(isInitialized, isTrue);
-    });
-
-    test('should handle disposal simulation', () async {
-      bool isInitialized = true;
-
-      // 模拟清理
-      await Future<void>.delayed(const Duration(milliseconds: 5));
-      isInitialized = false;
-      expect(isInitialized, isFalse);
-
-      // 在未初始化状态下调用dispose应该安全（已经是false状态）
-      expect(isInitialized, isFalse);
-    });
-
-    test('should handle reinitialization simulation', () async {
-      bool isInitialized = false;
-
-      // 初始化
-      await Future<void>.delayed(const Duration(milliseconds: 5));
-      isInitialized = true;
-      expect(isInitialized, isTrue);
-
-      // 清理
-      await Future<void>.delayed(const Duration(milliseconds: 5));
-      isInitialized = false;
-      expect(isInitialized, isFalse);
-
-      // 重新初始化
-      await Future<void>.delayed(const Duration(milliseconds: 5));
-      isInitialized = true;
-      expect(isInitialized, isTrue);
+  group('Creative Workshop Permission Tests', () {
+    test('should have correct permission display names', () {
+      expect(PluginPermission.fileSystem.displayName, '文件系统访问');
+      expect(PluginPermission.network.displayName, '网络访问');
+      expect(PluginPermission.notifications.displayName, '系统通知');
+      expect(PluginPermission.clipboard.displayName, '剪贴板访问');
+      expect(PluginPermission.camera.displayName, '相机访问');
+      expect(PluginPermission.microphone.displayName, '麦克风访问');
+      expect(PluginPermission.location.displayName, '位置信息');
+      expect(PluginPermission.deviceInfo.displayName, '设备信息');
     });
   });
 }

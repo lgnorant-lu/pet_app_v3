@@ -2,189 +2,303 @@
 
 ## 概述
 
-Creative Workshop 模块提供了完整的创意工坊功能，包括绘画工具、游戏系统、项目管理等核心功能。
+Creative Workshop 是一个功能强大的 Flutter 应用商店与开发者平台模块，提供插件发现、安装、管理等完整的应用生态功能。该模块采用企业级架构，支持插件生命周期管理、权限控制、依赖解析等高级功能。
 
-## 核心类
+**🔄 Phase 5.0.6 重大更新**: 从绘画工具转型为应用商店+开发者平台+插件管理三位一体系统
 
-### CreativeWorkshopModule
+## 核心架构
 
-主模块类，提供模块的初始化和管理功能。
+### 双核心架构
+
+Creative Workshop 采用双核心架构设计：
+
+- **PluginManager**: 插件生命周期管理
+- **PluginRegistry**: 插件注册表和元数据管理
+
+## 插件管理系统
+
+### PluginManager
+
+插件管理器，负责插件的完整生命周期管理。
 
 ```dart
-class CreativeWorkshopModule {
-  static CreativeWorkshopModule create({
-    String? name,
-    String? version,
-    Map<String, dynamic>? config,
-  });
-  
-  String get name;
-  String get version;
-  Map<String, dynamic> get config;
-  
-  Future<void> initialize();
-  Future<void> dispose();
+class PluginManager extends ChangeNotifier {
+  static PluginManager get instance;
+
+  // 插件列表
+  List<PluginInstallInfo> get installedPlugins;
+  List<PluginInstallInfo> get enabledPlugins;
+  List<PluginInstallInfo> get updatablePlugins;
+
+  // 生命周期管理
+  Future<PluginOperationResult> installPlugin(String pluginId, {String? version, bool autoUpdate = true});
+  Future<PluginOperationResult> uninstallPlugin(String pluginId);
+  Future<PluginOperationResult> enablePlugin(String pluginId);
+  Future<PluginOperationResult> disablePlugin(String pluginId);
+  Future<PluginOperationResult> updatePlugin(String pluginId);
+
+  // 查询方法
+  PluginInstallInfo? getPluginInfo(String pluginId);
+  bool isPluginInstalled(String pluginId);
+  bool isPluginEnabled(String pluginId);
+  Map<String, dynamic> getPluginStats();
+
+  // 进度跟踪
+  Stream<double>? getInstallProgress(String pluginId);
 }
 ```
 
-### 项目管理
+### PluginRegistry
 
-#### CreativeProject
-
-表示一个创意项目的核心类。
+插件注册表，负责插件的注册、启动、停止等操作。
 
 ```dart
-class CreativeProject {
-  String id;
-  String name;
-  String description;
-  ProjectType type;
-  DateTime createdAt;
-  DateTime updatedAt;
-  Map<String, dynamic> data;
-  
-  CreativeProject({
+class PluginRegistry extends ChangeNotifier {
+  static PluginRegistry get instance;
+
+  // 插件注册
+  void registerPlugin(PluginMetadata metadata, Plugin Function() pluginFactory);
+  Future<void> unregisterPlugin(String pluginId);
+
+  // 插件生命周期
+  Future<void> startPlugin(String pluginId);
+  Future<void> stopPlugin(String pluginId);
+  Future<void> restartPlugin(String pluginId);
+
+  // 查询方法
+  List<PluginRegistration> get registrations;
+  List<Plugin> get activePlugins;
+  PluginMetadata? getPluginMetadata(String pluginId);
+  Plugin? getActivePlugin(String pluginId);
+  bool isPluginRegistered(String pluginId);
+  bool isPluginRunning(String pluginId);
+
+  // 搜索和分类
+  List<PluginRegistration> getPluginsByCategory(String category);
+  List<PluginRegistration> searchPlugins(String query);
+
+  // 统计信息
+  Map<String, dynamic> getStatistics();
+
+  // 批量操作
+  Future<void> startAllPlugins();
+  Future<void> stopAllPlugins();
+
+  // 事件流
+  Stream<PluginRegistryEvent> get events;
+}
+```
+
+## 数据模型
+
+### PluginInstallInfo
+
+插件安装信息，包含插件的完整状态和元数据。
+
+```dart
+class PluginInstallInfo {
+  final String id;
+  final String name;
+  final String version;
+  final PluginState state;
+  final DateTime installedAt;
+  final DateTime? lastUsedAt;
+  final List<PluginPermission> permissions;
+  final List<PluginDependency> dependencies;
+  final int size; // 字节
+  final bool autoUpdate;
+
+  const PluginInstallInfo({
     required this.id,
     required this.name,
+    required this.version,
+    required this.state,
+    required this.installedAt,
+    this.lastUsedAt,
+    this.permissions = const [],
+    this.dependencies = const [],
+    this.size = 0,
+    this.autoUpdate = true,
+  });
+
+  PluginInstallInfo copyWith({...});
+}
+```
+
+### PluginMetadata
+
+插件元数据，包含插件的基本信息。
+
+```dart
+class PluginMetadata {
+  final String id;
+  final String name;
+  final String version;
+  final String description;
+  final String author;
+  final String category;
+  final String? homepage;
+  final String? repository;
+  final String license;
+  final List<String> keywords;
+  final List<String> screenshots;
+  final String? minAppVersion;
+  final String? maxAppVersion;
+
+  const PluginMetadata({
+    required this.id,
+    required this.name,
+    required this.version,
     required this.description,
-    required this.type,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.data,
+    required this.author,
+    required this.category,
+    this.homepage,
+    this.repository,
+    this.license = 'MIT',
+    this.keywords = const [],
+    this.screenshots = const [],
+    this.minAppVersion,
+    this.maxAppVersion,
+  });
+
+  factory PluginMetadata.fromJson(Map<String, dynamic> json);
+  Map<String, dynamic> toJson();
+}
+```
+
+### PluginDependency
+
+插件依赖关系定义。
+
+```dart
+class PluginDependency {
+  final String pluginId;
+  final String version;
+  final bool isRequired;
+
+  const PluginDependency({
+    required this.pluginId,
+    required this.version,
+    required this.isRequired,
   });
 }
 ```
 
-#### ProjectManager
+### PluginOperationResult
 
-项目管理器，负责项目的创建、保存、加载等操作。
+插件操作结果封装。
 
 ```dart
-class ProjectManager {
-  static ProjectManager get instance;
-  
-  Future<List<CreativeProject>> loadProjects();
-  Future<void> saveProject(CreativeProject project);
-  Future<void> deleteProject(String projectId);
-  Future<CreativeProject> createProject(ProjectTemplate template);
-  
-  CreativeProject? get currentProject;
-  Stream<CreativeProject?> get currentProjectStream;
+class PluginOperationResult {
+  final bool success;
+  final String? message;
+  final String? error;
+
+  const PluginOperationResult({
+    required this.success,
+    this.message,
+    this.error,
+  });
+
+  factory PluginOperationResult.success([String? message]);
+  factory PluginOperationResult.failure(String error);
 }
 ```
 
-### 游戏系统
+## 枚举类型
 
-#### SimpleGame
+### PluginState
 
-游戏基类，定义了游戏的基本接口。
+插件状态枚举，定义了插件的12种状态。
 
 ```dart
-abstract class SimpleGame {
+enum PluginState {
+  notInstalled,    // 未安装
+  downloading,     // 正在下载
+  installing,      // 正在安装
+  installed,       // 已安装
+  enabling,        // 正在启用
+  enabled,         // 已启用
+  disabling,       // 正在禁用
+  disabled,        // 已禁用
+  uninstalling,    // 正在卸载
+  installFailed,   // 安装失败
+  updateAvailable, // 需要更新
+  updating,        // 正在更新
+}
+```
+
+### PluginPermission
+
+插件权限枚举，定义了8种权限类型。
+
+```dart
+enum PluginPermission {
+  fileSystem('文件系统访问'),
+  network('网络访问'),
+  notifications('系统通知'),
+  clipboard('剪贴板访问'),
+  camera('相机访问'),
+  microphone('麦克风访问'),
+  location('位置信息'),
+  deviceInfo('设备信息');
+
+  const PluginPermission(this.displayName);
+  final String displayName;
+}
+```
+
+### WorkspaceLayout
+
+工作区布局枚举。
+
+```dart
+enum WorkspaceLayout {
+  store,       // 应用商店模式
+  developer,   // 开发者平台模式
+  management,  // 插件管理模式
+}
+```
+
+## 插件接口
+
+### Plugin
+
+插件基类，定义了插件的基本接口。
+
+```dart
+abstract class Plugin {
   String get id;
   String get name;
+  String get version;
   String get description;
-  GameState get state;
-  
-  void start();
-  void pause();
-  void resume();
-  void stop();
-  void reset();
-  
-  Stream<GameState> get stateStream;
-  Stream<GameEvent> get eventStream;
-}
-```
-
-#### GameManager
-
-游戏管理器，负责游戏的注册、创建和管理。
-
-```dart
-class GameManager {
-  static GameManager get instance;
-  
-  void registerGame(String id, SimpleGame Function() factory);
-  SimpleGame? createGame(String id);
-  List<String> getAvailableGames();
-  
-  SimpleGame? get currentGame;
-  Stream<SimpleGame?> get currentGameStream;
-}
-```
-
-### 绘画工具
-
-#### ToolPlugin
-
-工具插件基类，定义了绘画工具的基本接口。
-
-```dart
-abstract class ToolPlugin {
-  String get id;
-  String get name;
-  String get description;
-  IconData get icon;
-  
-  void onSelected();
-  void onDeselected();
-  void onCanvasEvent(CanvasEvent event);
-  
-  Widget buildPropertiesPanel();
-  Map<String, dynamic> getSettings();
-  void applySettings(Map<String, dynamic> settings);
-}
-```
-
-#### ToolManager
-
-工具管理器，负责工具的注册和管理。
-
-```dart
-class ToolManager {
-  static ToolManager get instance;
-  
-  void registerTool(String id, ToolPlugin Function() factory);
-  ToolPlugin? createTool(String id);
-  List<String> getAvailableTools();
-  
-  ToolPlugin? get currentTool;
-  Stream<ToolPlugin?> get currentToolStream;
-}
-```
-
-### 存储系统
-
-#### ProjectStorage
-
-项目存储接口，定义了项目数据的存储和检索方法。
-
-```dart
-abstract class ProjectStorage {
-  Future<void> saveProject(CreativeProject project);
-  Future<CreativeProject?> loadProject(String projectId);
-  Future<void> deleteProject(String projectId);
-  Future<List<String>> getAllProjectIds();
-  Future<bool> projectExists(String projectId);
-  Future<int> getProjectSize(String projectId);
-}
-```
-
-#### ProjectStorageManager
-
-存储管理器，负责管理不同平台的存储实现。
-
-```dart
-class ProjectStorageManager {
-  static ProjectStorageManager get instance;
+  PluginMetadata get metadata;
 
   Future<void> initialize();
-  ProjectStorage get storage;
+  Future<void> start();
+  Future<void> stop();
+  Future<void> dispose();
 
-  Future<void> saveProjects(List<CreativeProject> projects);
-  Future<List<CreativeProject>> loadProjects(List<String> projectIds);
-  Future<Map<String, dynamic>> getStorageStats();
+  bool get isInitialized;
+  bool get isRunning;
+}
+```
+
+### PluginRegistration
+
+插件注册信息，包含插件元数据和工厂函数。
+
+```dart
+class PluginRegistration {
+  final PluginMetadata metadata;
+  final Plugin Function() pluginFactory;
+  final DateTime registeredAt;
+
+  const PluginRegistration({
+    required this.metadata,
+    required this.pluginFactory,
+    required this.registeredAt,
+  });
 }
 ```
 
@@ -192,129 +306,131 @@ class ProjectStorageManager {
 
 ### CreativeWorkspace
 
-主工作区组件，提供完整的创意工坊界面。
+主工作区组件，提供应用商店、开发者平台、插件管理三种模式。
 
 ```dart
 class CreativeWorkspace extends StatefulWidget {
+  final WorkspaceLayout initialLayout;
+  final Function(WorkspaceLayout)? onLayoutChanged;
+
   const CreativeWorkspace({
     Key? key,
-    this.mode = WorkspaceMode.design,
-    this.layout = WorkspaceLayout.standard,
-    this.project,
-    this.game,
-    this.tool,
-    this.showStatusBar = true,
-    this.showProjectBrowser = true,
-    this.showPropertiesPanel = true,
-    this.showToolbar = true,
-    this.onModeChanged,
+    this.initialLayout = WorkspaceLayout.store,
+    this.onLayoutChanged,
   }) : super(key: key);
 }
 ```
 
-### CreativeCanvas
+### AppStorePage
 
-绘画画布组件，支持多种绘画模式。
+应用商店主界面，提供插件浏览和搜索功能。
 
 ```dart
-class CreativeCanvas extends StatefulWidget {
-  const CreativeCanvas({
+class AppStorePage extends StatefulWidget {
+  const AppStorePage({Key? key}) : super(key: key);
+}
+```
+
+### DeveloperPlatformPage
+
+开发者平台主界面，提供项目管理、插件开发等功能。
+
+```dart
+class DeveloperPlatformPage extends StatefulWidget {
+  const DeveloperPlatformPage({Key? key}) : super(key: key);
+}
+```
+
+### PluginManagementPage
+
+插件管理主界面，提供插件生命周期管理功能。
+
+```dart
+class PluginManagementPage extends StatefulWidget {
+  final int initialTabIndex;
+
+  const PluginManagementPage({
     Key? key,
-    this.width = 800,
-    this.height = 600,
-    this.backgroundColor = Colors.white,
-    this.mode = CanvasMode.drawing,
-    this.project,
-    this.onCanvasChanged,
+    this.initialTabIndex = 0,
   }) : super(key: key);
 }
 ```
 
-### GameArea
+### PluginCard
 
-游戏区域组件，用于显示和运行游戏。
+插件卡片组件，用于展示插件信息。
 
 ```dart
-class GameArea extends StatefulWidget {
-  const GameArea({
+class PluginCard extends StatelessWidget {
+  final Plugin plugin;
+  final VoidCallback? onTap;
+  final VoidCallback? onInstall;
+  final VoidCallback? onUninstall;
+
+  const PluginCard({
     Key? key,
-    this.width = 800,
-    this.height = 600,
-    this.backgroundColor = Colors.white,
-    this.showControls = true,
+    required this.plugin,
+    this.onTap,
+    this.onInstall,
+    this.onUninstall,
   }) : super(key: key);
 }
 ```
 
-### ToolToolbar
+### PluginSearchBar
 
-工具栏组件，显示可用的绘画工具。
+插件搜索栏组件，提供实时搜索功能。
 
 ```dart
-class ToolToolbar extends StatefulWidget {
-  const ToolToolbar({
+class PluginSearchBar extends StatefulWidget {
+  final Function(String)? onSearchChanged;
+  final String? hintText;
+
+  const PluginSearchBar({
     Key? key,
-    this.orientation = ToolbarOrientation.vertical,
-    this.backgroundColor = Colors.grey,
-    this.selectedColor = Colors.blue,
-    this.iconSize = 24,
-    this.padding = const EdgeInsets.all(8),
-    this.onToolChanged,
+    this.onSearchChanged,
+    this.hintText = '搜索插件...',
   }) : super(key: key);
 }
 ```
 
-### PropertiesPanel
+### CategoryFilter
 
-属性面板组件，显示当前工具或对象的属性。
+分类过滤组件，提供插件分类筛选功能。
 
 ```dart
-class PropertiesPanel extends StatefulWidget {
-  const PropertiesPanel({
+class CategoryFilter extends StatefulWidget {
+  final List<String> categories;
+  final String? selectedCategory;
+  final Function(String?)? onCategoryChanged;
+
+  const CategoryFilter({
     Key? key,
-    this.width = 300,
-    this.backgroundColor = Colors.white,
+    required this.categories,
+    this.selectedCategory,
+    this.onCategoryChanged,
   }) : super(key: key);
 }
 ```
 
 ## 事件系统
 
-### CanvasEvent
+### PluginRegistryEvent
 
-画布事件，包含用户在画布上的操作信息。
-
-```dart
-class CanvasEvent {
-  final CanvasEventType type;
-  final Offset position;
-  final double pressure;
-  final DateTime timestamp;
-  
-  const CanvasEvent({
-    required this.type,
-    required this.position,
-    this.pressure = 1.0,
-    required this.timestamp,
-  });
-}
-```
-
-### GameEvent
-
-游戏事件，包含游戏状态变化和用户操作信息。
+插件注册表事件，包含插件生命周期变化信息。
 
 ```dart
-class GameEvent {
-  final GameEventType type;
-  final Map<String, dynamic> data;
+abstract class PluginRegistryEvent {
+  final String pluginId;
   final DateTime timestamp;
-  
-  const GameEvent({
-    required this.type,
-    required this.data,
-    required this.timestamp,
-  });
+
+  const PluginRegistryEvent(this.pluginId, this.timestamp);
+
+  factory PluginRegistryEvent.registered(String pluginId);
+  factory PluginRegistryEvent.unregistered(String pluginId);
+  factory PluginRegistryEvent.started(String pluginId);
+  factory PluginRegistryEvent.stopped(String pluginId);
+  factory PluginRegistryEvent.error(String pluginId, String error);
 }
 ```
 
@@ -322,55 +438,40 @@ class GameEvent {
 
 ### ProjectType
 
-项目类型枚举。
+## 常量和配置
+
+### 插件类别常量
 
 ```dart
-enum ProjectType {
-  drawing,    // 绘画项目
-  design,     // 设计项目
-  game,       // 游戏项目
-  animation,  // 动画项目
-  model3d,    // 3D模型项目
-  mixed,      // 混合项目
-  custom,     // 自定义项目
+class PluginCategories {
+  static const String tools = 'tools';
+  static const String games = 'games';
+  static const String utilities = 'utilities';
+  static const String themes = 'themes';
+  static const String other = 'other';
+
+  static const List<String> all = [
+    tools,
+    games,
+    utilities,
+    themes,
+    other,
+  ];
 }
 ```
 
-### WorkspaceMode
-
-工作区模式枚举。
+### 权限常量
 
 ```dart
-enum WorkspaceMode {
-  design,  // 设计模式
-  game,    // 游戏模式
-}
-```
-
-### CanvasMode
-
-画布模式枚举。
-
-```dart
-enum CanvasMode {
-  drawing,  // 绘画模式
-  design,   // 设计模式
-  game,     // 游戏模式
-}
-```
-
-### GameState
-
-游戏状态枚举。
-
-```dart
-enum GameState {
-  notStarted, // 未开始
-  playing,    // 进行中
-  paused,     // 暂停
-  gameOver,   // 游戏结束
-  victory,    // 胜利
-  defeat,     // 失败
+class PluginPermissions {
+  static const String fileSystem = 'file_system';
+  static const String network = 'network';
+  static const String notifications = 'notifications';
+  static const String clipboard = 'clipboard';
+  static const String camera = 'camera';
+  static const String microphone = 'microphone';
+  static const String location = 'location';
+  static const String deviceInfo = 'device_info';
 }
 ```
 
@@ -379,92 +480,160 @@ enum GameState {
 ### 基本使用
 
 ```dart
-// 创建模块实例
-final module = CreativeWorkshopModule.create(
-  name: 'MyCreativeWorkshop',
+import 'package:creative_workshop/creative_workshop.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 初始化插件管理器
+  await PluginManager.instance.initialize();
+
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Creative Workshop Demo',
+      home: CreativeWorkspace(
+        initialLayout: WorkspaceLayout.store,
+        onLayoutChanged: (layout) {
+          print('布局切换到: $layout');
+        },
+      ),
+    );
+  }
+}
+```
+
+### 插件管理
+
+```dart
+// 获取插件管理器实例
+final pluginManager = PluginManager.instance;
+
+// 安装插件
+final result = await pluginManager.installPlugin('my_plugin_id');
+if (result.success) {
+  print('插件安装成功: ${result.message}');
+} else {
+  print('插件安装失败: ${result.error}');
+}
+
+// 启用插件
+await pluginManager.enablePlugin('my_plugin_id');
+
+// 获取已安装插件列表
+final installedPlugins = pluginManager.installedPlugins;
+print('已安装 ${installedPlugins.length} 个插件');
+
+// 获取插件统计信息
+final stats = pluginManager.getPluginStats();
+print('总计: ${stats['totalInstalled']} 已安装, ${stats['totalEnabled']} 已启用');
+```
+
+### 插件注册表
+
+```dart
+import 'package:creative_workshop/src/core/plugins/plugin_registry.dart';
+
+// 创建插件元数据
+const metadata = PluginMetadata(
+  id: 'my_plugin',
+  name: '我的插件',
   version: '1.0.0',
+  description: '这是一个示例插件',
+  author: '开发者',
+  category: 'tool',
+  keywords: ['工具', '示例'],
 );
 
-// 初始化模块
-await module.initialize();
+// 注册插件
+PluginRegistry.instance.registerPlugin(
+  metadata,
+  () => MyPlugin(),
+);
 
-// 使用工作区组件
-Widget build(BuildContext context) {
-  return CreativeWorkspace(
-    mode: WorkspaceMode.design,
-    layout: WorkspaceLayout.standard,
-    onModeChanged: (mode) {
-      // 处理模式变化
-    },
+// 启动插件
+await PluginRegistry.instance.startPlugin('my_plugin');
+
+// 获取插件统计
+final stats = PluginRegistry.instance.getStatistics();
+print('注册插件: ${stats['totalRegistered']}, 活跃插件: ${stats['totalActive']}');
+```
+
+### 创建自定义插件
+
+```dart
+// 创建自定义插件
+class MyPlugin extends Plugin {
+  @override
+  String get id => 'my_plugin';
+
+  @override
+  String get name => '我的插件';
+
+  @override
+  String get version => '1.0.0';
+
+  @override
+  String get description => '这是一个示例插件';
+
+  @override
+  PluginMetadata get metadata => const PluginMetadata(
+    id: 'my_plugin',
+    name: '我的插件',
+    version: '1.0.0',
+    description: '这是一个示例插件',
+    author: '开发者',
+    category: 'tool',
   );
-}
-```
 
-### 创建自定义项目
+  bool _isInitialized = false;
+  bool _isRunning = false;
 
-```dart
-// 创建项目模板
-final template = ProjectTemplate(
-  id: 'custom_template',
-  name: '自定义模板',
-  description: '我的自定义项目模板',
-  type: ProjectType.custom,
-  defaultData: {
-    'customProperty': 'value',
-  },
-);
-
-// 创建项目
-final project = await ProjectManager.instance.createProject(template);
-```
-
-### 注册自定义工具
-
-```dart
-// 创建自定义工具
-class MyCustomTool extends ToolPlugin {
   @override
-  String get id => 'my_custom_tool';
-  
+  bool get isInitialized => _isInitialized;
+
   @override
-  String get name => '我的工具';
-  
+  bool get isRunning => _isRunning;
+
   @override
-  String get description => '这是我的自定义工具';
-  
+  Future<void> initialize() async {
+    _isInitialized = true;
+  }
+
   @override
-  IconData get icon => Icons.brush;
-  
-  // 实现其他方法...
+  Future<void> start() async {
+    if (!_isInitialized) {
+      throw StateError('Plugin not initialized');
+    }
+    _isRunning = true;
+  }
+
+  @override
+  Future<void> stop() async {
+    _isRunning = false;
+  }
+
+  @override
+  Future<void> dispose() async {
+    _isRunning = false;
+    _isInitialized = false;
+  }
 }
 
-// 注册工具
-ToolManager.instance.registerTool(
-  'my_custom_tool',
-  () => MyCustomTool(),
-);
-```
+## 版本信息
 
-### 创建自定义游戏
+- **当前版本**: 5.0.6
+- **API 版本**: 5.0
+- **最低 Flutter 版本**: 3.16.0
+- **最低 Dart 版本**: 3.2.0
 
-```dart
-// 创建自定义游戏
-class MyCustomGame extends SimpleGame {
-  @override
-  String get id => 'my_custom_game';
-  
-  @override
-  String get name => '我的游戏';
-  
-  @override
-  String get description => '这是我的自定义游戏';
-  
-  // 实现其他方法...
-}
+## 更多信息
 
-// 注册游戏
-GameManager.instance.registerGame(
-  'my_custom_game',
-  () => MyCustomGame(),
-);
-```
+- [架构文档](../architecture/architecture.md)
+- [用户指南](../user/user.md)
+- [开发指南](../development/development.md)
+- [更新日志](../../CHANGELOG.md)

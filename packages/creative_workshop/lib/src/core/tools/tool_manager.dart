@@ -13,12 +13,11 @@ Change History:
 */
 
 import 'package:flutter/foundation.dart';
-import 'package:creative_workshop/src/core/tools/drawing_tools.dart';
+import 'package:creative_workshop/src/core/tools/tool_plugin.dart';
 
 /// 简化的工具管理器
 /// 负责管理简化版本的工具类
 class SimpleToolManager extends ChangeNotifier {
-
   SimpleToolManager._internal();
   static SimpleToolManager? _instance;
 
@@ -28,12 +27,11 @@ class SimpleToolManager extends ChangeNotifier {
     return _instance!;
   }
 
-  /// 已注册的绘画工具
-  final Map<String, SimpleBrushTool> _brushTools = <String, SimpleBrushTool>{};
-  final Map<String, SimplePencilTool> _pencilTools = <String, SimplePencilTool>{};
+  /// 已注册的工具
+  final Map<String, ToolPlugin> _tools = <String, ToolPlugin>{};
 
   /// 当前激活的工具
-  dynamic _activeTool;
+  ToolPlugin? _activeTool;
   String? _activeToolId;
 
   /// 工具历史记录
@@ -43,15 +41,11 @@ class SimpleToolManager extends ChangeNotifier {
   static const int _maxHistorySize = 10;
 
   /// 获取当前激活的工具
-  dynamic get activeTool => _activeTool;
+  ToolPlugin? get activeTool => _activeTool;
   String? get activeToolId => _activeToolId;
 
-  /// 获取所有画笔工具
-  Map<String, SimpleBrushTool> get brushTools => Map.unmodifiable(_brushTools);
-
-  /// 获取所有铅笔工具
-  Map<String, SimplePencilTool> get pencilTools =>
-      Map.unmodifiable(_pencilTools);
+  /// 获取所有工具
+  Map<String, ToolPlugin> get tools => Map.unmodifiable(_tools);
 
   /// 获取工具历史记录
   List<String> get toolHistory => List.unmodifiable(_toolHistory);
@@ -73,58 +67,44 @@ class SimpleToolManager extends ChangeNotifier {
   }
 
   /// 注册内置工具插件
+  ///
+  /// Phase 5.0.6 重构：转型为应用商店模式
+  /// 不再注册内置工具，改为从插件市场动态加载
   Future<void> _registerBuiltinTools() async {
-    // 注册默认画笔工具
-    final defaultBrush = SimpleBrushTool();
-    _brushTools[defaultBrush.id] = defaultBrush;
+    debugPrint('跳过内置工具注册 - 转型为应用商店模式');
 
-    // 注册默认铅笔工具
-    final defaultPencil = SimplePencilTool();
-    _pencilTools[defaultPencil.id] = defaultPencil;
+    // TODO: Phase 5.0.6.2 - 实现从插件市场加载工具
+    // 1. 扫描已安装的工具插件
+    // 2. 动态加载插件到注册中心
+    // 3. 验证插件兼容性和权限
 
-    debugPrint(
-        '内置工具插件注册完成：${_brushTools.length} 个画笔工具，${_pencilTools.length} 个铅笔工具',);
+    debugPrint('工具插件注册完成 - 应用商店模式');
   }
 
   /// 设置默认工具
   void _setDefaultTool() {
-    // 默认激活画笔工具
-    if (_brushTools.isNotEmpty) {
-      final defaultBrush = _brushTools.values.first;
-      _activeTool = defaultBrush;
-      _activeToolId = defaultBrush.id;
-      _updateToolHistory(defaultBrush.id);
-      debugPrint('默认工具已设置: ${defaultBrush.name}');
+    // 默认激活第一个工具
+    if (_tools.isNotEmpty) {
+      final defaultTool = _tools.values.first;
+      _activeTool = defaultTool;
+      _activeToolId = defaultTool.id;
+      _updateToolHistory(defaultTool.id);
+      debugPrint('默认工具已设置: ${defaultTool.name}');
     }
   }
 
-  /// 激活画笔工具
-  bool activateBrushTool(String toolId) {
-    final tool = _brushTools[toolId];
+  /// 激活工具
+  bool activateTool(String toolId) {
+    final tool = _tools[toolId];
     if (tool != null) {
       _activeTool = tool;
       _activeToolId = toolId;
       _updateToolHistory(toolId);
       notifyListeners();
-      debugPrint('画笔工具已激活: ${tool.name}');
+      debugPrint('工具已激活: ${tool.name}');
       return true;
     }
-    debugPrint('画笔工具不存在: $toolId');
-    return false;
-  }
-
-  /// 激活铅笔工具
-  bool activatePencilTool(String toolId) {
-    final tool = _pencilTools[toolId];
-    if (tool != null) {
-      _activeTool = tool;
-      _activeToolId = toolId;
-      _updateToolHistory(toolId);
-      notifyListeners();
-      debugPrint('铅笔工具已激活: ${tool.name}');
-      return true;
-    }
-    debugPrint('铅笔工具不存在: $toolId');
+    debugPrint('工具不存在: $toolId');
     return false;
   }
 
@@ -142,15 +122,13 @@ class SimpleToolManager extends ChangeNotifier {
   bool switchToPreviousTool() {
     if (_toolHistory.length >= 2) {
       final previousToolId = _toolHistory[_toolHistory.length - 2];
-      // 尝试激活画笔工具或铅笔工具
-      return activateBrushTool(previousToolId) ||
-          activatePencilTool(previousToolId);
+      return activateTool(previousToolId);
     }
     return false;
   }
 
   /// 检查工具是否存在
-  bool hasTool(String toolId) => _brushTools.containsKey(toolId) || _pencilTools.containsKey(toolId);
+  bool hasTool(String toolId) => _tools.containsKey(toolId);
 
   /// 检查工具是否激活
   bool isToolActive(String toolId) => _activeToolId == toolId;
@@ -171,11 +149,10 @@ class SimpleToolManager extends ChangeNotifier {
 
   /// 获取工具统计信息
   Map<String, dynamic> getToolStatistics() => <String, dynamic>{
-      'totalBrushTools': _brushTools.length,
-      'totalPencilTools': _pencilTools.length,
-      'activeToolId': _activeToolId,
-      'historySize': _toolHistory.length,
-    };
+        'totalTools': _tools.length,
+        'activeToolId': _activeToolId,
+        'historySize': _toolHistory.length,
+      };
 
   /// 清理资源
   @override
@@ -184,8 +161,7 @@ class SimpleToolManager extends ChangeNotifier {
     deactivateCurrentTool();
 
     // 清空工具列表
-    _brushTools.clear();
-    _pencilTools.clear();
+    _tools.clear();
     _toolHistory.clear();
 
     debugPrint('简化工具管理器已清理');

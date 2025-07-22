@@ -27,20 +27,29 @@
 
 ## 📖 项目描述
 
-Creative Workshop 是一个功能强大的 Flutter 创意工坊模块，为用户提供绘画、游戏、项目管理等完整的创意功能。该模块采用模块化设计，支持插件扩展，是 Pet App V3 项目的核心组件之一。
+Creative Workshop 是一个功能强大的 Flutter 应用商店与开发者平台模块，为用户提供插件发现、安装、管理等完整的应用生态功能。该模块采用模块化设计，支持动态插件加载，是 Pet App V3 项目的核心组件之一。
+
+**🔄 Phase 5.0.6 重大更新**: 从绘画工具转型为应用商店+开发者平台+插件管理三位一体系统
 
 ## ✨ 功能特性
 
-### 🎨 绘画功能
-- **多种绘画工具**: 画笔、铅笔、形状工具、橡皮擦等
-- **高级画布**: 支持多点触控、压感、无限画布
-- **图层管理**: 完整的图层系统，支持混合模式
-- **颜色系统**: 丰富的调色板和颜色管理
+### 🏪 应用商店功能
+- **插件发现**: 浏览和搜索各类插件应用
+- **一键安装**: 简单快捷的插件安装体验
+- **分类管理**: 工具、游戏、实用程序等分类
+- **评级评论**: 用户评价和反馈系统
 
-### 🎮 游戏系统
-- **内置游戏**: 点击游戏、猜数字游戏等
-- **游戏引擎**: 完整的游戏状态管理和事件系统
-- **可扩展**: 支持自定义游戏开发
+### 👨‍💻 开发者平台
+- **项目管理**: 完整的开发项目生命周期管理
+- **插件开发**: 集成开发环境和调试工具
+- **发布管理**: 插件发布、审核、版本控制
+- **Ming CLI 集成**: 命令行工具无缝集成
+
+### 🔧 插件管理系统
+- **生命周期管理**: 插件安装、启用、禁用、卸载
+- **权限控制**: 8种权限类型的细粒度管理
+- **依赖解析**: 自动依赖检查和可视化
+- **更新管理**: 自动和手动更新机制
 
 ### 📁 项目管理
 - **项目模板**: 多种预设项目模板
@@ -56,9 +65,9 @@ Creative Workshop 是一个功能强大的 Flutter 创意工坊模块，为用�
 
 ### 🔧 开发者友好
 - **插件系统**: 支持自定义工具和游戏插件
-- **完整API**: 丰富的API接口
+- **完整API**: 丰富的API接口和插件注册表
 - **详细文档**: 完整的开发文档和示例
-- **测试覆盖**: 163个企业级测试，100%通过率
+- **企业级架构**: 双核心架构(PluginManager + PluginRegistry)
 - **代码质量**: 0错误0警告，严格代码分析
 
 ## 🚀 快速开始
@@ -105,10 +114,9 @@ class MyApp extends StatelessWidget {
           title: Text('Creative Workshop'),
         ),
         body: CreativeWorkspace(
-          mode: WorkspaceMode.design,
-          layout: WorkspaceLayout.standard,
-          onModeChanged: (mode) {
-            print('工作模式切换到: $mode');
+          initialLayout: WorkspaceLayout.store, // 应用商店模式
+          onLayoutChanged: (layout) {
+            print('布局切换到: $layout');
           },
         ),
       ),
@@ -119,17 +127,8 @@ class MyApp extends StatelessWidget {
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 创建并初始化模块
-  final module = CreativeWorkshopModule.create(
-    name: 'MyCreativeWorkshop',
-    version: '1.0.0',
-    config: {
-      'enableLogging': true,
-      'autoSave': true,
-    },
-  );
-
-  await module.initialize();
+  // 初始化插件管理器
+  await PluginManager.instance.initialize();
 
   runApp(MyApp());
 }
@@ -137,93 +136,62 @@ void main() async {
 
 ### 高级用法
 
-#### 创建自定义工具
+#### 插件管理
 
 ```dart
-class MyCustomTool extends ToolPlugin {
-  @override
-  String get id => 'my_custom_tool';
+import 'package:creative_workshop/src/core/plugins/plugin_manager.dart';
 
-  @override
-  String get name => '我的工具';
+// 获取插件管理器实例
+final pluginManager = PluginManager.instance;
 
-  @override
-  String get description => '这是一个自定义工具';
-
-  @override
-  IconData get icon => Icons.star;
-
-  @override
-  void onCanvasEvent(CanvasEvent event) {
-    // 处理画布事件
-    switch (event.type) {
-      case CanvasEventType.pointerDown:
-        // 开始绘制
-        break;
-      case CanvasEventType.pointerMove:
-        // 继续绘制
-        break;
-      case CanvasEventType.pointerUp:
-        // 结束绘制
-        break;
-    }
-  }
-
-  @override
-  Widget buildPropertiesPanel() {
-    return Column(
-      children: [
-        Text('自定义工具属性'),
-        // 添加属性控件
-      ],
-    );
-  }
-
-  // 实现其他抽象方法...
+// 安装插件
+final result = await pluginManager.installPlugin('my_plugin_id');
+if (result.success) {
+  print('插件安装成功: ${result.message}');
+} else {
+  print('插件安装失败: ${result.error}');
 }
 
-// 注册自定义工具
-void registerCustomTool() {
-  ToolManager.instance.registerTool(
-    'my_custom_tool',
-    () => MyCustomTool(),
-  );
-}
+// 启用插件
+await pluginManager.enablePlugin('my_plugin_id');
+
+// 获取已安装插件列表
+final installedPlugins = pluginManager.installedPlugins;
+print('已安装 ${installedPlugins.length} 个插件');
+
+// 获取插件统计信息
+final stats = pluginManager.getPluginStats();
+print('总计: ${stats['totalInstalled']} 已安装, ${stats['totalEnabled']} 已启用');
 ```
 
-#### 创建自定义游戏
+#### 插件注册表
 
 ```dart
-class MyCustomGame extends SimpleGame {
-  @override
-  String get id => 'my_custom_game';
+import 'package:creative_workshop/src/core/plugins/plugin_registry.dart';
 
-  @override
-  String get name => '我的游戏';
+// 创建插件元数据
+const metadata = PluginMetadata(
+  id: 'my_plugin',
+  name: '我的插件',
+  version: '1.0.0',
+  description: '这是一个示例插件',
+  author: '开发者',
+  category: 'tool',
+  keywords: ['工具', '示例'],
+);
 
-  @override
-  String get description => '这是一个自定义游戏';
+// 注册插件
+PluginRegistry.instance.registerPlugin(
+  metadata,
+  () => MyPlugin(),
+);
 
-  @override
-  void start() {
-    // 游戏开始逻辑
-  }
+// 启动插件
+await PluginRegistry.instance.startPlugin('my_plugin');
 
-  @override
-  void pause() {
-    // 游戏暂停逻辑
-  }
-
-  // 实现其他抽象方法...
-}
-
-// 注册自定义游戏
-void registerCustomGame() {
-  GameManager.instance.registerGame(
-    'my_custom_game',
-    () => MyCustomGame(),
-  );
-}
+// 获取插件统计
+final stats = PluginRegistry.instance.getStatistics();
+print('注册插件: ${stats['totalRegistered']}, 活跃插件: ${stats['totalActive']}');
 ```
 
 ## 📚 文档
@@ -241,30 +209,24 @@ void registerCustomGame() {
 creative_workshop/
 ├── lib/
 │   ├── creative_workshop.dart          # 主导出文件
-│   ├── creative_workshop_module.dart   # 模块主类
 │   └── src/
-│       ├── configuration/              # 配置管理
-│       ├── constants/                  # 常量定义
 │       ├── core/                       # 核心功能
-│       │   ├── games/                  # 游戏系统
-│       │   ├── projects/               # 项目管理
-│       │   ├── tools/                  # 工具系统
-│       │   └── workshop_manager.dart   # 工坊管理器
-│       ├── logging/                    # 日志系统
-│       ├── monitoring/                 # 监控系统
-│       ├── ui/                         # 用户界面
-│       │   ├── browser/                # 项目浏览器
-│       │   ├── canvas/                 # 画布组件
-│       │   ├── game/                   # 游戏界面
-│       │   ├── panels/                 # 面板组件
-│       │   ├── status/                 # 状态栏
-│       │   ├── toolbar/                # 工具栏
-│       │   └── workspace/              # 工作区
-│       ├── utils/                      # 工具函数
-│       └── widgets/                    # 通用组件
+│       │   ├── plugins/                # 插件系统
+│       │   │   ├── plugin_manager.dart # 插件管理器
+│       │   │   └── plugin_registry.dart # 插件注册表
+│       │   ├── providers/              # 状态管理
+│       │   ├── router/                 # 路由管理
+│       │   └── theme/                  # 主题管理
+│       └── ui/                         # 用户界面
+│           ├── store/                  # 应用商店
+│           ├── developer/              # 开发者平台
+│           ├── management/             # 插件管理
+│           └── workspace/              # 工作区
 ├── test/                               # 测试文件
+│   └── src/
+│       └── core/
+│           └── plugins/                # 插件系统测试
 ├── docs/                               # 文档
-├── example/                            # 示例代码
 ├── pubspec.yaml                        # 依赖配置
 └── README.md                           # 项目说明
 ```
@@ -312,13 +274,21 @@ open coverage/html/index.html
 
 ## 📊 项目状态
 
-- ✅ 核心功能完成
-- ✅ 基础UI组件完成
-- ✅ 项目管理系统完成
-- ✅ 工具系统完成
-- ✅ 游戏系统完成
-- ✅ 测试覆盖完成
-- ✅ 文档完成
+### Phase 5.0.6 完成状态
+- ✅ **Phase 5.0.6.1**: 应用商店界面 (100%)
+- ✅ **Phase 5.0.6.2**: 应用商店功能 (100%)
+- ✅ **Phase 5.0.6.3**: 开发者平台 (95%)
+- ✅ **Phase 5.0.6.4**: 插件管理系统 (95%)
+
+### 核心功能状态
+- ✅ 应用商店功能完成
+- ✅ 开发者平台完成
+- ✅ 插件管理系统完成
+- ✅ 插件注册表完成
+- ✅ 权限管理完成
+- ✅ 依赖管理完成
+- ✅ 更新管理完成
+- ✅ 企业级架构完成
 
 ## 🤝 贡献指南
 
