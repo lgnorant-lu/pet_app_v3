@@ -19,18 +19,25 @@ import 'package:plugin_system/plugin_system.dart';
 enum GameType {
   /// 益智游戏
   puzzle,
+
   /// 动作游戏
   action,
+
   /// 策略游戏
   strategy,
+
   /// 教育游戏
   educational,
+
   /// 创意游戏
   creative,
+
   /// 休闲游戏
   casual,
+
   /// 模拟游戏
   simulation,
+
   /// 自定义游戏
   custom,
 }
@@ -39,12 +46,16 @@ enum GameType {
 enum GameDifficulty {
   /// 简单
   easy,
+
   /// 中等
   medium,
+
   /// 困难
   hard,
+
   /// 专家
   expert,
+
   /// 自定义
   custom,
 }
@@ -53,14 +64,19 @@ enum GameDifficulty {
 enum GameState {
   /// 未开始
   notStarted,
+
   /// 进行中
   playing,
+
   /// 暂停
   paused,
+
   /// 游戏结束
   gameOver,
+
   /// 胜利
   victory,
+
   /// 失败
   defeat,
 }
@@ -80,25 +96,25 @@ class GameConfig {
 
   /// 游戏名称
   final String name;
-  
+
   /// 游戏描述
   final String description;
-  
+
   /// 游戏图标
   final IconData icon;
-  
+
   /// 游戏难度
   final GameDifficulty difficulty;
-  
+
   /// 最大玩家数
   final int maxPlayers;
-  
+
   /// 最小年龄要求
   final int minAge;
-  
+
   /// 预估游戏时长（分钟）
   final int? estimatedDuration;
-  
+
   /// 游戏设置
   final Map<String, dynamic> settings;
 }
@@ -115,16 +131,16 @@ class GameScore {
 
   /// 分数
   final int score;
-  
+
   /// 时间戳
   final DateTime timestamp;
-  
+
   /// 关卡
   final int? level;
-  
+
   /// 成就列表
   final List<String> achievements;
-  
+
   /// 元数据
   final Map<String, dynamic> metadata;
 }
@@ -141,16 +157,16 @@ class GameResult {
 
   /// 操作是否成功
   final bool success;
-  
+
   /// 游戏状态
   final GameState gameState;
-  
+
   /// 游戏分数
   final GameScore? score;
-  
+
   /// 结果数据
   final dynamic data;
-  
+
   /// 错误信息
   final String? error;
 }
@@ -166,12 +182,12 @@ abstract class GamePlugin extends Plugin {
 
   /// 游戏类型
   final GameType gameType;
-  
+
   /// 游戏配置
   final GameConfig gameConfig;
 
   @override
-  PluginCategory get category => PluginCategory.game;
+  PluginType get category => PluginType.game;
 
   /// 当前游戏状态
   GameState get gameState;
@@ -279,7 +295,8 @@ abstract class RealTimeGame extends GamePlugin {
 
 /// 游戏插件工厂
 class GamePluginFactory {
-  static final Map<String, GamePlugin Function()> _gameFactories = <String, GamePlugin Function()>{};
+  static final Map<String, GamePlugin Function()> _gameFactories =
+      <String, GamePlugin Function()>{};
 
   /// 注册游戏插件
   static void registerGame(String gameId, GamePlugin Function() factory) {

@@ -71,10 +71,8 @@ class PluginMessage {
   final int? timeout;
 
   @override
-  String toString() {
-    return 'PluginMessage(id: $id, type: $type, action: $action, '
+  String toString() => 'PluginMessage(id: $id, type: $type, action: $action, '
         'senderId: $senderId, targetId: $targetId)';
-  }
 }
 
 /// 插件消息响应
@@ -99,14 +97,12 @@ class PluginMessageResponse {
   final String? error;
 
   @override
-  String toString() {
-    return 'PluginMessageResponse(messageId: $messageId, success: $success)';
-  }
+  String toString() => 'PluginMessageResponse(messageId: $messageId, success: $success)';
 }
 
 /// 插件消息处理器
 typedef PluginMessageHandler = Future<PluginMessageResponse> Function(
-    PluginMessage message);
+    PluginMessage message,);
 
 /// 插件消息传递器
 ///
@@ -305,7 +301,7 @@ class PluginMessenger {
       await _deliverMessage(message);
 
       // 等待响应或超时
-      return await Future.any([
+      return await Future.any(<Future<PluginMessageResponse>>[
         completer.future,
         Future<PluginMessageResponse>.delayed(
           Duration(milliseconds: timeoutMs),
@@ -387,18 +383,14 @@ class PluginMessenger {
   }
 
   /// 生成消息ID
-  String _generateMessageId() {
-    return 'msg_${++_messageIdCounter}_${DateTime.now().millisecondsSinceEpoch}';
-  }
+  String _generateMessageId() => 'msg_${++_messageIdCounter}_${DateTime.now().millisecondsSinceEpoch}';
 
   /// 获取通信状态
-  Map<String, dynamic> getStatus() {
-    return <String, dynamic>{
+  Map<String, dynamic> getStatus() => <String, dynamic>{
       'registeredHandlers': _handlers.length,
       'pendingMessages': _pendingMessages.length,
       'messageCounter': _messageIdCounter,
     };
-  }
 
   /// 清理插件的所有消息处理器
   void cleanupPlugin(String pluginId) {
@@ -415,7 +407,7 @@ class PluginMessenger {
           messageId: entry.key,
           success: false,
           error: 'Plugin unloaded',
-        ));
+        ),);
         toRemove.add(entry.key);
       }
     }
@@ -429,8 +421,7 @@ class PluginMessenger {
 /// PluginMessage的扩展方法
 extension PluginMessageExtension on PluginMessage {
   /// 复制消息并修改目标ID
-  PluginMessage copyWith({String? targetId}) {
-    return PluginMessage(
+  PluginMessage copyWith({String? targetId}) => PluginMessage(
       id: id,
       type: type,
       action: action,
@@ -440,5 +431,4 @@ extension PluginMessageExtension on PluginMessage {
       timestamp: timestamp,
       timeout: timeout,
     );
-  }
 }

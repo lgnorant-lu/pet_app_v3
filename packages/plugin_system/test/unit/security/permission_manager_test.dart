@@ -55,7 +55,7 @@ void main() {
       test('should set permission policy', () {
         expect(
           () => permissionManager.setPermissionPolicy(
-            Permission.network,
+            PluginPermission.network,
             PermissionPolicy.allow,
           ),
           returnsNormally,
@@ -67,23 +67,26 @@ void main() {
       test('should request permission', () async {
         final plugin = TestPlugin(pluginId: 'request_test_plugin');
 
-        final result = await permissionManager.requestPermission(
+        final result = await permissionManager.requestPluginPermission(
           plugin.id,
-          Permission.camera,
+          PluginPermission.camera,
           reason: 'Test reason',
         );
 
         expect(result, isA<PermissionAuthorizationResult>());
-        expect(result.permission, equals(Permission.camera));
+        expect(result.permission, equals(PluginPermission.camera));
       });
 
       test('should validate permissions', () async {
         final plugin = TestPlugin(pluginId: 'validate_test_plugin');
 
         // 使用安全的权限组合
-        final results = await permissionManager.validatePermissions(
+        final results = await permissionManager.validatePluginPermissions(
           plugin.id,
-          <Permission>[Permission.camera, Permission.microphone],
+          <PluginPermission>[
+            PluginPermission.camera,
+            PluginPermission.microphone
+          ],
         );
 
         expect(results, isA<List<PermissionAuthorizationResult>>());
@@ -94,8 +97,8 @@ void main() {
         final plugin = TestPlugin(pluginId: 'revoke_test_plugin');
 
         await expectLater(
-          () =>
-              permissionManager.revokePermission(plugin.id, Permission.camera),
+          () => permissionManager.revokePluginPermission(
+              plugin.id, PluginPermission.camera),
           returnsNormally,
         );
       });
@@ -103,24 +106,25 @@ void main() {
       test('should check permission', () {
         final plugin = TestPlugin(pluginId: 'check_test_plugin');
 
-        final hasPermission =
-            permissionManager.hasPermission(plugin.id, Permission.network);
+        final hasPermission = permissionManager.hasPluginPermission(
+            plugin.id, PluginPermission.network);
         expect(hasPermission, isA<bool>());
       });
 
       test('should get plugin permissions', () {
         final plugin = TestPlugin(pluginId: 'get_perms_test_plugin');
 
-        final permissions = permissionManager.getPluginPermissions(plugin.id);
-        expect(permissions, isA<List<Permission>>());
+        final List<dynamic> permissions =
+            permissionManager.getPluginPermissions(plugin.id);
+        expect(permissions, isA<List<PluginPermission>>());
       });
     });
 
     group('Error Handling', () {
       test('should handle non-existent plugin permission check', () {
-        final bool hasPermission = permissionManager.hasPermission(
+        final bool hasPermission = permissionManager.hasPluginPermission(
           'non_existent_plugin',
-          Permission.network,
+          PluginPermission.network,
         );
         expect(hasPermission, isFalse);
       });
@@ -128,9 +132,9 @@ void main() {
       test('should handle permission request for non-existent plugin',
           () async {
         final PermissionAuthorizationResult result =
-            await permissionManager.requestPermission(
+            await permissionManager.requestPluginPermission(
           'non_existent_plugin',
-          Permission.camera,
+          PluginPermission.camera,
           reason: 'Test reason',
         );
         expect(result, isA<PermissionAuthorizationResult>());
@@ -153,9 +157,9 @@ void main() {
 
         // 执行多个权限请求
         for (int i = 0; i < 10; i++) {
-          await permissionManager.requestPermission(
+          await permissionManager.requestPluginPermission(
             plugin.id,
-            Permission.network,
+            PluginPermission.network,
             reason: 'Performance test $i',
           );
         }
@@ -172,17 +176,17 @@ void main() {
 
         // 请求权限
         final PermissionAuthorizationResult result =
-            await permissionManager.requestPermission(
+            await permissionManager.requestPluginPermission(
           plugin.id,
-          Permission.fileSystem,
+          PluginPermission.fileSystem,
           reason: 'Integration test',
         );
 
         expect(result, isA<PermissionAuthorizationResult>());
 
         // 检查权限
-        final bool hasPermission =
-            permissionManager.hasPermission(plugin.id, Permission.fileSystem);
+        final bool hasPermission = permissionManager.hasPluginPermission(
+            plugin.id, PluginPermission.fileSystem);
         expect(hasPermission, isA<bool>());
 
         // 清理

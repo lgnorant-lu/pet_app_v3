@@ -91,7 +91,9 @@ class PluginRegistry {
     final dependents = _findDependents(pluginId);
     if (dependents.isNotEmpty) {
       throw PluginDependencyException(
-          pluginId, 'Plugin is required by: ${dependents.join(', ')}');
+        pluginId,
+        'Plugin is required by: ${dependents.join(', ')}',
+      );
     }
 
     // 停止插件
@@ -114,24 +116,17 @@ class PluginRegistry {
   }
 
   /// 获取插件
-  Plugin? get(String pluginId) {
-    return _plugins[pluginId];
-  }
+  Plugin? get(String pluginId) => _plugins[pluginId];
 
   /// 获取插件元数据
-  PluginMetadata? getMetadata(String pluginId) {
-    return _metadata[pluginId];
-  }
+  PluginMetadata? getMetadata(String pluginId) => _metadata[pluginId];
 
   /// 获取插件状态
-  PluginState? getState(String pluginId) {
-    return _states[pluginId];
-  }
+  PluginState? getState(String pluginId) => _states[pluginId];
 
   /// 获取插件状态流
-  Stream<PluginState>? getStateStream(String pluginId) {
-    return _stateControllers[pluginId]?.stream;
-  }
+  Stream<PluginState>? getStateStream(String pluginId) =>
+      _stateControllers[pluginId]?.stream;
 
   /// 更新插件状态
   void updateState(String pluginId, PluginState newState) {
@@ -147,40 +142,28 @@ class PluginRegistry {
     _notifyStateChanged(pluginId, oldState, newState);
   }
 
-  /// 按类别查找插件
-  List<Plugin> getByCategory(PluginCategory category) {
-    return _plugins.values
-        .where((plugin) => plugin.category == category)
-        .toList();
-  }
+  /// 按类型查找插件
+  List<Plugin> getByCategory(PluginType category) => _plugins.values
+      .where((Plugin plugin) => plugin.category == category)
+      .toList();
 
   /// 按状态查找插件
-  List<Plugin> getByState(PluginState state) {
-    return _plugins.entries
-        .where((entry) => _states[entry.key] == state)
-        .map((entry) => entry.value)
-        .toList();
-  }
+  List<Plugin> getByState(PluginState state) => _plugins.entries
+      .where((MapEntry<String, Plugin> entry) => _states[entry.key] == state)
+      .map((MapEntry<String, Plugin> entry) => entry.value)
+      .toList();
 
   /// 获取所有已注册的插件
-  List<Plugin> getAll() {
-    return UnmodifiableListView(_plugins.values);
-  }
+  List<Plugin> getAll() => UnmodifiableListView(_plugins.values);
 
   /// 获取所有已注册的插件（别名方法）
-  List<Plugin> getAllPlugins() {
-    return getAll();
-  }
+  List<Plugin> getAllPlugins() => getAll();
 
   /// 获取所有活跃的插件
-  List<Plugin> getAllActive() {
-    return getByState(PluginState.started);
-  }
+  List<Plugin> getAllActive() => getByState(PluginState.started);
 
   /// 检查插件是否存在
-  bool contains(String pluginId) {
-    return _plugins.containsKey(pluginId);
-  }
+  bool contains(String pluginId) => _plugins.containsKey(pluginId);
 
   /// 获取插件数量
   int get count => _plugins.length;
@@ -219,19 +202,25 @@ class PluginRegistry {
     // 验证插件ID
     if (plugin.id.isEmpty) {
       throw PluginConfigurationException(
-          plugin.id, 'Plugin ID cannot be empty');
+        plugin.id,
+        'Plugin ID cannot be empty',
+      );
     }
 
     // 验证版本格式
     if (!_isValidVersion(plugin.version)) {
       throw PluginConfigurationException(
-          plugin.id, 'Invalid version format: ${plugin.version}');
+        plugin.id,
+        'Invalid version format: ${plugin.version}',
+      );
     }
 
     // 验证支持的平台
     if (plugin.supportedPlatforms.isEmpty) {
       throw PluginConfigurationException(
-          plugin.id, 'At least one platform must be supported');
+        plugin.id,
+        'At least one platform must be supported',
+      );
     }
   }
 
@@ -249,7 +238,9 @@ class PluginRegistry {
 
       // 检查版本兼容性
       if (!_isVersionCompatible(
-          dependencyPlugin.version, dependency.versionConstraint)) {
+        dependencyPlugin.version,
+        dependency.versionConstraint,
+      )) {
         throw PluginVersionIncompatibleException(
           plugin.id,
           dependency.versionConstraint,
@@ -362,7 +353,10 @@ class PluginRegistry {
 
   /// 通知状态变化
   void _notifyStateChanged(
-      String pluginId, PluginState? oldState, PluginState newState) {
+    String pluginId,
+    PluginState? oldState,
+    PluginState newState,
+  ) {
     // 可以在这里添加事件通知逻辑
   }
 }

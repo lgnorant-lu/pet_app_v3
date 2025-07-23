@@ -33,7 +33,7 @@ void main() {
         String? receivedSource;
         Map<String, dynamic>? receivedData;
 
-        final subscription = eventBus.subscribe((event) {
+        final subscription = eventBus.subscribe((PluginEvent event) {
           eventReceived = true;
           receivedType = event.type;
           receivedSource = event.source;
@@ -43,7 +43,7 @@ void main() {
         eventBus.publish(
           'test_event',
           'test_source',
-          data: {'message': 'Hello World'},
+          data: <String, dynamic>{'message': 'Hello World'},
         );
 
         await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -59,7 +59,7 @@ void main() {
       test('should publish events with timestamp', () async {
         PluginEvent? receivedEvent;
 
-        final subscription = eventBus.subscribe((event) {
+        final subscription = eventBus.subscribe((PluginEvent event) {
           receivedEvent = event;
         });
 
@@ -89,9 +89,7 @@ void main() {
       test('should subscribe to all events', () async {
         final receivedEvents = <PluginEvent>[];
 
-        final subscription = eventBus.subscribe((event) {
-          receivedEvents.add(event);
-        });
+        final subscription = eventBus.subscribe(receivedEvents.add);
 
         eventBus.publish('event1', 'source1');
         eventBus.publish('event2', 'source2');
@@ -100,9 +98,9 @@ void main() {
         await Future<void>.delayed(const Duration(milliseconds: 100));
 
         expect(receivedEvents.length, equals(3));
-        expect(receivedEvents.map((e) => e.type), contains('event1'));
-        expect(receivedEvents.map((e) => e.type), contains('event2'));
-        expect(receivedEvents.map((e) => e.type), contains('event3'));
+        expect(receivedEvents.map((PluginEvent e) => e.type), contains('event1'));
+        expect(receivedEvents.map((PluginEvent e) => e.type), contains('event2'));
+        expect(receivedEvents.map((PluginEvent e) => e.type), contains('event3'));
 
         subscription.cancel();
       });
@@ -110,9 +108,7 @@ void main() {
       test('should subscribe to specific event type', () async {
         final receivedEvents = <PluginEvent>[];
 
-        final subscription = eventBus.on('specific_event', (event) {
-          receivedEvents.add(event);
-        });
+        final subscription = eventBus.on('specific_event', receivedEvents.add);
 
         eventBus.publish('specific_event', 'source1');
         eventBus.publish('other_event', 'source1');
@@ -121,7 +117,7 @@ void main() {
         await Future<void>.delayed(const Duration(milliseconds: 100));
 
         expect(receivedEvents.length, equals(2));
-        expect(receivedEvents.every((e) => e.type == 'specific_event'), isTrue);
+        expect(receivedEvents.every((PluginEvent e) => e.type == 'specific_event'), isTrue);
 
         subscription.cancel();
       });
@@ -129,9 +125,7 @@ void main() {
       test('should subscribe to events from specific source', () async {
         final receivedEvents = <PluginEvent>[];
 
-        final subscription = eventBus.from('specific_source', (event) {
-          receivedEvents.add(event);
-        });
+        final subscription = eventBus.from('specific_source', receivedEvents.add);
 
         eventBus.publish('event1', 'specific_source');
         eventBus.publish('event2', 'other_source');
@@ -141,7 +135,7 @@ void main() {
 
         expect(receivedEvents.length, equals(2));
         expect(
-            receivedEvents.every((e) => e.source == 'specific_source'), isTrue);
+            receivedEvents.every((PluginEvent e) => e.source == 'specific_source'), isTrue,);
 
         subscription.cancel();
       });
@@ -150,19 +144,19 @@ void main() {
         final receivedEvents = <PluginEvent>[];
 
         final subscription = eventBus.subscribe(
-          (event) => receivedEvents.add(event),
-          filter: (event) => event.data?['priority'] == 'high',
+          receivedEvents.add,
+          filter: (PluginEvent event) => event.data?['priority'] == 'high',
         );
 
-        eventBus.publish('event1', 'source', data: {'priority': 'high'});
-        eventBus.publish('event2', 'source', data: {'priority': 'low'});
-        eventBus.publish('event3', 'source', data: {'priority': 'high'});
+        eventBus.publish('event1', 'source', data: <String, dynamic>{'priority': 'high'});
+        eventBus.publish('event2', 'source', data: <String, dynamic>{'priority': 'low'});
+        eventBus.publish('event3', 'source', data: <String, dynamic>{'priority': 'high'});
 
         await Future<void>.delayed(const Duration(milliseconds: 100));
 
         expect(receivedEvents.length, equals(2));
         expect(
-          receivedEvents.every((e) => e.data?['priority'] == 'high'),
+          receivedEvents.every((PluginEvent e) => e.data?['priority'] == 'high'),
           isTrue,
         );
 
@@ -174,9 +168,7 @@ void main() {
       test('should provide event stream', () async {
         final receivedEvents = <PluginEvent>[];
 
-        final streamSubscription = eventBus.stream.listen((event) {
-          receivedEvents.add(event);
-        });
+        final streamSubscription = eventBus.stream.listen(receivedEvents.add);
 
         eventBus.publish('stream_event1', 'source');
         eventBus.publish('stream_event2', 'source');
@@ -193,14 +185,10 @@ void main() {
         final sourceEvents = <PluginEvent>[];
 
         final typeStreamSub =
-            eventBus.streamOf('specific_type').listen((event) {
-          specificEvents.add(event);
-        });
+            eventBus.streamOf('specific_type').listen(specificEvents.add);
 
         final sourceStreamSub =
-            eventBus.streamFrom('specific_source').listen((event) {
-          sourceEvents.add(event);
-        });
+            eventBus.streamFrom('specific_source').listen(sourceEvents.add);
 
         eventBus.publish('specific_type', 'source1');
         eventBus.publish('other_type', 'specific_source');
@@ -224,7 +212,7 @@ void main() {
         // 延迟发布事件
         Timer(const Duration(milliseconds: 100), () {
           eventBus
-              .publish('awaited_event', 'source', data: {'result': 'success'});
+              .publish('awaited_event', 'source', data: <String, dynamic>{'result': 'success'});
         });
 
         final receivedEvent = await waitFuture;
@@ -248,19 +236,19 @@ void main() {
         // 启动等待（只等待priority为high的事件）
         final waitFuture = eventBus.waitFor(
           'filtered_event',
-          filter: (event) => event.data?['priority'] == 'high',
+          filter: (PluginEvent event) => event.data?['priority'] == 'high',
         );
 
         // 发布不符合条件的事件
         Timer(const Duration(milliseconds: 50), () {
           eventBus
-              .publish('filtered_event', 'source', data: {'priority': 'low'});
+              .publish('filtered_event', 'source', data: <String, dynamic>{'priority': 'low'});
         });
 
         // 发布符合条件的事件
         Timer(const Duration(milliseconds: 100), () {
           eventBus
-              .publish('filtered_event', 'source', data: {'priority': 'high'});
+              .publish('filtered_event', 'source', data: <String, dynamic>{'priority': 'high'});
         });
 
         final receivedEvent = await waitFuture;
@@ -273,9 +261,7 @@ void main() {
       test('should cancel subscriptions', () async {
         final receivedEvents = <PluginEvent>[];
 
-        final subscription = eventBus.subscribe((event) {
-          receivedEvents.add(event);
-        });
+        final subscription = eventBus.subscribe(receivedEvents.add);
 
         eventBus.publish('before_cancel', 'source');
         await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -290,7 +276,7 @@ void main() {
       });
 
       test('should track subscription status', () {
-        final subscription = eventBus.subscribe((event) {});
+        final subscription = eventBus.subscribe((PluginEvent event) {});
 
         expect(subscription.isActive, isTrue);
 
@@ -302,8 +288,8 @@ void main() {
       test('should clear all subscriptions', () async {
         final receivedEvents = <PluginEvent>[];
 
-        eventBus.subscribe((event) => receivedEvents.add(event));
-        eventBus.subscribe((event) => receivedEvents.add(event));
+        eventBus.subscribe(receivedEvents.add);
+        eventBus.subscribe(receivedEvents.add);
 
         eventBus.publish('before_clear', 'source');
         await Future<void>.delayed(const Duration(milliseconds: 50));
@@ -315,7 +301,7 @@ void main() {
 
         // 应该收到2个事件（每个订阅者一个）
         expect(receivedEvents.length, equals(2));
-        expect(receivedEvents.every((e) => e.type == 'before_clear'), isTrue);
+        expect(receivedEvents.every((PluginEvent e) => e.type == 'before_clear'), isTrue);
       });
     });
 
@@ -339,8 +325,8 @@ void main() {
         final stats1 = eventBus.getSubscriptionStats();
         expect(stats1['activeSubscriptions'], equals(0));
 
-        final sub1 = eventBus.subscribe((event) {});
-        final sub2 = eventBus.subscribe((event) {});
+        final sub1 = eventBus.subscribe((PluginEvent event) {});
+        final sub2 = eventBus.subscribe((PluginEvent event) {});
 
         final stats2 = eventBus.getSubscriptionStats();
         expect(stats2['activeSubscriptions'], equals(2));

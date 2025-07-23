@@ -19,6 +19,7 @@ import 'package:flutter/foundation.dart';
 // import 'package:creative_workshop/src/core/plugins/plugin_registry.dart'; // TODO: Phase 5.0.6.4 - 集成插件注册表
 import 'plugin_file_manager.dart';
 import 'plugin_manifest_parser.dart';
+import 'dependency_resolver.dart';
 
 /// 插件状态
 enum PluginState {
@@ -192,6 +193,9 @@ class PluginManager extends ChangeNotifier {
   /// 清单解析器
   late final PluginManifestParser _manifestParser;
 
+  /// 依赖解析器
+  late final DependencyResolver _dependencyResolver;
+
   /// 是否已初始化
   bool _isInitialized = false;
 
@@ -221,6 +225,9 @@ class PluginManager extends ChangeNotifier {
 
     // 初始化清单解析器
     _manifestParser = PluginManifestParser.instance;
+
+    // 初始化依赖解析器
+    _dependencyResolver = DependencyResolver.instance;
 
     await _loadInstalledPlugins();
     await _checkForUpdates();
@@ -695,18 +702,19 @@ class ${_toPascalCase(pluginId)}Plugin {
   /// 检查插件依赖
   Future<List<PluginDependency>> _checkDependencies(
       PluginInstallInfo plugin) async {
-    final missingDeps = <PluginDependency>[];
+    // 使用 DependencyResolver 进行完整的依赖解析
+    final resolutionResult = _dependencyResolver.resolveDependencies(
+      targetPlugin: plugin,
+      installedPlugins: _installedPlugins,
+    );
 
-    for (final dep in plugin.dependencies) {
-      final depPlugin = _installedPlugins[dep.pluginId];
-      if (depPlugin == null || depPlugin.state != PluginState.enabled) {
-        if (dep.isRequired) {
-          missingDeps.add(dep);
-        }
-      }
+    if (!resolutionResult.success) {
+      // 返回缺失的依赖
+      return resolutionResult.missingDependencies;
     }
 
-    return missingDeps;
+    // 如果解析成功，返回空列表表示没有缺失依赖
+    return [];
   }
 
   /// 查找依赖此插件的其他插件

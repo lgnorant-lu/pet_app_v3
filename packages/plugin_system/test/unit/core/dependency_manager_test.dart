@@ -13,6 +13,8 @@ Change History:
 */
 
 import 'package:plugin_system/src/core/dependency_manager.dart';
+
+import 'package:plugin_system/src/core/plugin.dart';
 import 'package:plugin_system/src/core/plugin_loader.dart';
 import 'package:plugin_system/src/core/plugin_registry.dart';
 import 'package:test/test.dart';
@@ -38,20 +40,24 @@ void main() {
 
     group('Basic Functionality', () {
       test('should cleanup plugin', () {
-        expect(() => dependencyManager.cleanupPlugin('test_plugin'),
-            returnsNormally);
+        expect(
+          () => dependencyManager.cleanupPlugin('test_plugin'),
+          returnsNormally,
+        );
       });
 
       test('should update dependency graph', () {
         final plugin = TestPlugin(pluginId: 'update_test');
-        expect(() => dependencyManager.updateDependencyGraph(plugin),
-            returnsNormally);
+        expect(
+          () => dependencyManager.updateDependencyGraph(plugin),
+          returnsNormally,
+        );
       });
     });
 
     group('Dependency Resolution', () {
       test('should resolve dependencies for empty plugin list', () async {
-        final result = await dependencyManager.resolveDependencies([]);
+        final result = await dependencyManager.resolveDependencies(<Plugin>[]);
         expect(result.success, isTrue);
         expect(result.loadOrder, isEmpty);
         expect(result.conflicts, isEmpty);
@@ -61,7 +67,8 @@ void main() {
         final plugin = TestPlugin(pluginId: 'single_test_plugin');
         await loader.loadPlugin(plugin);
 
-        final result = await dependencyManager.resolveDependencies([plugin]);
+        final result =
+            await dependencyManager.resolveDependencies(<Plugin>[plugin]);
         expect(result.success, isTrue);
         expect(result.loadOrder, contains(plugin.id));
       });
@@ -73,8 +80,8 @@ void main() {
         await loader.loadPlugin(plugin1);
         await loader.loadPlugin(plugin2);
 
-        final result =
-            await dependencyManager.resolveDependencies([plugin1, plugin2]);
+        final result = await dependencyManager
+            .resolveDependencies(<Plugin>[plugin1, plugin2]);
         expect(result.success, isTrue);
         expect(result.loadOrder.length, equals(2));
         expect(result.loadOrder, contains(plugin1.id));
@@ -133,13 +140,17 @@ void main() {
       test('should update dependency graph', () {
         final plugin = TestPlugin(pluginId: 'update_graph_test');
 
-        expect(() => dependencyManager.updateDependencyGraph(plugin),
-            returnsNormally);
+        expect(
+          () => dependencyManager.updateDependencyGraph(plugin),
+          returnsNormally,
+        );
       });
 
       test('should cleanup plugin', () {
-        expect(() => dependencyManager.cleanupPlugin('test_plugin'),
-            returnsNormally);
+        expect(
+          () => dependencyManager.cleanupPlugin('test_plugin'),
+          returnsNormally,
+        );
       });
     });
 
@@ -157,8 +168,10 @@ void main() {
       });
 
       test('should handle cleanup of non-existent plugin', () {
-        expect(() => dependencyManager.cleanupPlugin('non_existent'),
-            returnsNormally);
+        expect(
+          () => dependencyManager.cleanupPlugin('non_existent'),
+          returnsNormally,
+        );
       });
     });
 

@@ -12,6 +12,8 @@ Change History:
 ---------------------------------------------------------------
 */
 
+// 主页面组件
+export 'creative_workshop_main_page.dart';
 // 浏览器组件
 export 'browser/project_browser.dart';
 // 面板组件
@@ -25,7 +27,7 @@ export 'store/plugin_search_bar.dart';
 export 'store/category_filter.dart';
 // 开发者平台组件
 export 'developer/developer_platform_page.dart';
-export 'developer/project_manager_tab.dart';
+export 'developer/project_manager_tab.dart' hide ProjectType, ProjectStatus;
 export 'developer/plugin_development_tab.dart';
 export 'developer/publish_manager_tab.dart';
 export 'developer/ming_cli_integration_tab.dart';

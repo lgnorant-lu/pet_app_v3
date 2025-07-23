@@ -19,6 +19,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:home_dashboard/home_dashboard.dart';
 import 'package:settings_system/settings_system.dart';
 import 'package:desktop_pet/desktop_pet.dart';
+import 'package:creative_workshop/creative_workshop.dart';
 // import 'framework/quick_action_panel.dart'; // 暂时未使用
 
 /// 导航页面信息
@@ -103,7 +104,7 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
         title: '创意工坊',
         icon: Icons.build_outlined,
         activeIcon: Icons.build,
-        page: const _CreativeWorkshopPage(),
+        page: const CreativeWorkshopMainPage(),
       ),
       NavigationPage(
         id: 'app_manager',
@@ -237,62 +238,6 @@ class _MainNavigationState extends ConsumerState<MainNavigation> {
       final timestamp = DateTime.now().toIso8601String();
       print('[$timestamp] [MainNavigation] [$level] $message');
     }
-  }
-}
-
-/// 创意工坊页面
-class _CreativeWorkshopPage extends StatelessWidget {
-  const _CreativeWorkshopPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('创意工坊'), centerTitle: true),
-      body: const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.build, size: 64, color: Colors.orange),
-            SizedBox(height: 24),
-            Text(
-              '创意工坊',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 16),
-            Text(
-              '插件创建、管理、分发的核心平台',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 32),
-            Card(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    Text(
-                      'Creative Workshop v1.4.0',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '✅ 工具插件系统\n'
-                      '✅ 游戏插件系统\n'
-                      '✅ 项目管理系统\n'
-                      '✅ 跨平台存储支持',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 

@@ -19,7 +19,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Phase 2.9.3: 逐步启用模块导入进行验证
 import 'package:plugin_system/plugin_system.dart';
-import 'package:creative_workshop/creative_workshop.dart';
+import 'package:creative_workshop/creative_workshop.dart' hide PluginRegistry;
 // TODO: 修复缺失文件后启用
 // import 'package:home_dashboard/home_dashboard.dart';
 // import 'package:app_manager/app_manager.dart';

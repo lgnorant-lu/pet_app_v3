@@ -43,7 +43,7 @@ void main() {
     group('Basic Functionality', () {
       test('should start and stop watching', () async {
         // 开始监听
-        await hotReloadManager.startWatching(['/mock/path1', '/mock/path2']);
+        await hotReloadManager.startWatching(<String>['/mock/path1', '/mock/path2']);
 
         // 停止监听
         await hotReloadManager.stopWatching();
@@ -52,7 +52,7 @@ void main() {
       });
 
       test('should handle empty path list', () async {
-        await hotReloadManager.startWatching([]);
+        await hotReloadManager.startWatching(<String>[]);
         await hotReloadManager.stopWatching();
 
         expect(true, isTrue);
@@ -85,7 +85,6 @@ void main() {
         // 重载插件并保持状态
         final result = await hotReloadManager.reloadPlugin(
           plugin.id,
-          preserveState: true,
         );
 
         expect(result.success, isTrue);
@@ -113,7 +112,7 @@ void main() {
         await loader.loadPlugin(plugin);
 
         // 重载插件会创建快照
-        await hotReloadManager.reloadPlugin(plugin.id, preserveState: true);
+        await hotReloadManager.reloadPlugin(plugin.id);
 
         // 获取快照
         final snapshot = hotReloadManager.getStateSnapshot(plugin.id);
@@ -148,7 +147,7 @@ void main() {
         final results = await hotReloadManager.reloadAllPlugins();
 
         expect(results.length, equals(2));
-        expect(results.every((r) => r.success), isTrue);
+        expect(results.every((HotReloadResult r) => r.success), isTrue);
         expect(registry.contains(plugin1.id), isTrue);
         expect(registry.contains(plugin2.id), isTrue);
       });
@@ -162,27 +161,27 @@ void main() {
 
         // 批量重载并保持状态
         final results = await hotReloadManager.reloadAllPlugins(
-          preserveState: true,
+          
         );
 
         expect(results.length, equals(2));
-        expect(results.every((r) => r.success), isTrue);
+        expect(results.every((HotReloadResult r) => r.success), isTrue);
       });
     });
 
     group('Error Handling', () {
       test('should handle multiple start watching calls', () async {
-        await hotReloadManager.startWatching(['/path1']);
+        await hotReloadManager.startWatching(<String>['/path1']);
 
         // 重复启动不应该出错
         await expectLater(
-          () => hotReloadManager.startWatching(['/path2']),
+          () => hotReloadManager.startWatching(<String>['/path2']),
           returnsNormally,
         );
       });
 
       test('should handle multiple stop watching calls', () async {
-        await hotReloadManager.startWatching(['/path1']);
+        await hotReloadManager.startWatching(<String>['/path1']);
         await hotReloadManager.stopWatching();
 
         // 重复停止不应该出错
@@ -193,7 +192,7 @@ void main() {
       });
 
       test('should handle dispose', () async {
-        await hotReloadManager.startWatching(['/path1']);
+        await hotReloadManager.startWatching(<String>['/path1']);
 
         // 销毁不应该出错
         await expectLater(

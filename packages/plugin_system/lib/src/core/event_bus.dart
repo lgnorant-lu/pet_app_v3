@@ -35,9 +35,7 @@ class PluginEvent {
   final DateTime? timestamp;
 
   @override
-  String toString() {
-    return 'PluginEvent(type: $type, source: $source, timestamp: $timestamp)';
-  }
+  String toString() => 'PluginEvent(type: $type, source: $source, timestamp: $timestamp)';
 }
 
 /// 事件监听器
@@ -160,27 +158,19 @@ class EventBus {
   }
 
   /// 订阅特定类型的事件
-  EventSubscription on(String eventType, EventListener listener) {
-    return subscribe(listener, eventType: eventType);
-  }
+  EventSubscription on(String eventType, EventListener listener) => subscribe(listener, eventType: eventType);
 
   /// 订阅来自特定源的事件
-  EventSubscription from(String source, EventListener listener) {
-    return subscribe(listener, source: source);
-  }
+  EventSubscription from(String source, EventListener listener) => subscribe(listener, source: source);
 
   /// 获取事件流
   Stream<PluginEvent> get stream => _eventController.stream;
 
   /// 获取特定类型的事件流
-  Stream<PluginEvent> streamOf(String eventType) {
-    return stream.where((PluginEvent event) => event.type == eventType);
-  }
+  Stream<PluginEvent> streamOf(String eventType) => stream.where((PluginEvent event) => event.type == eventType);
 
   /// 获取来自特定源的事件流
-  Stream<PluginEvent> streamFrom(String source) {
-    return stream.where((PluginEvent event) => event.source == source);
-  }
+  Stream<PluginEvent> streamFrom(String source) => stream.where((PluginEvent event) => event.source == source);
 
   /// 等待特定事件
   ///
@@ -249,7 +239,7 @@ class EventBus {
   void cleanupPlugin(String pluginId) {
     final List<EventSubscription> toRemove = _subscriptions
         .where((EventSubscription sub) =>
-            sub._listener.toString().contains(pluginId))
+            sub._listener.toString().contains(pluginId),)
         .toList();
 
     for (final EventSubscription subscription in toRemove) {
@@ -258,9 +248,7 @@ class EventBus {
   }
 
   /// 获取事件统计
-  Map<String, int> getEventStats() {
-    return Map<String, int>.from(_eventStats);
-  }
+  Map<String, int> getEventStats() => Map<String, int>.from(_eventStats);
 
   /// 获取订阅统计
   Map<String, dynamic> getSubscriptionStats() {
@@ -280,7 +268,7 @@ class EventBus {
     final subscriptionStats = getSubscriptionStats();
 
     return <String, dynamic>{
-      'totalEvents': eventStats.values.fold(0, (sum, count) => sum + count),
+      'totalEvents': eventStats.values.fold(0, (int sum, int count) => sum + count),
       'eventTypes': eventStats.keys.toList(),
       'eventStats': eventStats,
       'subscriptionStats': subscriptionStats,
@@ -310,13 +298,11 @@ class EventBus {
   }
 
   /// 获取状态信息
-  Map<String, dynamic> getStatus() {
-    return <String, dynamic>{
+  Map<String, dynamic> getStatus() => <String, dynamic>{
       'subscriptions': getSubscriptionStats(),
       'eventStats': getEventStats(),
       'isControllerClosed': _eventController.isClosed,
     };
-  }
 }
 
 /// 常用的系统事件类型
@@ -355,12 +341,8 @@ extension EventBusExtensions on EventBus {
   }
 
   /// 订阅插件生命周期事件
-  EventSubscription onPluginEvent(String eventType, EventListener listener) {
-    return on(eventType, listener);
-  }
+  EventSubscription onPluginEvent(String eventType, EventListener listener) => on(eventType, listener);
 
   /// 订阅系统事件
-  EventSubscription onSystemEvent(String eventType, EventListener listener) {
-    return subscribe(listener, eventType: eventType, source: 'system');
-  }
+  EventSubscription onSystemEvent(String eventType, EventListener listener) => subscribe(listener, eventType: eventType, source: 'system');
 }

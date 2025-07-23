@@ -44,3 +44,12 @@ export 'plugin_system_module.dart';
 
 // 核心功能导出
 export 'src/core/index.dart';
+
+// 插件商店功能导出 (Phase 2.1.1)
+export 'src/store/index.dart';
+
+// 插件发现功能导出 (Phase 2.2.1)
+export 'src/discovery/index.dart';
+
+// 插件分类功能导出 (Phase 2.3)
+export 'src/classification/index.dart';

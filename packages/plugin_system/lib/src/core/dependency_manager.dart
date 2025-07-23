@@ -13,72 +13,13 @@ Change History:
 */
 
 import 'dart:async';
+import 'dart:collection';
 
+import 'package:pub_semver/pub_semver.dart';
+
+import 'package:plugin_system/src/core/dependency_node.dart';
 import 'package:plugin_system/src/core/plugin.dart';
 import 'package:plugin_system/src/core/plugin_registry.dart';
-
-/// 依赖解析结果
-class DependencyResolutionResult {
-  const DependencyResolutionResult({
-    required this.success,
-    required this.loadOrder,
-    this.conflicts = const <DependencyConflict>[],
-    this.missing = const <String>[],
-  });
-
-  /// 是否成功
-  final bool success;
-
-  /// 加载顺序
-  final List<String> loadOrder;
-
-  /// 依赖冲突
-  final List<DependencyConflict> conflicts;
-
-  /// 缺失的依赖
-  final List<String> missing;
-}
-
-/// 依赖冲突
-class DependencyConflict {
-  const DependencyConflict({
-    required this.pluginId,
-    required this.dependencyId,
-    required this.requiredVersion,
-    required this.availableVersion,
-    required this.conflictType,
-  });
-
-  /// 插件ID
-  final String pluginId;
-
-  /// 依赖插件ID
-  final String dependencyId;
-
-  /// 需要的版本
-  final String requiredVersion;
-
-  /// 可用的版本
-  final String availableVersion;
-
-  /// 冲突类型
-  final DependencyConflictType conflictType;
-}
-
-/// 依赖冲突类型
-enum DependencyConflictType {
-  /// 版本不兼容
-  versionIncompatible,
-
-  /// 循环依赖
-  circularDependency,
-
-  /// 依赖缺失
-  missingDependency,
-
-  /// 多版本冲突
-  multipleVersions,
-}
 
 /// 插件依赖管理器
 ///
@@ -100,58 +41,73 @@ class DependencyManager {
   final Map<String, Set<String>> _reverseDependencyGraph =
       <String, Set<String>>{};
 
-  /// 解析插件依赖
+  /// 解析插件依赖 (集成Creative Workshop算法)
   ///
   /// [plugins] 要解析的插件列表
+  /// [installedPlugins] 已安装的插件映射
+  /// [availablePlugins] 可用的插件映射（用于查找缺失依赖）
   Future<DependencyResolutionResult> resolveDependencies(
-    List<Plugin> plugins,
-  ) async {
-    // TODO(Critical): [Phase 2.9.1] 实现完整的依赖解析算法
-    // 需要实现：
-    // 1. 拓扑排序算法
-    // 2. 版本兼容性检查
-    // 3. 循环依赖检测
-    // 4. 依赖冲突解决
-    // 5. 可选依赖处理
-
+    List<Plugin> plugins, {
+    Map<String, PluginInstallInfo>? installedPlugins,
+    Map<String, PluginInstallInfo>? availablePlugins,
+  }) async {
     try {
-      // 1. 构建依赖图
-      _buildDependencyGraph(plugins);
+      // 转换插件列表为安装信息映射
+      final Map<String, PluginInstallInfo> pluginInfoMap =
+          <String, PluginInstallInfo>{};
+      for (final Plugin plugin in plugins) {
+        pluginInfoMap[plugin.id] = PluginInstallInfo.fromPlugin(plugin);
+      }
 
-      // 2. 检测循环依赖
-      final List<String> circularDeps = _detectCircularDependencies(plugins);
-      if (circularDeps.isNotEmpty) {
-        return DependencyResolutionResult(
-          success: false,
-          loadOrder: const <String>[],
-          conflicts: circularDeps
-              .map((pluginId) => DependencyConflict(
-                    pluginId: pluginId,
-                    dependencyId: 'circular',
-                    requiredVersion: '',
-                    availableVersion: '',
-                    conflictType: DependencyConflictType.circularDependency,
-                  ))
-              .toList(),
+      // 使用提供的映射或默认映射
+      final Map<String, PluginInstallInfo> installed =
+          installedPlugins ?? pluginInfoMap;
+      final Map<String, PluginInstallInfo> available =
+          availablePlugins ?? <String, PluginInstallInfo>{};
+
+      // 1. 构建依赖图
+      final Map<String, DependencyNode> dependencyGraph =
+          _buildDependencyGraphAdvanced(plugins, installed, available);
+
+      // 2. 检查缺失依赖
+      final List<PluginDependency> missingDeps =
+          _findMissingDependencies(plugins, installed, available);
+      if (missingDeps.isNotEmpty) {
+        return DependencyResolutionResult.failure(
+          error: '存在缺失的依赖',
+          missingDependencies: missingDeps,
         );
       }
 
       // 3. 检查版本冲突
       final List<DependencyConflict> conflicts =
-          await _checkVersionConflicts(plugins);
+          _findVersionConflicts(dependencyGraph, installed);
+      if (conflicts.isNotEmpty) {
+        return DependencyResolutionResult.failure(
+          error: '存在版本冲突',
+          conflicts: conflicts,
+        );
+      }
 
-      // 4. 生成加载顺序
-      final List<String> loadOrder = _generateLoadOrder(plugins);
+      // 4. 检查循环依赖
+      final List<List<String>> cycles =
+          _findCircularDependencies(dependencyGraph);
+      if (cycles.isNotEmpty) {
+        return DependencyResolutionResult.failure(
+          error: '存在循环依赖',
+          circularDependencies: cycles,
+        );
+      }
 
-      return DependencyResolutionResult(
-        success: conflicts.isEmpty,
-        loadOrder: loadOrder,
-        conflicts: conflicts,
+      // 5. 生成安装顺序（拓扑排序）
+      final List<String> installOrder = _topologicalSort(dependencyGraph);
+
+      return DependencyResolutionResult.success(
+        loadOrder: installOrder,
       );
     } catch (e) {
-      return const DependencyResolutionResult(
-        success: false,
-        loadOrder: <String>[],
+      return DependencyResolutionResult.failure(
+        error: '依赖解析失败: $e',
       );
     }
   }
@@ -179,7 +135,9 @@ class DependencyManager {
 
       // 检查版本兼容性
       if (!_isVersionCompatible(
-          depPlugin.version, dependency.versionConstraint)) {
+        depPlugin.version,
+        dependency.versionConstraint,
+      )) {
         return false;
       }
     }
@@ -191,8 +149,10 @@ class DependencyManager {
   ///
   /// [pluginId] 插件ID
   /// [recursive] 是否递归获取
-  List<String> getPluginDependencies(String pluginId,
-      {bool recursive = false}) {
+  List<String> getPluginDependencies(
+    String pluginId, {
+    bool recursive = false,
+  }) {
     // TODO(Medium): [Phase 2.9.1] 实现依赖获取逻辑
     // 需要实现：
     // 1. 直接依赖获取
@@ -296,7 +256,7 @@ class DependencyManager {
     // 4. 缓存失效处理
 
     final Set<String> dependencies =
-        plugin.dependencies.map((dep) => dep.pluginId).toSet();
+        plugin.dependencies.map((PluginDependency dep) => dep.pluginId).toSet();
 
     _dependencyGraph[plugin.id] = dependencies;
 
@@ -331,29 +291,164 @@ class DependencyManager {
     _reverseDependencyGraph.remove(pluginId);
   }
 
-  /// 构建依赖图
-  void _buildDependencyGraph(List<Plugin> plugins) {
-    // TODO(High): [Phase 2.9.1] 优化依赖图构建算法
+  /// 构建高级依赖图 (集成Creative Workshop算法)
+  Map<String, DependencyNode> _buildDependencyGraphAdvanced(
+    List<Plugin> plugins,
+    Map<String, PluginInstallInfo> installedPlugins,
+    Map<String, PluginInstallInfo> availablePlugins,
+  ) {
+    final Map<String, DependencyNode> graph = <String, DependencyNode>{};
+    final Set<String> visited = <String>{};
+
+    void buildNode(PluginInstallInfo plugin) {
+      if (visited.contains(plugin.id)) return;
+      visited.add(plugin.id);
+
+      // 创建节点
+      final DependencyNode node = DependencyNode(
+        pluginId: plugin.id,
+        version: plugin.version,
+        dependencies: plugin.dependencies,
+      );
+      graph[plugin.id] = node;
+
+      // 递归处理依赖
+      for (final PluginDependency dep in plugin.dependencies) {
+        final PluginInstallInfo? depPlugin =
+            installedPlugins[dep.pluginId] ?? availablePlugins[dep.pluginId];
+        if (depPlugin != null) {
+          buildNode(depPlugin);
+        }
+      }
+    }
+
+    // 为所有插件构建节点
     for (final Plugin plugin in plugins) {
-      updateDependencyGraph(plugin);
+      final PluginInstallInfo pluginInfo = PluginInstallInfo.fromPlugin(plugin);
+      buildNode(pluginInfo);
+    }
+
+    return graph;
+  }
+
+  /// 查找缺失依赖 (集成Creative Workshop算法)
+  List<PluginDependency> _findMissingDependencies(
+    List<Plugin> plugins,
+    Map<String, PluginInstallInfo> installedPlugins,
+    Map<String, PluginInstallInfo> availablePlugins,
+  ) {
+    final List<PluginDependency> missing = <PluginDependency>[];
+    final Set<String> checked = <String>{};
+
+    void checkDependencies(List<PluginDependency> dependencies) {
+      for (final PluginDependency dep in dependencies) {
+        if (checked.contains(dep.pluginId)) continue;
+        checked.add(dep.pluginId);
+
+        // 检查是否在已安装或可用插件中
+        final bool isInstalled = installedPlugins.containsKey(dep.pluginId);
+        final bool isAvailable = availablePlugins.containsKey(dep.pluginId);
+
+        if (!isInstalled && !isAvailable && !dep.optional) {
+          missing.add(dep);
+        } else if (isInstalled || isAvailable) {
+          // 递归检查依赖的依赖
+          final PluginInstallInfo? plugin =
+              installedPlugins[dep.pluginId] ?? availablePlugins[dep.pluginId];
+          if (plugin != null) {
+            checkDependencies(plugin.dependencies);
+          }
+        }
+      }
+    }
+
+    // 检查所有插件的依赖
+    for (final Plugin plugin in plugins) {
+      checkDependencies(plugin.dependencies);
+    }
+
+    return missing;
+  }
+
+  /// 查找版本冲突 (集成Creative Workshop算法)
+  List<DependencyConflict> _findVersionConflicts(
+    Map<String, DependencyNode> dependencyGraph,
+    Map<String, PluginInstallInfo> installedPlugins,
+  ) {
+    final List<DependencyConflict> conflicts = <DependencyConflict>[];
+    final Map<String, Set<String>> versionRequirements =
+        <String, Set<String>>{};
+
+    // 收集所有版本要求
+    for (final DependencyNode node in dependencyGraph.values) {
+      for (final PluginDependency dep in node.dependencies) {
+        versionRequirements.putIfAbsent(dep.pluginId, () => <String>{});
+        versionRequirements[dep.pluginId]!.add(dep.versionConstraint);
+      }
+    }
+
+    // 检查版本冲突
+    for (final MapEntry<String, Set<String>> entry
+        in versionRequirements.entries) {
+      final String pluginId = entry.key;
+      final Set<String> requiredVersions = entry.value;
+      final PluginInstallInfo? installedPlugin = installedPlugins[pluginId];
+
+      if (installedPlugin != null) {
+        // 检查每个版本要求是否与已安装版本兼容
+        for (final String requiredVersion in requiredVersions) {
+          if (!_isVersionCompatible(
+            installedPlugin.version,
+            requiredVersion,
+          )) {
+            conflicts.add(
+              DependencyConflict(
+                pluginId: 'unknown',
+                dependencyId: pluginId,
+                requiredVersion: requiredVersion,
+                availableVersion: installedPlugin.version,
+                conflictType: DependencyConflictType.versionIncompatible,
+              ),
+            );
+          }
+        }
+      }
+    }
+
+    return conflicts;
+  }
+
+  /// 检查版本兼容性 (集成Creative Workshop算法)
+  bool _isVersionCompatible(String availableVersion, String requiredVersion) {
+    try {
+      final Version available = Version.parse(availableVersion);
+      final VersionConstraint constraint =
+          VersionConstraint.parse(requiredVersion);
+      return constraint.allows(available);
+    } catch (e) {
+      // 如果解析失败，使用简单字符串比较
+      return availableVersion == requiredVersion;
     }
   }
 
-  /// 检测循环依赖
-  List<String> _detectCircularDependencies(List<Plugin> plugins) {
-    // TODO(Critical): [Phase 2.9.1] 实现循环依赖检测算法
-    // 需要实现：
-    // 1. 深度优先搜索
-    // 2. 访问状态跟踪
-    // 3. 循环路径记录
-
+  /// 查找循环依赖 (集成Creative Workshop算法)
+  List<List<String>> _findCircularDependencies(
+    Map<String, DependencyNode> dependencyGraph,
+  ) {
+    final List<List<String>> cycles = <List<String>>[];
     final Set<String> visited = <String>{};
     final Set<String> recursionStack = <String>{};
-    final List<String> circularDeps = <String>[];
+    final List<String> currentPath = <String>[];
 
-    bool hasCycle(String pluginId) {
+    bool dfs(String pluginId) {
       if (recursionStack.contains(pluginId)) {
-        circularDeps.add(pluginId);
+        // 找到循环，提取循环路径
+        final int cycleStart = currentPath.indexOf(pluginId);
+        if (cycleStart >= 0) {
+          final List<String> cycle = currentPath.sublist(cycleStart)
+            ..add(pluginId);
+          cycles.add(cycle);
+        }
         return true;
       }
 
@@ -363,102 +458,79 @@ class DependencyManager {
 
       visited.add(pluginId);
       recursionStack.add(pluginId);
+      currentPath.add(pluginId);
 
-      final Set<String> dependencies = _dependencyGraph[pluginId] ?? <String>{};
-      for (final String dep in dependencies) {
-        if (hasCycle(dep)) {
-          return true;
+      final DependencyNode? node = dependencyGraph[pluginId];
+      if (node != null) {
+        for (final PluginDependency dep in node.dependencies) {
+          if (dfs(dep.pluginId)) {
+            // 继续搜索其他可能的循环
+          }
         }
       }
 
       recursionStack.remove(pluginId);
+      currentPath.removeLast();
       return false;
     }
 
-    for (final Plugin plugin in plugins) {
-      if (!visited.contains(plugin.id)) {
-        hasCycle(plugin.id);
+    // 对所有节点进行DFS
+    for (final String pluginId in dependencyGraph.keys) {
+      if (!visited.contains(pluginId)) {
+        dfs(pluginId);
       }
     }
 
-    return circularDeps;
+    return cycles;
   }
 
-  /// 检查版本冲突
-  Future<List<DependencyConflict>> _checkVersionConflicts(
-      List<Plugin> plugins) async {
-    // TODO(High): [Phase 2.9.1] 实现版本冲突检测
-    // 需要实现：
-    // 1. 语义化版本解析
-    // 2. 版本约束检查
-    // 3. 多版本冲突检测
+  /// 拓扑排序 (集成Creative Workshop算法)
+  List<String> _topologicalSort(Map<String, DependencyNode> dependencyGraph) {
+    final List<String> result = <String>[];
+    final Map<String, int> inDegree = <String, int>{};
+    final Queue<String> queue = Queue<String>();
 
-    final List<DependencyConflict> conflicts = <DependencyConflict>[];
+    // 计算入度
+    for (final String pluginId in dependencyGraph.keys) {
+      inDegree[pluginId] = 0;
+    }
 
-    for (final Plugin plugin in plugins) {
-      for (final PluginDependency dependency in plugin.dependencies) {
-        final Plugin? depPlugin = _registry.get(dependency.pluginId);
+    for (final DependencyNode node in dependencyGraph.values) {
+      for (final PluginDependency dep in node.dependencies) {
+        if (dependencyGraph.containsKey(dep.pluginId)) {
+          // 修复：当node依赖dep时，应该是node的入度增加，而不是dep的入度增加
+          inDegree[node.pluginId] = (inDegree[node.pluginId] ?? 0) + 1;
+        }
+      }
+    }
 
-        if (depPlugin != null) {
-          if (!_isVersionCompatible(
-              depPlugin.version, dependency.versionConstraint)) {
-            conflicts.add(DependencyConflict(
-              pluginId: plugin.id,
-              dependencyId: dependency.pluginId,
-              requiredVersion: dependency.versionConstraint,
-              availableVersion: depPlugin.version,
-              conflictType: DependencyConflictType.versionIncompatible,
-            ));
+    // 将入度为0的节点加入队列
+    for (final MapEntry<String, int> entry in inDegree.entries) {
+      if (entry.value == 0) {
+        queue.add(entry.key);
+      }
+    }
+
+    // Kahn算法
+    while (queue.isNotEmpty) {
+      final String current = queue.removeFirst();
+      result.add(current);
+
+      // 修复：当处理current节点时，需要减少依赖于current的其他节点的入度
+      for (final DependencyNode otherNode in dependencyGraph.values) {
+        for (final PluginDependency dep in otherNode.dependencies) {
+          if (dep.pluginId == current) {
+            // otherNode依赖current，所以current被处理后，otherNode的入度减1
+            inDegree[otherNode.pluginId] =
+                (inDegree[otherNode.pluginId] ?? 1) - 1;
+            if (inDegree[otherNode.pluginId] == 0) {
+              queue.add(otherNode.pluginId);
+            }
           }
         }
       }
     }
 
-    return conflicts;
-  }
-
-  /// 生成加载顺序
-  List<String> _generateLoadOrder(List<Plugin> plugins) {
-    // TODO(Critical): [Phase 2.9.1] 实现拓扑排序算法
-    // 需要实现：
-    // 1. 拓扑排序
-    // 2. 优先级考虑
-    // 3. 并行加载优化
-
-    final List<String> loadOrder = <String>[];
-    final Set<String> visited = <String>{};
-
-    void visit(String pluginId) {
-      if (visited.contains(pluginId)) {
-        return;
-      }
-
-      visited.add(pluginId);
-
-      final Set<String> dependencies = _dependencyGraph[pluginId] ?? <String>{};
-      for (final String dep in dependencies) {
-        visit(dep);
-      }
-
-      loadOrder.add(pluginId);
-    }
-
-    for (final Plugin plugin in plugins) {
-      visit(plugin.id);
-    }
-
-    return loadOrder;
-  }
-
-  /// 检查版本兼容性
-  bool _isVersionCompatible(String version, String constraint) {
-    // TODO(High): [Phase 2.9.1] 实现语义化版本兼容性检查
-    // 需要实现：
-    // 1. 语义化版本解析
-    // 2. 版本约束解析
-    // 3. 兼容性规则检查
-
-    // 简化实现：只检查精确匹配
-    return version == constraint || constraint.isEmpty;
+    return result;
   }
 }

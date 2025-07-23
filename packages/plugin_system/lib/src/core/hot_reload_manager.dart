@@ -300,7 +300,7 @@ class HotReloadManager {
     final StreamController<void> controller = StreamController<void>();
     final StreamSubscription<void> subscription = controller.stream.listen(
       (_) => _handleFileChange(path),
-      onError: (dynamic error) => _handleWatchError(path, error),
+      onError: (Object error) => _handleWatchError(path, error),
     );
 
     _watchers[path] = subscription;
@@ -323,7 +323,7 @@ class HotReloadManager {
   }
 
   /// 处理监听错误
-  void _handleWatchError(String path, dynamic error) {
+  void _handleWatchError(String path, Object error) {
     // TODO(Medium): [Phase 2.9.1] 实现监听错误处理
     print('Watch error for path $path: $error');
     _setState(HotReloadState.error);

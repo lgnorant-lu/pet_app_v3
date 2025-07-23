@@ -133,7 +133,7 @@ abstract class ToolPlugin extends Plugin {
   List<Widget> buildCustomSettings() => [];
 
   @override
-  PluginCategory get category => PluginCategory.tool;
+  PluginType get category => PluginType.tool;
 
   /// 工具是否处于活跃状态
   bool get isActive => currentState == PluginState.started;

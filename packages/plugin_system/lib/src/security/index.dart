@@ -13,9 +13,11 @@ Change History:
 */
 
 /// 安全模块
-/// 
+///
 /// 提供插件权限管理和安全验证功能
 library security;
 
 // 权限管理
-export 'permission_manager.dart';
+export 'permission_manager.dart'
+    hide PermissionAuthorizationResult, PermissionPolicy;
+export 'unified_permission_manager.dart';

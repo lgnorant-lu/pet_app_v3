@@ -130,8 +130,8 @@ class _PluginPermissionsTabState extends State<PluginPermissionsTab> {
               Text(
                 '权限概览',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ],
           ),
@@ -329,7 +329,8 @@ class _PluginPermissionsTabState extends State<PluginPermissionsTab> {
 
   /// 构建权限详情
   Widget _buildPermissionDetails(PluginPermission permission) {
-    final usage = _permissionUsages.firstWhere((u) => u.permission == permission);
+    final usage =
+        _permissionUsages.firstWhere((u) => u.permission == permission);
 
     return Column(
       children: [
@@ -399,7 +400,8 @@ class _PluginPermissionsTabState extends State<PluginPermissionsTab> {
             padding: const EdgeInsets.all(16),
             itemCount: usage.plugins.length,
             itemBuilder: (context, index) {
-              return _buildPluginPermissionCard(usage.plugins[index], permission);
+              return _buildPluginPermissionCard(
+                  usage.plugins[index], permission);
             },
           ),
         ),
@@ -408,7 +410,8 @@ class _PluginPermissionsTabState extends State<PluginPermissionsTab> {
   }
 
   /// 构建插件权限卡片
-  Widget _buildPluginPermissionCard(PluginInstallInfo plugin, PluginPermission permission) {
+  Widget _buildPluginPermissionCard(
+      PluginInstallInfo plugin, PluginPermission permission) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
@@ -416,7 +419,9 @@ class _PluginPermissionsTabState extends State<PluginPermissionsTab> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: plugin.state == PluginState.enabled ? Colors.green : Colors.grey,
+            color: plugin.state == PluginState.enabled
+                ? Colors.green
+                : Colors.grey,
             borderRadius: BorderRadius.circular(8),
           ),
           child: const Icon(
@@ -436,13 +441,16 @@ class _PluginPermissionsTabState extends State<PluginPermissionsTab> {
             Text(
               '状态: ${_getStateDisplayName(plugin.state)}',
               style: TextStyle(
-                color: plugin.state == PluginState.enabled ? Colors.green : Colors.grey,
+                color: plugin.state == PluginState.enabled
+                    ? Colors.green
+                    : Colors.grey,
               ),
             ),
           ],
         ),
         trailing: PopupMenuButton<String>(
-          onSelected: (action) => _handlePluginPermissionAction(action, plugin, permission),
+          onSelected: (action) =>
+              _handlePluginPermissionAction(action, plugin, permission),
           itemBuilder: (context) => [
             const PopupMenuItem(
               value: 'revoke',
@@ -547,7 +555,8 @@ class _PluginPermissionsTabState extends State<PluginPermissionsTab> {
   }
 
   /// 撤销权限
-  Future<void> _revokePermission(PluginInstallInfo plugin, PluginPermission permission) async {
+  Future<void> _revokePermission(
+      PluginInstallInfo plugin, PluginPermission permission) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(

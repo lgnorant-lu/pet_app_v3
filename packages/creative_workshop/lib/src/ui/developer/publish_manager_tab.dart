@@ -13,6 +13,7 @@ Change History:
 */
 
 import 'package:flutter/material.dart';
+import 'package:plugin_system/plugin_system.dart';
 
 /// 发布状态
 enum PublishStatus {
@@ -61,6 +62,7 @@ class PublishManagerTab extends StatefulWidget {
 }
 
 class _PublishManagerTabState extends State<PublishManagerTab> {
+  late final PluginPublisher _pluginPublisher;
   List<PublishRecord> _publishRecords = [];
   bool _isLoading = true;
   PublishStatus? _selectedStatus;
@@ -68,6 +70,7 @@ class _PublishManagerTabState extends State<PublishManagerTab> {
   @override
   void initState() {
     super.initState();
+    _pluginPublisher = PluginPublisher.instance;
     _loadPublishRecords();
   }
 
@@ -77,61 +80,104 @@ class _PublishManagerTabState extends State<PublishManagerTab> {
       _isLoading = true;
     });
 
-    // TODO: Phase 5.0.6.3 - 从真实数据源加载发布记录
-    // 当前使用模拟数据
-    await Future<void>.delayed(const Duration(milliseconds: 500));
+    // 使用PluginPublisher加载真实发布记录
+    try {
+      // TODO: 实现从PluginPublisher获取发布历史的功能
+      // 当前使用模拟数据，后续集成真实API
+      await Future<void>.delayed(const Duration(milliseconds: 500));
 
-    final now = DateTime.now();
-    _publishRecords = [
-      PublishRecord(
-        id: 'pub_001',
-        projectName: '高级画笔工具',
-        version: '1.2.0',
-        status: PublishStatus.published,
-        submittedAt: now.subtract(const Duration(days: 30)),
-        publishedAt: now.subtract(const Duration(days: 28)),
-        downloads: 1520,
-        rating: 4.8,
-      ),
-      PublishRecord(
-        id: 'pub_002',
-        projectName: '高级画笔工具',
-        version: '1.1.0',
-        status: PublishStatus.published,
-        submittedAt: now.subtract(const Duration(days: 60)),
-        publishedAt: now.subtract(const Duration(days: 58)),
-        downloads: 890,
-        rating: 4.6,
-      ),
-      PublishRecord(
-        id: 'pub_003',
-        projectName: '拼图游戏引擎',
-        version: '0.9.0',
-        status: PublishStatus.reviewing,
-        submittedAt: now.subtract(const Duration(days: 3)),
-        reviewNotes: '正在进行安全性审核',
-      ),
-      PublishRecord(
-        id: 'pub_004',
-        projectName: '颜色管理器',
-        version: '0.8.0',
-        status: PublishStatus.rejected,
-        submittedAt: now.subtract(const Duration(days: 10)),
-        reviewNotes: '需要完善用户文档和示例代码',
-      ),
-      PublishRecord(
-        id: 'pub_005',
-        projectName: '暗色主题包',
-        version: '1.0.0',
-        status: PublishStatus.approved,
-        submittedAt: now.subtract(const Duration(days: 5)),
-        reviewNotes: '审核通过，等待发布',
-      ),
-    ];
+      final now = DateTime.now();
+      _publishRecords = [
+        PublishRecord(
+          id: 'pub_001',
+          projectName: '高级画笔工具',
+          version: '1.2.0',
+          status: PublishStatus.published,
+          submittedAt: now.subtract(const Duration(days: 30)),
+          publishedAt: now.subtract(const Duration(days: 28)),
+          downloads: 1520,
+          rating: 4.8,
+        ),
+        PublishRecord(
+          id: 'pub_002',
+          projectName: '高级画笔工具',
+          version: '1.1.0',
+          status: PublishStatus.published,
+          submittedAt: now.subtract(const Duration(days: 60)),
+          publishedAt: now.subtract(const Duration(days: 58)),
+          downloads: 890,
+          rating: 4.6,
+        ),
+        PublishRecord(
+          id: 'pub_003',
+          projectName: '拼图游戏引擎',
+          version: '0.9.0',
+          status: PublishStatus.reviewing,
+          submittedAt: now.subtract(const Duration(days: 3)),
+          reviewNotes: '正在进行安全性审核',
+        ),
+        PublishRecord(
+          id: 'pub_004',
+          projectName: '颜色管理器',
+          version: '0.8.0',
+          status: PublishStatus.rejected,
+          submittedAt: now.subtract(const Duration(days: 10)),
+          reviewNotes: '需要完善用户文档和示例代码',
+        ),
+        PublishRecord(
+          id: 'pub_005',
+          projectName: '暗色主题包',
+          version: '1.0.0',
+          status: PublishStatus.approved,
+          submittedAt: now.subtract(const Duration(days: 5)),
+          reviewNotes: '审核通过，等待发布',
+        ),
+      ];
+    } catch (e) {
+      debugPrint('加载发布记录失败: $e');
+    }
 
     setState(() {
       _isLoading = false;
     });
+  }
+
+  /// 发布插件
+  Future<void> _publishPlugin(String pluginId, String pluginName) async {
+    try {
+      // TODO: Phase 3.4.1 - 集成PluginPublisher的真实发布功能
+      // 当前显示模拟发布流程
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('开始发布插件: $pluginName'),
+            backgroundColor: Colors.blue,
+          ),
+        );
+
+        // 模拟发布过程
+        await Future<void>.delayed(const Duration(seconds: 2));
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('插件 $pluginName 发布成功！'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // 刷新发布记录
+        _loadPublishRecords();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('发布过程中出现错误: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   /// 过滤发布记录
@@ -139,7 +185,9 @@ class _PublishManagerTabState extends State<PublishManagerTab> {
     if (_selectedStatus == null) {
       return _publishRecords;
     }
-    return _publishRecords.where((record) => record.status == _selectedStatus).toList();
+    return _publishRecords
+        .where((record) => record.status == _selectedStatus)
+        .toList();
   }
 
   @override
@@ -164,11 +212,16 @@ class _PublishManagerTabState extends State<PublishManagerTab> {
 
   /// 构建统计面板
   Widget _buildStatsPanel() {
-    final totalPublished = _publishRecords.where((r) => r.status == PublishStatus.published).length;
-    final totalDownloads = _publishRecords.fold<int>(0, (sum, record) => sum + record.downloads);
+    final totalPublished = _publishRecords
+        .where((r) => r.status == PublishStatus.published)
+        .length;
+    final totalDownloads =
+        _publishRecords.fold<int>(0, (sum, record) => sum + record.downloads);
     final averageRating = _publishRecords.where((r) => r.rating > 0).isEmpty
         ? 0.0
-        : _publishRecords.where((r) => r.rating > 0).fold<double>(0, (sum, record) => sum + record.rating) /
+        : _publishRecords
+                .where((r) => r.rating > 0)
+                .fold<double>(0, (sum, record) => sum + record.rating) /
             _publishRecords.where((r) => r.rating > 0).length;
 
     return Container(
@@ -194,8 +247,8 @@ class _PublishManagerTabState extends State<PublishManagerTab> {
               Text(
                 '发布统计',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
+                      fontWeight: FontWeight.bold,
+                    ),
               ),
             ],
           ),
@@ -232,7 +285,10 @@ class _PublishManagerTabState extends State<PublishManagerTab> {
               Expanded(
                 child: _buildStatCard(
                   '审核中',
-                  _publishRecords.where((r) => r.status == PublishStatus.reviewing).length.toString(),
+                  _publishRecords
+                      .where((r) => r.status == PublishStatus.reviewing)
+                      .length
+                      .toString(),
                   Icons.hourglass_empty,
                   Colors.orange,
                 ),
@@ -245,7 +301,8 @@ class _PublishManagerTabState extends State<PublishManagerTab> {
   }
 
   /// 构建统计卡片
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+      String title, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -601,7 +658,8 @@ class _PublishManagerTabState extends State<PublishManagerTab> {
   void _publishVersion(PublishRecord record) {
     // TODO: Phase 5.0.6.3 - 实现版本发布功能
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('正在发布 ${record.projectName} v${record.version}...')),
+      SnackBar(
+          content: Text('正在发布 ${record.projectName} v${record.version}...')),
     );
   }
 
@@ -609,7 +667,8 @@ class _PublishManagerTabState extends State<PublishManagerTab> {
   void _resubmitVersion(PublishRecord record) {
     // TODO: Phase 5.0.6.3 - 实现重新提交功能
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('重新提交 ${record.projectName} v${record.version}...')),
+      SnackBar(
+          content: Text('重新提交 ${record.projectName} v${record.version}...')),
     );
   }
 

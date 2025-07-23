@@ -304,13 +304,13 @@ class WorkshopManager extends ChangeNotifier {
 
   /// 获取所有工具插件
   List<ToolPlugin> getTools() => _pluginRegistry
-      .getByCategory(PluginCategory.tool)
+      .getByCategory(PluginType.tool)
       .whereType<ToolPlugin>()
       .toList();
 
   /// 获取所有游戏插件
   List<GamePlugin> getGames() => _pluginRegistry
-      .getByCategory(PluginCategory.game)
+      .getByCategory(PluginType.game)
       .whereType<GamePlugin>()
       .toList();
 

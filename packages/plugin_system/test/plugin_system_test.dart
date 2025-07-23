@@ -84,8 +84,7 @@ void main() {
       await registry.register(toolPlugin);
       await registry.register(gamePlugin);
 
-      final List<Plugin> toolPlugins =
-          registry.getByCategory(PluginCategory.tool);
+      final List<Plugin> toolPlugins = registry.getByCategory(PluginType.tool);
       expect(toolPlugins.length, equals(2));
       expect(toolPlugins.map((Plugin p) => p.id), contains(toolPlugin.id));
       expect(toolPlugins.map((Plugin p) => p.id), contains(gamePlugin.id));
@@ -229,9 +228,13 @@ void main() {
         receivedData = event.data?['message'] as String?;
       });
 
-      eventBus.publish('test_event', 'test_source', data: <String, dynamic>{
-        'message': 'Hello World',
-      });
+      eventBus.publish(
+        'test_event',
+        'test_source',
+        data: <String, dynamic>{
+          'message': 'Hello World',
+        },
+      );
 
       await Future<void>.delayed(const Duration(milliseconds: 100));
 
@@ -343,9 +346,20 @@ void main() {
     test('should handle plugin initialization errors', () async {
       final errorPlugin = ErrorPlugin(pluginId: 'error_plugin');
 
-      await expectLater(
-        loader.loadPlugin(errorPlugin),
-        throwsA(isA<PluginLoadException>()),
+      bool exceptionThrown = false;
+      try {
+        await loader.loadPlugin(errorPlugin);
+      } on PluginLoadException catch (e) {
+        exceptionThrown = true;
+        expect(e.toString(), contains('Initialization error for testing'));
+      } catch (e) {
+        fail('Expected PluginLoadException but got ${e.runtimeType}: $e');
+      }
+
+      expect(
+        exceptionThrown,
+        isTrue,
+        reason: 'PluginLoadException should have been thrown',
       );
     });
 
@@ -396,7 +410,9 @@ void main() {
       // 目前权限验证还未实现，所以插件会正常加载
       await loader.loadPlugin(restrictedPlugin);
       expect(
-          registry.getState(restrictedPlugin.id), equals(PluginState.started));
+        registry.getState(restrictedPlugin.id),
+        equals(PluginState.started),
+      );
     });
 
     test('should isolate plugin execution', () async {
@@ -411,9 +427,20 @@ void main() {
     test('should handle malicious plugin behavior', () async {
       final maliciousPlugin = MaliciousPlugin(pluginId: 'malicious_plugin');
 
-      await expectLater(
-        loader.loadPlugin(maliciousPlugin),
-        throwsA(isA<PluginLoadException>()),
+      bool exceptionThrown = false;
+      try {
+        await loader.loadPlugin(maliciousPlugin);
+      } on PluginLoadException catch (e) {
+        exceptionThrown = true;
+        expect(e.toString(), contains('Malicious plugin detected'));
+      } catch (e) {
+        fail('Expected PluginLoadException but got ${e.runtimeType}: $e');
+      }
+
+      expect(
+        exceptionThrown,
+        isTrue,
+        reason: 'PluginLoadException should have been thrown',
       );
     });
   });
@@ -439,8 +466,10 @@ void main() {
     test('should load multiple plugins efficiently', () async {
       final stopwatch = Stopwatch()..start();
 
-      final plugins = List.generate(
-          10, (index) => TestPlugin(pluginId: 'perf_plugin_$index'));
+      final plugins = List<TestPlugin>.generate(
+        10,
+        (int index) => TestPlugin(pluginId: 'perf_plugin_$index'),
+      );
 
       for (final plugin in plugins) {
         await loader.loadPlugin(plugin);
@@ -454,11 +483,14 @@ void main() {
     });
 
     test('should handle concurrent plugin operations', () async {
-      final plugins = List.generate(
-          5, (index) => TestPlugin(pluginId: 'concurrent_plugin_$index'));
+      final plugins = List<TestPlugin>.generate(
+        5,
+        (int index) => TestPlugin(pluginId: 'concurrent_plugin_$index'),
+      );
 
       // 并发加载插件
-      final futures = plugins.map((plugin) => loader.loadPlugin(plugin));
+      final futures =
+          plugins.map((TestPlugin plugin) => loader.loadPlugin(plugin));
       await Future.wait(futures);
 
       expect(registry.getAllPlugins().length, greaterThanOrEqualTo(5));

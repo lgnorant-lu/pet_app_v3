@@ -36,6 +36,9 @@ abstract class ModuleInterface {
 ///
 /// 提供插件系统核心模块
 class PluginSystemModule implements ModuleInterface {
+
+  /// 私有构造函数
+  PluginSystemModule._();
   /// 模块实例
   static PluginSystemModule? _instance;
 
@@ -44,13 +47,13 @@ class PluginSystemModule implements ModuleInterface {
 
   /// 日志记录器
   static void _log(String level, String message,
-      [Object? error, StackTrace? stackTrace]) {
+      [Object? error, StackTrace? stackTrace,]) {
     if (kDebugMode) {
       developer.log(message,
           name: 'PluginSystemModule',
           level: _getLogLevel(level),
           error: error,
-          stackTrace: stackTrace);
+          stackTrace: stackTrace,);
     }
   }
 
@@ -72,9 +75,6 @@ class PluginSystemModule implements ModuleInterface {
     _instance ??= PluginSystemModule._();
     return _instance!;
   }
-
-  /// 私有构造函数
-  PluginSystemModule._();
 
   /// 检查模块是否已初始化
   bool get isInitialized => _isInitialized;
@@ -139,8 +139,7 @@ class PluginSystemModule implements ModuleInterface {
   }
 
   @override
-  Map<String, dynamic> getModuleInfo() {
-    return {
+  Map<String, dynamic> getModuleInfo() => <String, dynamic>{
       'name': 'plugin_system',
       'version': '1.0.0',
       'description': '插件系统核心模块',
@@ -151,28 +150,25 @@ class PluginSystemModule implements ModuleInterface {
       'platform': 'crossPlatform',
       'created_at': DateTime.now().toIso8601String(),
     };
-  }
 
   @override
-  Map<String, Function> registerRoutes() {
-    return <String, Function>{
+  Map<String, Function> registerRoutes() => <String, Function>{
       // 插件系统主页
-      '/plugin_system': () => _handleMainRoute(),
+      '/plugin_system': _handleMainRoute,
 
       // 插件管理路由
-      '/plugin_system/plugins': () => _handlePluginsRoute(),
-      '/plugin_system/plugins/:id': (String id) => _handlePluginDetailRoute(id),
+      '/plugin_system/plugins': _handlePluginsRoute,
+      '/plugin_system/plugins/:id': _handlePluginDetailRoute,
 
       // 插件注册中心路由
-      '/plugin_system/registry': () => _handleRegistryRoute(),
+      '/plugin_system/registry': _handleRegistryRoute,
 
       // 插件加载器路由
-      '/plugin_system/loader': () => _handleLoaderRoute(),
+      '/plugin_system/loader': _handleLoaderRoute,
 
       // 系统状态路由
-      '/plugin_system/status': () => _handleStatusRoute(),
+      '/plugin_system/status': _handleStatusRoute,
     };
-  }
 
   /// 模块加载时调用
   Future<void> onModuleLoad() async {

@@ -35,8 +35,8 @@ enum SupportedPlatform {
   web,
 }
 
-/// 插件类别枚举
-enum PluginCategory {
+/// 插件类型枚举
+enum PluginType {
   /// 系统级插件
   system,
 
@@ -59,34 +59,93 @@ enum PluginCategory {
   service,
 }
 
-/// 权限枚举
-enum Permission {
+/// 插件权限类型 (统一Creative Workshop和Plugin System)
+enum PluginPermission {
   /// 文件系统访问
-  fileSystem,
+  fileSystem('file_system', '文件系统访问', '允许插件读写文件和目录'),
 
   /// 网络访问
-  network,
+  network('network', '网络访问', '允许插件访问互联网'),
 
-  /// 相机访问
-  camera,
+  /// 系统通知
+  notifications('notifications', '系统通知', '允许插件发送系统通知'),
+
+  /// 摄像头访问
+  camera('camera', '摄像头访问', '允许插件使用摄像头'),
 
   /// 麦克风访问
-  microphone,
+  microphone('microphone', '麦克风访问', '允许插件使用麦克风'),
 
   /// 位置信息
-  location,
-
-  /// 通知权限
-  notifications,
-
-  /// 系统设置
-  systemSettings,
-
-  /// 存储访问
-  storage,
+  location('location', '位置信息', '允许插件获取设备位置'),
 
   /// 联系人访问
-  contacts,
+  contacts('contacts', '联系人访问', '允许插件访问联系人信息'),
+
+  /// 日历访问
+  calendar('calendar', '日历访问', '允许插件访问日历数据'),
+
+  /// 照片访问
+  photos('photos', '照片访问', '允许插件访问照片库'),
+
+  /// 系统设置
+  systemSettings('system_settings', '系统设置', '允许插件修改系统设置'),
+
+  /// 后台运行
+  backgroundExecution('background_execution', '后台运行', '允许插件在后台运行'),
+
+  /// 设备信息
+  deviceInfo('device_info', '设备信息', '允许插件获取设备信息'),
+
+  /// 剪贴板访问
+  clipboard('clipboard', '剪贴板访问', '允许插件访问剪贴板内容');
+
+  const PluginPermission(this.id, this.displayName, this.description);
+
+  /// 权限ID
+  final String id;
+
+  /// 显示名称
+  final String displayName;
+
+  /// 权限描述
+  final String description;
+
+  /// 是否为敏感权限
+  bool get isSensitive {
+    switch (this) {
+      case PluginPermission.camera:
+      case PluginPermission.microphone:
+      case PluginPermission.location:
+      case PluginPermission.contacts:
+      case PluginPermission.photos:
+      case PluginPermission.systemSettings:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  /// 是否为危险权限
+  bool get isDangerous {
+    switch (this) {
+      case PluginPermission.systemSettings:
+      case PluginPermission.fileSystem:
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  /// 从ID获取权限类型
+  static PluginPermission? fromId(String id) {
+    for (final permission in PluginPermission.values) {
+      if (permission.id == id) {
+        return permission;
+      }
+    }
+    return null;
+  }
 }
 
 /// 插件状态枚举
@@ -166,11 +225,11 @@ abstract class Plugin {
   /// 插件作者
   String get author;
 
-  /// 插件类别
-  PluginCategory get category;
+  /// 插件类型
+  PluginType get category;
 
   /// 所需权限列表
-  List<Permission> get requiredPermissions;
+  List<PluginPermission> get requiredPermissions;
 
   /// 依赖的其他插件
   List<PluginDependency> get dependencies;
@@ -229,33 +288,31 @@ class PluginMetadata {
     this.repository,
     this.documentation,
     this.license,
-    this.tags = const [],
+    this.tags = const <String>[],
     this.minSdkVersion,
     this.maxSdkVersion,
   });
 
   /// 从Plugin实例创建元数据
-  factory PluginMetadata.from(Plugin plugin) {
-    return PluginMetadata(
-      id: plugin.id,
-      name: plugin.name,
-      version: plugin.version,
-      description: plugin.description,
-      author: plugin.author,
-      category: plugin.category,
-      requiredPermissions: plugin.requiredPermissions,
-      dependencies: plugin.dependencies,
-      supportedPlatforms: plugin.supportedPlatforms,
-    );
-  }
+  factory PluginMetadata.from(Plugin plugin) => PluginMetadata(
+        id: plugin.id,
+        name: plugin.name,
+        version: plugin.version,
+        description: plugin.description,
+        author: plugin.author,
+        category: plugin.category,
+        requiredPermissions: plugin.requiredPermissions,
+        dependencies: plugin.dependencies,
+        supportedPlatforms: plugin.supportedPlatforms,
+      );
 
   final String id;
   final String name;
   final String version;
   final String description;
   final String author;
-  final PluginCategory category;
-  final List<Permission> requiredPermissions;
+  final PluginType category;
+  final List<PluginPermission> requiredPermissions;
   final List<PluginDependency> dependencies;
   final List<SupportedPlatform> supportedPlatforms;
   final String? homepage;

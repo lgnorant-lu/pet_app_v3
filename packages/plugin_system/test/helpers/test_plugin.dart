@@ -76,12 +76,12 @@ class TestPlugin extends Plugin {
   String get author => pluginAuthor;
 
   @override
-  PluginCategory get category => PluginCategory.tool;
+  PluginType get category => PluginType.tool;
 
   @override
-  List<Permission> get requiredPermissions => <Permission>[
-        Permission.storage,
-        Permission.notifications,
+  List<PluginPermission> get requiredPermissions => <PluginPermission>[
+        PluginPermission.fileSystem,
+        PluginPermission.notifications,
       ];
 
   @override
@@ -224,7 +224,9 @@ class TestPlugin extends Plugin {
 
   @override
   Future<dynamic> handleMessage(
-      String action, Map<String, dynamic> data) async {
+    String action,
+    Map<String, dynamic> data,
+  ) async {
     _messageCount++;
 
     print('[$id] Received message: $action with data: $data');
@@ -255,11 +257,14 @@ class TestPlugin extends Plugin {
           _config[key] = value;
 
           // 发布配置变更事件
-          _eventBus.publishPluginEvent(SystemEvents.configChanged, id,
-              data: <String, dynamic>{
-                'key': key,
-                'value': value,
-              });
+          _eventBus.publishPluginEvent(
+            SystemEvents.configChanged,
+            id,
+            data: <String, dynamic>{
+              'key': key,
+              'value': value,
+            },
+          );
 
           return <String, dynamic>{
             'success': true,
@@ -288,7 +293,7 @@ class TestPlugin extends Plugin {
             'getStatus',
             'updateConfig',
             'echo',
-            'error'
+            'error',
           ],
         };
     }
@@ -311,14 +316,12 @@ class TestPlugin extends Plugin {
   }
 
   /// 获取插件统计信息
-  Map<String, dynamic> getStats() {
-    return <String, dynamic>{
-      'messageCount': _messageCount,
-      'subscriptions': _subscriptions.length,
-      'config': Map<String, dynamic>.from(_config),
-      'uptime': DateTime.now().toIso8601String(),
-    };
-  }
+  Map<String, dynamic> getStats() => <String, dynamic>{
+        'messageCount': _messageCount,
+        'subscriptions': _subscriptions.length,
+        'config': Map<String, dynamic>.from(_config),
+        'uptime': DateTime.now().toIso8601String(),
+      };
 
   /// 重置统计信息
   void resetStats() {
@@ -357,10 +360,10 @@ class EchoPlugin extends Plugin {
   String get author => 'Pet App Team';
 
   @override
-  PluginCategory get category => PluginCategory.tool;
+  PluginType get category => PluginType.tool;
 
   @override
-  List<Permission> get requiredPermissions => <Permission>[];
+  List<PluginPermission> get requiredPermissions => <PluginPermission>[];
 
   @override
   List<PluginDependency> get dependencies => <PluginDependency>[];
@@ -425,17 +428,17 @@ class EchoPlugin extends Plugin {
   Object? getConfigWidget() => null;
 
   @override
-  Object getMainWidget() {
-    return <String, dynamic>{
-      'type': 'echo_widget',
-      'title': 'Echo Plugin',
-      'status': _currentState.toString(),
-    };
-  }
+  Object getMainWidget() => <String, dynamic>{
+        'type': 'echo_widget',
+        'title': 'Echo Plugin',
+        'status': _currentState.toString(),
+      };
 
   @override
   Future<dynamic> handleMessage(
-      String action, Map<String, dynamic> data) async {
+    String action,
+    Map<String, dynamic> data,
+  ) async {
     print('[$id] Echo: $action -> $data');
 
     return <String, dynamic>{
@@ -469,9 +472,9 @@ class ErrorPlugin extends Plugin {
   @override
   String get author => 'Pet App Team';
   @override
-  PluginCategory get category => PluginCategory.tool;
+  PluginType get category => PluginType.tool;
   @override
-  List<Permission> get requiredPermissions => <Permission>[];
+  List<PluginPermission> get requiredPermissions => <PluginPermission>[];
   @override
   List<PluginDependency> get dependencies => <PluginDependency>[];
   @override
@@ -525,7 +528,9 @@ class ErrorPlugin extends Plugin {
 
   @override
   Future<dynamic> handleMessage(
-      String action, Map<String, dynamic> data) async {
+    String action,
+    Map<String, dynamic> data,
+  ) async {
     throw Exception('Message handling error');
   }
 }
@@ -551,12 +556,13 @@ class DependentPlugin extends Plugin {
   @override
   String get author => 'Pet App Team';
   @override
-  PluginCategory get category => PluginCategory.tool;
+  PluginType get category => PluginType.tool;
   @override
-  List<Permission> get requiredPermissions => <Permission>[];
+  List<PluginPermission> get requiredPermissions => <PluginPermission>[];
   @override
   List<PluginDependency> get dependencies => dependencyList
-      .map((dep) => PluginDependency(pluginId: dep, versionConstraint: '1.0.0'))
+      .map((String dep) =>
+          PluginDependency(pluginId: dep, versionConstraint: '1.0.0'))
       .toList();
   @override
   List<SupportedPlatform> get supportedPlatforms =>
@@ -610,9 +616,10 @@ class DependentPlugin extends Plugin {
 
   @override
   Future<dynamic> handleMessage(
-      String action, Map<String, dynamic> data) async {
-    return <String, dynamic>{'response': 'dependent_response'};
-  }
+    String action,
+    Map<String, dynamic> data,
+  ) async =>
+      <String, dynamic>{'response': 'dependent_response'};
 }
 
 /// 受限插件 - 用于测试权限系统
@@ -636,12 +643,12 @@ class RestrictedPlugin extends Plugin {
   @override
   String get author => 'Pet App Team';
   @override
-  PluginCategory get category => PluginCategory.tool;
+  PluginType get category => PluginType.tool;
   @override
-  List<Permission> get requiredPermissions => <Permission>[
-        Permission.storage,
-        Permission.network,
-        Permission.camera,
+  List<PluginPermission> get requiredPermissions => <PluginPermission>[
+        PluginPermission.fileSystem,
+        PluginPermission.network,
+        PluginPermission.camera,
       ];
   @override
   List<PluginDependency> get dependencies => <PluginDependency>[];
@@ -697,9 +704,10 @@ class RestrictedPlugin extends Plugin {
 
   @override
   Future<dynamic> handleMessage(
-      String action, Map<String, dynamic> data) async {
-    return <String, dynamic>{'response': 'restricted_response'};
-  }
+    String action,
+    Map<String, dynamic> data,
+  ) async =>
+      <String, dynamic>{'response': 'restricted_response'};
 }
 
 /// 隔离插件 - 用于测试插件隔离
@@ -723,9 +731,9 @@ class IsolatedPlugin extends Plugin {
   @override
   String get author => 'Pet App Team';
   @override
-  PluginCategory get category => PluginCategory.tool;
+  PluginType get category => PluginType.tool;
   @override
-  List<Permission> get requiredPermissions => <Permission>[];
+  List<PluginPermission> get requiredPermissions => <PluginPermission>[];
   @override
   List<PluginDependency> get dependencies => <PluginDependency>[];
   @override
@@ -781,9 +789,10 @@ class IsolatedPlugin extends Plugin {
 
   @override
   Future<dynamic> handleMessage(
-      String action, Map<String, dynamic> data) async {
-    return <String, dynamic>{'response': 'isolated_response'};
-  }
+    String action,
+    Map<String, dynamic> data,
+  ) async =>
+      <String, dynamic>{'response': 'isolated_response'};
 }
 
 /// 恶意插件 - 用于测试安全防护
@@ -806,13 +815,13 @@ class MaliciousPlugin extends Plugin {
   @override
   String get author => 'Unknown';
   @override
-  PluginCategory get category => PluginCategory.tool;
+  PluginType get category => PluginType.tool;
   @override
-  List<Permission> get requiredPermissions => <Permission>[
-        Permission.storage,
-        Permission.network,
-        Permission.camera,
-        Permission.microphone,
+  List<PluginPermission> get requiredPermissions => <PluginPermission>[
+        PluginPermission.fileSystem,
+        PluginPermission.network,
+        PluginPermission.camera,
+        PluginPermission.microphone,
       ];
   @override
   List<PluginDependency> get dependencies => <PluginDependency>[];
@@ -868,7 +877,9 @@ class MaliciousPlugin extends Plugin {
 
   @override
   Future<dynamic> handleMessage(
-      String action, Map<String, dynamic> data) async {
+    String action,
+    Map<String, dynamic> data,
+  ) async {
     throw Exception('Malicious message handling');
   }
 }
@@ -893,9 +904,9 @@ class ResourceIntensivePlugin extends Plugin {
   @override
   String get author => 'Pet App Team';
   @override
-  PluginCategory get category => PluginCategory.tool;
+  PluginType get category => PluginType.tool;
   @override
-  List<Permission> get requiredPermissions => <Permission>[];
+  List<PluginPermission> get requiredPermissions => <PluginPermission>[];
   @override
   List<PluginDependency> get dependencies => <PluginDependency>[];
   @override
@@ -950,9 +961,10 @@ class ResourceIntensivePlugin extends Plugin {
 
   @override
   Future<dynamic> handleMessage(
-      String action, Map<String, dynamic> data) async {
-    return <String, dynamic>{'response': 'resource_response'};
-  }
+    String action,
+    Map<String, dynamic> data,
+  ) async =>
+      <String, dynamic>{'response': 'resource_response'};
 
   /// 模拟资源密集型工作
   Future<void> doWork() async {

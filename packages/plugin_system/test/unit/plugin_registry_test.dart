@@ -9,6 +9,8 @@ Description:        插件注册中心单元测试
 ---------------------------------------------------------------
 */
 
+import 'dart:async';
+
 import 'package:test/test.dart';
 import 'package:plugin_system/src/core/plugin_registry.dart';
 import 'package:plugin_system/src/core/plugin.dart';
@@ -132,10 +134,10 @@ void main() {
         await registry.register(toolPlugin2);
         await registry.register(gamePlugin);
 
-        final toolPlugins = registry.getByCategory(PluginCategory.tool);
+        final toolPlugins = registry.getByCategory(PluginType.tool);
         expect(toolPlugins.length, equals(3)); // 所有测试插件都是tool类型
 
-        final gamePlugins = registry.getByCategory(PluginCategory.game);
+        final gamePlugins = registry.getByCategory(PluginType.game);
         expect(gamePlugins.length, equals(0)); // 没有game类型的插件
       });
 
@@ -176,7 +178,7 @@ void main() {
         final allPlugins = registry.getAll();
         expect(allPlugins.length, equals(3));
 
-        final pluginIds = allPlugins.map((p) => p.id).toSet();
+        final pluginIds = allPlugins.map((Plugin p) => p.id).toSet();
         expect(pluginIds, contains(plugin1.id));
         expect(pluginIds, contains(plugin2.id));
         expect(pluginIds, contains(plugin3.id));
@@ -279,7 +281,7 @@ class TestPluginWithDependency extends TestPlugin {
   final String _dependsOn;
 
   @override
-  List<PluginDependency> get dependencies => [
+  List<PluginDependency> get dependencies => <PluginDependency>[
         PluginDependency(
           pluginId: _dependsOn,
           versionConstraint: '^1.0.0',

@@ -15,7 +15,7 @@ Change History:
 // import 'package:flutter/material.dart'; // 暂时未使用
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_system/plugin_system.dart';
-import 'package:creative_workshop/creative_workshop.dart';
+import 'package:creative_workshop/creative_workshop.dart' hide PluginRegistry;
 
 import 'package:pet_app_v3/app.dart';
 

@@ -78,7 +78,7 @@ class PluginLoader {
       await _loadPluginWithTimeout(plugin, timeoutSeconds);
       completer.complete();
     } catch (e) {
-      completer.completeError(e);
+      _loadingPlugins.remove(pluginId);
       rethrow;
     } finally {
       _loadingPlugins.remove(pluginId);
@@ -90,7 +90,7 @@ class PluginLoader {
     Plugin plugin,
     int timeoutSeconds,
   ) async {
-    await Future.any([
+    await Future.any(<Future<void>>[
       _doLoadPlugin(plugin),
       Future<void>.delayed(
         Duration(seconds: timeoutSeconds),
@@ -170,7 +170,9 @@ class PluginLoader {
       } else {
         _registry.updateState(pluginId, PluginState.error);
         throw PluginLoadException(
-            pluginId, 'Failed to unload: ${e.toString()}');
+          pluginId,
+          'Failed to unload: $e',
+        );
       }
     }
   }
@@ -217,7 +219,7 @@ class PluginLoader {
       _registry.updateState(pluginId, PluginState.paused);
     } catch (e) {
       _registry.updateState(pluginId, PluginState.error);
-      throw PluginLoadException(pluginId, 'Failed to pause: ${e.toString()}');
+      throw PluginLoadException(pluginId, 'Failed to pause: $e');
     }
   }
 
@@ -242,7 +244,7 @@ class PluginLoader {
       _registry.updateState(pluginId, PluginState.started);
     } catch (e) {
       _registry.updateState(pluginId, PluginState.error);
-      throw PluginLoadException(pluginId, 'Failed to resume: ${e.toString()}');
+      throw PluginLoadException(pluginId, 'Failed to resume: $e');
     }
   }
 
@@ -268,19 +270,15 @@ class PluginLoader {
       _registry.updateState(pluginId, PluginState.stopped);
     } catch (e) {
       _registry.updateState(pluginId, PluginState.error);
-      throw PluginLoadException(pluginId, 'Failed to stop: ${e.toString()}');
+      throw PluginLoadException(pluginId, 'Failed to stop: $e');
     }
   }
 
   /// 获取所有加载中的插件
-  List<String> getLoadingPlugins() {
-    return _loadingPlugins.keys.toList();
-  }
+  List<String> getLoadingPlugins() => _loadingPlugins.keys.toList();
 
   /// 检查插件是否正在加载
-  bool isLoading(String pluginId) {
-    return _loadingPlugins.containsKey(pluginId);
-  }
+  bool isLoading(String pluginId) => _loadingPlugins.containsKey(pluginId);
 
   /// 等待插件加载完成
   Future<void> waitForPlugin(String pluginId) async {
@@ -300,8 +298,8 @@ class PluginLoader {
     // 模拟资源使用情况
     // 在实际实现中，这里会获取真实的资源监控数据
     final now = DateTime.now();
-    const baseMemory = 10.0; // 基础内存 10MB
-    const baseCpu = 5.0; // 基础CPU 5%
+    const baseMemory = 10; // 基础内存 10MB
+    const baseCpu = 5; // 基础CPU 5%
 
     // 基于时间的模拟变化
     final timeVariation = (now.millisecondsSinceEpoch % 10000) / 1000.0;
@@ -335,15 +333,15 @@ class PluginLoader {
     }
 
     // 检查权限声明
-    for (final Permission permission in plugin.requiredPermissions) {
-      if (!_isPermissionValid(permission)) {
+    for (final PluginPermission permission in plugin.requiredPermissions) {
+      if (!_isPluginPermissionValid(permission)) {
         throw PermissionNotDeclaredException(plugin.id, permission.toString());
       }
     }
   }
 
   /// 检查权限是否有效
-  bool _isPermissionValid(Permission permission) {
+  bool _isPluginPermissionValid(PluginPermission permission) {
     // TODO(Critical): [Phase 2.9.1] 实现完整的权限验证系统
     // 当前只是简化检查，需要实现：
     // 1. 权限白名单验证
@@ -351,7 +349,7 @@ class PluginLoader {
     // 3. 系统权限策略验证
     // 4. 权限组合冲突检测
     // 相关文件: lib/src/security/permission_manager.dart
-    return Permission.values.contains(permission);
+    return PluginPermission.values.contains(permission);
   }
 
   /// 清理插件隔离环境
@@ -395,12 +393,10 @@ class PluginLoader {
   }
 
   /// 获取加载器状态信息
-  Map<String, dynamic> getStatus() {
-    return <String, dynamic>{
-      'totalPlugins': _registry.count,
-      'loadingPlugins': _loadingPlugins.length,
-      'activeIsolates': _pluginIsolates.length,
-      'loadingPluginIds': _loadingPlugins.keys.toList(),
-    };
-  }
+  Map<String, dynamic> getStatus() => <String, dynamic>{
+        'totalPlugins': _registry.count,
+        'loadingPlugins': _loadingPlugins.length,
+        'activeIsolates': _pluginIsolates.length,
+        'loadingPluginIds': _loadingPlugins.keys.toList(),
+      };
 }

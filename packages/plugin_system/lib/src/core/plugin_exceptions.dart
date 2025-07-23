@@ -3,12 +3,13 @@
 File name:          plugin_exceptions.dart
 Author:             lgnorant-lu
 Date created:       2025/07/18
-Last modified:      2025/07/18
+Last modified:      2025/07/23
 Dart Version:       3.2+
 Description:        插件异常 (Plugin exceptions)
 ---------------------------------------------------------------
 Change History:
     2025/07/18: Initial creation - 插件异常 (Plugin exceptions);
+    2025/07/23: Add - 添加发布相关的异常;
 ---------------------------------------------------------------
 */
 
@@ -58,10 +59,10 @@ class CircularDependencyException extends PluginException {
 /// 插件版本不兼容异常
 class PluginVersionIncompatibleException extends PluginException {
   const PluginVersionIncompatibleException(
-      String pluginId, String requiredVersion, String actualVersion)
+      String pluginId, String requiredVersion, String actualVersion,)
       : super(
             'Version incompatible: required $requiredVersion, got $actualVersion',
-            pluginId);
+            pluginId,);
 }
 
 /// 插件权限异常
@@ -79,9 +80,9 @@ class PermissionNotDeclaredException extends PluginException {
 /// 插件状态异常
 class PluginStateException extends PluginException {
   const PluginStateException(
-      String pluginId, String currentState, String expectedState)
+      String pluginId, String currentState, String expectedState,)
       : super('Invalid state: expected $expectedState, got $currentState',
-            pluginId);
+            pluginId,);
 }
 
 /// 插件加载异常
@@ -105,7 +106,7 @@ class PluginTimeoutException extends PluginException {
 /// 插件资源超限异常
 class PluginResourceLimitException extends PluginException {
   const PluginResourceLimitException(
-      String pluginId, String resource, String limit)
+      String pluginId, String resource, String limit,)
       : super('Resource limit exceeded: $resource > $limit', pluginId);
 }
 
@@ -118,7 +119,7 @@ class PluginConfigurationException extends PluginException {
 /// 插件通信异常
 class PluginCommunicationException extends PluginException {
   const PluginCommunicationException(
-      String pluginId, String targetId, String reason)
+      String pluginId, String targetId, String reason,)
       : super('Communication failed with $targetId: $reason', pluginId);
 }
 
@@ -131,7 +132,7 @@ class PluginPlatformNotSupportedException extends PluginException {
 /// 插件API版本不兼容异常
 class PluginApiVersionIncompatibleException extends PluginException {
   const PluginApiVersionIncompatibleException(
-      String pluginId, String apiVersion)
+      String pluginId, String apiVersion,)
       : super('API version incompatible: $apiVersion', pluginId);
 }
 
@@ -151,4 +152,9 @@ class PermissionCombinationException extends PluginException {
 class PermissionDeniedException extends PluginException {
   const PermissionDeniedException(String pluginId, String permission)
       : super('Permission denied: $permission', pluginId);
+}
+
+/// 通用插件异常
+class GeneralPluginException extends PluginException {
+  const GeneralPluginException(super.message, [super.pluginId]);
 }

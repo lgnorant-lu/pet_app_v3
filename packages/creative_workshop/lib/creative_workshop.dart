@@ -66,6 +66,8 @@ export 'src/security/index.dart';
 export 'src/utils/index.dart';
 // 完整模块导出
 export 'src/widgets/index.dart';
+// UI组件导出
+export 'src/ui/index.dart';
 
 // 条件导出（根据平台和环境）
 // full类型模板不需要平台特定导出

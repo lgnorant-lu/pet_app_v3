@@ -129,10 +129,15 @@ class PluginFileManager {
     if (kIsWeb) {
       return '/creative_workshop/plugins';
     } else {
-      final homeDir = Platform.environment['HOME'] ??
-          Platform.environment['USERPROFILE'] ??
-          '.';
-      return path.join(homeDir, '.creative_workshop', 'plugins');
+      try {
+        final homeDir = Platform.environment['HOME'] ??
+            Platform.environment['USERPROFILE'] ??
+            '.';
+        return path.join(homeDir, '.creative_workshop', 'plugins');
+      } catch (e) {
+        // 如果Platform.environment不可用，使用默认路径
+        return path.join('.', '.creative_workshop', 'plugins');
+      }
     }
   }
 
@@ -173,6 +178,14 @@ class PluginFileManager {
   Future<PluginFileOperationResult> createPluginDirectory(
       String pluginId) async {
     try {
+      if (kIsWeb) {
+        // Web平台简化处理
+        return PluginFileOperationResult.success(
+          '插件目录创建成功(Web)',
+          path: getPluginDirectory(pluginId),
+        );
+      }
+
       final pluginPath = getPluginDirectory(pluginId);
 
       if (await isPluginInstalled(pluginId)) {
@@ -233,7 +246,6 @@ class PluginFileManager {
 
       // 复制文件
       final sourceFile = File(sourcePath);
-      final targetFile = File(targetPath);
       await sourceFile.copy(targetPath);
 
       return PluginFileOperationResult.success(
