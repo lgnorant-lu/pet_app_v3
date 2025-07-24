@@ -20,7 +20,7 @@ class WelcomeHeader extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -78,9 +78,9 @@ class WelcomeHeader extends ConsumerWidget {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // 欢迎信息
               Text(
                 _getWelcomeMessage(),
@@ -89,18 +89,18 @@ class WelcomeHeader extends ConsumerWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              
+
               const SizedBox(height: 8),
-              
+
               Text(
                 '万物皆插件的跨平台应用框架',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: colorScheme.onPrimary.withOpacity(0.9),
                 ),
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // 快速状态指示器
               Row(
                 children: [
@@ -142,7 +142,7 @@ class WelcomeHeader extends ConsumerWidget {
   ) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -198,7 +198,7 @@ class WelcomeHeader extends ConsumerWidget {
 
   /// 显示通知
   void _showNotifications(BuildContext context) {
-    showDialog(
+    showDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('通知中心'),

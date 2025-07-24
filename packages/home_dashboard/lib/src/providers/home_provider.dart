@@ -61,7 +61,7 @@ class HomeNotifier extends StateNotifier<HomeData> {
 
     try {
       // 模拟数据加载
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future<void>.delayed(const Duration(milliseconds: 500));
 
       if (!mounted) return;
 

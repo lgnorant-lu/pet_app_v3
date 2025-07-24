@@ -50,6 +50,16 @@ export 'src/widgets/index.dart';
 
 // 数据提供者导出
 export 'src/providers/home_provider.dart';
+export 'src/providers/quick_access_provider.dart';
+export 'src/providers/status_overview_provider.dart';
+
+// 模型导出
+export 'src/models/quick_action.dart';
+export 'src/models/system_status.dart';
+
+// 工具类导出
+export 'src/utils/animation_utils.dart';
+export 'src/utils/responsive_utils.dart';
 
 // 条件导出（根据平台和环境）
 // ui类型模板不需要平台特定导出

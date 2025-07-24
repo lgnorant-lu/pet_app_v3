@@ -13,12 +13,14 @@ Change History:
 */
 
 /// home_dashboard模块widgets导出
-/// 
+///
 /// 统一导出所有UI组件和界面元素
 library;
 
 // Widget组件
+export 'draggable_grid.dart';
 export 'module_status_card.dart';
-export 'welcome_header.dart';
 export 'quick_access_panel.dart';
+export 'status_overview_panel.dart';
 export 'user_overview_widget.dart';
+export 'welcome_header.dart';

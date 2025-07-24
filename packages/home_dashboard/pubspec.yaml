@@ -23,6 +23,7 @@ dependencies:
   # 工具库
   intl: ^0.20.2
   equatable: ^2.0.5
+  shared_preferences: ^2.2.2
   uuid: ^4.5.1
 
 
